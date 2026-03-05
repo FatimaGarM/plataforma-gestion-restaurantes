@@ -1,13 +1,33 @@
-import './index.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import GestionCarta from "./paginas/GestionarCarta";
+import Header from "./componentes/Header";
+import Sidebar from "./componentes/Sidebar";
+import Footer from "./componentes/Footer";
 
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold text-green-600">
-        Panel Restaurante QR
-      </h1>
-    </div>
-  )
+    <BrowserRouter>
+
+      <Header />
+
+      <div className="flex">
+
+        <Sidebar />
+
+        <div className="flex-1 p-6">
+
+          <Routes>
+            <Route path="/gestion-carta" element={<GestionCarta />} />
+          </Routes>
+
+        </div>
+
+      </div>
+
+      <Footer />
+
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
