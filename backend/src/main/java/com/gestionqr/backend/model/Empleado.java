@@ -9,11 +9,11 @@ import jakarta.persistence.Id;
 @Entity
 public class Empleado {
 	
-	enum TipoEmpleado{
+	public enum TipoEmpleado{
 		Camarero, Cocinero, Gerente;
 	}
 
-	enum Estado{
+	public enum Estado{
 		Descanso, Vacaciones, Activo;
 	}
 
@@ -24,21 +24,27 @@ public class Empleado {
 	    private String nombre;
 	    private String email;
 	    private String contraseña;
+	    private String imagen;
 	    private TipoEmpleado tipoEmpleado;
 	    private Estado estado;
 	    
 		public Empleado() {
 		}
 
-		public Empleado(Long id, String nombre, String email, String contraseña, TipoEmpleado tipoEmpleado,
-				Estado estado) {
+		
+
+		public Empleado(Long id, String nombre, String email, String contraseña, String imagen,
+				TipoEmpleado tipoEmpleado, Estado estado) {
 			this.id = id;
 			this.nombre = nombre;
 			this.email = email;
 			this.contraseña = contraseña;
+			this.imagen = imagen;
 			this.tipoEmpleado = tipoEmpleado;
 			this.estado = estado;
 		}
+
+
 
 		public Long getId() {
 			return id;
@@ -70,6 +76,14 @@ public class Empleado {
 
 		public void setContraseña(String contraseña) {
 			this.contraseña = contraseña;
+		}
+
+		public String getImagen() {
+			return imagen;
+		}
+
+		public void setImagen(String imagen) {
+			this.imagen = imagen;
 		}
 
 		public TipoEmpleado getTipoEmpleado() {
