@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -23,10 +24,53 @@ public class EmpleadoController {
     public List<Empleado> obtenerEmpleados() {
         return empleadoRepository.findAll();
     }
+    
+    @GetMapping("{id}")
+    public Optional<Empleado> obtenerEmpleadosById(@PathVariable Long id) {
+    	return empleadoRepository.findById(id);
+    }
 
     @PostMapping
-    public Empleado crearEmpleado(@RequestBody Empleado empleado) {
-        return empleadoRepository.save(empleado);
+    public Empleado crearEmpleado(@RequestBody Empleado empleado) {    	
+    	return empleadoRepository.save(empleado);
+    }
+    
+    @PutMapping("/actualizar/{id}")
+    public Empleado actualizarEmpleado(@PathVariable Long id,
+    		@RequestParam String nombre,
+            @RequestParam String email,
+            @RequestParam String contraseña,
+            @RequestParam Empleado.TipoEmpleado tipoEmpleado,
+            @RequestParam Empleado.Estado estado,
+            @RequestParam(name="imagen", required=false) MultipartFile imagen
+            ) throws Exception {
+    	
+    	String nombreArchivo = "";
+    	
+    	if(imagen != null) {
+    		System.out.println("Imagen");
+    		nombreArchivo = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
+
+            Path ruta = Paths.get("uploads/FotosEmpleados/" + nombreArchivo);
+            Files.createDirectories(ruta.getParent());
+            Files.write(ruta, imagen.getBytes());
+    	}
+    	
+    	Empleado empleado = new Empleado();
+    	empleado.setId(id);
+        empleado.setNombre(nombre);
+        empleado.setEmail(email);
+        empleado.setContraseña(contraseña);
+        empleado.setTipoEmpleado(tipoEmpleado);
+        empleado.setEstado(estado);
+        if(nombreArchivo == "") {
+        	empleado.setImagen(empleadoRepository.findById(id).get().getImagen());
+        } else {
+        	empleado.setImagen(nombreArchivo);
+        	System.out.println(nombreArchivo);
+        }    
+        
+    	return empleadoRepository.save(empleado);
     }
     
     @PostMapping("/con-imagen")
@@ -54,6 +98,11 @@ public class EmpleadoController {
         empleado.setImagen(nombreArchivo);
 
         return empleadoRepository.save(empleado);
+    }
+    
+    @DeleteMapping("/{id}")
+    public void borrarEmpleado(@PathVariable Long id) {
+    	empleadoRepository.deleteById(id);
     }
     
 }
