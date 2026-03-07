@@ -21,7 +21,7 @@ function GestionarEmpleados() {
 
 
     function cargarEmpleados() {
-        fetch("http://localhost:8080/empleados")
+        fetch("/empleados")
             .then(res => res.json())
             .then(data => setEmpleados(data));
     }
@@ -32,7 +32,7 @@ function GestionarEmpleados() {
             return;
         }
 
-        fetch(`http://localhost:8080/empleados/${id}`, {
+        fetch(`/empleados/${id}`, {
             method: "DELETE"
         })
             .then(res => {
@@ -50,7 +50,7 @@ function GestionarEmpleados() {
     function editarEmpleado(id) {
         setEditar(true);
         console.log("Editar empleado con ID:", id);
-        fetch(`http://localhost:8080/empleados/${id}`)
+        fetch(`/empleados/${id}`)
             .then(res => res.json())
             .then(data => {
                 setId(id);
@@ -82,7 +82,7 @@ function GestionarEmpleados() {
         }
 
     if (id != null) {
-        fetch(`http://localhost:8080/empleados/actualizar/${id}`, {
+        fetch(`/empleados/actualizar/${id}`, {
             method: "PUT",
             body: formData
         })
@@ -94,7 +94,7 @@ function GestionarEmpleados() {
             })
             .catch(error => console.log("Error:", error));
     } else {
-        fetch("http://localhost:8080/empleados/con-imagen", {
+        fetch("/empleados/con-imagen", {
             method: "POST",
             body: formData
         })
@@ -105,11 +105,6 @@ function GestionarEmpleados() {
                 setMostrarFormulario(false);
             })
             .catch(error => console.log("Error:", error));
-
-        if (!window.confirm("id: " + id + "\n¿Crear empleado?")) {
-            return;
-        }
-
     }
 
     setId(null);
@@ -276,7 +271,7 @@ return (
                             <div className="flex items-center justify-left gap-2">
 
                                 <img
-                                    src={`http://localhost:8080/uploads/FotosEmpleados/${empleado.imagen}`}
+                                    src={`/uploads/FotosEmpleados/${empleado.imagen}`}
                                     className="w-10 h-10 rounded"
                                 />
 

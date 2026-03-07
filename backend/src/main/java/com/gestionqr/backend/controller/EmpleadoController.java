@@ -1,5 +1,7 @@
 package com.gestionqr.backend.controller;
 
+import org.springframework.data.domain.Sort;
+
 import com.gestionqr.backend.model.Empleado;
 import com.gestionqr.backend.repository.EmpleadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,7 @@ public class EmpleadoController {
 
     @GetMapping
     public List<Empleado> obtenerEmpleados() {
-        return empleadoRepository.findAll();
+        return empleadoRepository.findAll(Sort.by(Sort.Direction.ASC, "nombre"));
     }
     
     @GetMapping("{id}")
@@ -44,7 +46,6 @@ public class EmpleadoController {
             @RequestParam Empleado.Estado estado,
             @RequestParam(name="imagen", required=false) MultipartFile imagen
             ) throws Exception {
-    	
     	String nombreArchivo = "";
     	
     	if(imagen != null) {

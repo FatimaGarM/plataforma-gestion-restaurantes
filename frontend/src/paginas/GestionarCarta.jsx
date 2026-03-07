@@ -17,7 +17,7 @@ function GestionCarta() {
 
 
     function cargarPlatos() {
-        fetch("http://localhost:8080/platos")
+        fetch("/platos")
             .then(res => res.json())
             .then(data => setPlatos(data));
     }
@@ -36,7 +36,7 @@ function GestionCarta() {
         formData.append("precio", parseFloat(precio));
         formData.append("imagen", imagen);
 
-        fetch("http://localhost:8080/platos/con-imagen", {
+        fetch("/platos/con-imagen", {
             method: "POST",
             body: formData
         })
@@ -151,7 +151,7 @@ function GestionCarta() {
                                 <div className="flex items-center justify-left gap-2">
 
                                     <img
-                                        src={`http://localhost:8080/uploads/${plato.imagen}`}
+                                        src={`/uploads/${plato.imagen}`}
                                         className="w-10 h-10 rounded"
                                     />
 
