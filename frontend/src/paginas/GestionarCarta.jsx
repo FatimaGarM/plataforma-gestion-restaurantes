@@ -119,6 +119,9 @@ function GestionCarta() {
                 <thead className="bg-gray-200 text-center">
 
                     <tr>
+                        <th className="border p-2">
+                            Foto
+                        </th>
 
                         <th className="border p-2">
                             Nombre
@@ -154,12 +157,12 @@ function GestionCarta() {
                                         src={`/uploads/${plato.imagen}`}
                                         className="w-10 h-10 rounded"
                                     />
-
-                                    <span>{plato.nombre}</span>
-
-                                </div>
+                                    </div>
                             </td>
 
+                            <td className="border p-2 text-center">
+                                {plato.nombre}
+                            </td>
 
                             <td className="border p-2 text-center">
                                 {plato.descripcion}

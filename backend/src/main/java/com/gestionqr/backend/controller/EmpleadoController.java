@@ -102,8 +102,13 @@ public class EmpleadoController {
     }
     
     @DeleteMapping("/{id}")
-    public void borrarEmpleado(@PathVariable Long id) {
-    	empleadoRepository.deleteById(id);
+    public void borrarEmpleado(@PathVariable Long id)  throws Exception {
+    	String nombreArchivo = empleadoRepository.findById(id).get().getImagen();
+    	
+    	Path ruta = Paths.get("uploads/FotosEmpleados/" + nombreArchivo);
+        Files.deleteIfExists(ruta);
+        
+        empleadoRepository.deleteById(id);
     }
     
 }

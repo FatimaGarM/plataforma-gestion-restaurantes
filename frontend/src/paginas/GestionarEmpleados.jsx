@@ -28,10 +28,6 @@ function GestionarEmpleados() {
 
     function eliminarEmpleado(id) {
 
-        if (!window.confirm("¿Estás seguro de eliminar este empleado?")) {
-            return;
-        }
-
         fetch(`/empleados/${id}`, {
             method: "DELETE"
         })
