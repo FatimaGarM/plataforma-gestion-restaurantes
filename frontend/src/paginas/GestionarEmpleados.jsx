@@ -26,7 +26,8 @@ function GestionarEmpleados() {
             .then(data => setEmpleados(data));
     }
 
-    function eliminarEmpleado(id) {
+    function eliminarEmpleado(id) {        
+        setMostrarFormulario(false);
 
         fetch(`/empleados/${id}`, {
             method: "DELETE"
@@ -41,6 +42,7 @@ function GestionarEmpleados() {
             })
             .catch(error => console.log("Error:", error));
 
+            limpiarEmpleado();
     }
 
     function editarEmpleado(id) {
