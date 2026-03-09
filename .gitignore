@@ -1,1 +1,15 @@
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de editores / IDE
 .vscode/
+.idea/
+
+# Dependencias y compilación de React / Node
+node_modules/
+dist/
+dist-ssr/
+
+# Archivos generados por Java / Maven
+target/
