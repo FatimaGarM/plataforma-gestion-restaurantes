@@ -11,7 +11,7 @@ function Sidebar() {
           Estadísticas
         </Link>
 
-        <Link to="/gestion-productos" className="text-Sleft">
+       <Link to="/gestion-productos" className="text-left">
           Gestión de productos
         </Link>
 
