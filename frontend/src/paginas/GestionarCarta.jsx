@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import FormularioPlato from "../formularios/FormularioPlato";
 import ConfirmacionEliminar from "../componentes/ConfirmacionEliminar";
 import DialogoModal from "../componentes/DialogoModal";
+import deleteIcon from "../assets/iconos/eliminar.png";
 
-function GestionCarta() {
+function GestionarCarta() {
 
     const [platos, setPlatos] = useState([]);
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -17,18 +18,21 @@ function GestionCarta() {
     const [editar, setEditar] = useState(false);
     const [platoAEliminar, setPlatoAEliminar] = useState(null);
 
+    const [tipo, setTipo] = useState("");
+    const [disponible, setDisponible] = useState(true);
+
+    const [busqueda, setBusqueda] = useState("");
+    const [filtroTipo, setFiltroTipo] = useState("");
 
     useEffect(() => {
         cargarPlatos();
     }, []);
-
 
     function cargarPlatos() {
         fetch("/platos")
             .then(res => res.json())
             .then(data => setPlatos(data));
     }
-
 
     function limpiarFormularioPlato() {
         setId(null);
@@ -37,63 +41,44 @@ function GestionCarta() {
         setPrecio("");
         setImagen(null);
         setEditar(false);
+        setTipo("");
+        setDisponible(true);
     }
-
 
     function abrirFormularioCrear() {
         limpiarFormularioPlato();
         setMostrarFormulario(true);
     }
 
-
     function cerrarFormulario() {
         setMostrarFormulario(false);
         limpiarFormularioPlato();
     }
 
-
     function solicitarEliminarPlato(plato) {
-        setMostrarFormulario(false);
         setPlatoAEliminar(plato);
         setMostrarConfirmacionEliminar(true);
     }
-
 
     function cancelarEliminarPlato() {
         setMostrarConfirmacionEliminar(false);
         setPlatoAEliminar(null);
     }
 
-
     function confirmarEliminarPlato() {
 
-        if (platoAEliminar == null) {
-            return;
-        }
+        if (!platoAEliminar) return;
 
         fetch(`/platos/${platoAEliminar.id}`, {
             method: "DELETE"
         })
             .then(res => {
-
                 if (res.ok) {
-                    console.log("Plato eliminado");
                     cargarPlatos();
-                } else {
-                    console.log("Error al eliminar plato");
                 }
-
             })
-            .catch(error => console.log("Error:", error))
-            .finally(() => {
-
-                cancelarEliminarPlato();
-                cerrarFormulario();
-
-            });
-
+            .finally(() => cancelarEliminarPlato());
     }
-
 
     function editarPlato(idPlato) {
 
@@ -108,13 +93,12 @@ function GestionCarta() {
                 setDescripcion(data.descripcion);
                 setPrecio(data.precio);
                 setImagen(null);
+                setTipo(data.tipo);
+                setDisponible(data.disponible);
+
                 setMostrarFormulario(true);
-
-            })
-            .catch(error => console.log("Error:", error));
-
+            });
     }
-
 
     function guardarPlato(e) {
 
@@ -125,194 +109,217 @@ function GestionCarta() {
         formData.append("nombre", nombre);
         formData.append("descripcion", descripcion);
         formData.append("precio", parseFloat(precio));
+        formData.append("tipo", tipo);
+        formData.append("disponible", disponible);
 
-        if (imagen != null) {
+        if (imagen) {
             formData.append("imagen", imagen);
         }
 
-        if (id != null) {
+        if (id) {
 
             fetch(`/platos/${id}`, {
                 method: "PUT",
                 body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-
-                    console.log("Plato actualizado", data);
-                    cargarPlatos();
-                    cerrarFormulario();
-
-                })
-                .catch(error => console.log("Error:", error));
+            }).then(() => {
+                cargarPlatos();
+                cerrarFormulario();
+            });
 
         } else {
 
             fetch("/platos/con-imagen", {
                 method: "POST",
                 body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-
-                    console.log("Plato guardado", data);
-                    cargarPlatos();
-                    cerrarFormulario();
-
-                })
-                .catch(error => console.log("Error:", error));
-
+            }).then(() => {
+                cargarPlatos();
+                cerrarFormulario();
+            });
         }
-
     }
 
+    function toggleDisponible(id) {
+
+        fetch(`/platos/${id}/disponible`, {
+            method: "PUT"
+        })
+            .then(res => res.json())
+            .then(platoActualizado => {
+
+                setPlatos(prev =>
+                    prev.map(p =>
+                        p.id === id ? platoActualizado : p
+                    )
+                );
+            });
+    }
+
+   
+    const platosFiltrados = platos.filter(plato => {
+        return (
+            plato.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
+            (filtroTipo === "" || plato.tipo === filtroTipo)
+        );
+    });
 
     return (
 
-        <div className="p-6">
+        <div className="bg-gray-50 min-h-screen p-6">
 
-            <div className="flex justify-between mb-4">
-
-                <h1 className="text-xl font-bold">
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-semibold text-gray-800">
                     Platos y Bebidas
                 </h1>
+            </div>
 
-                <button
-                    onClick={abrirFormularioCrear}
-                    className="bg-green-600 text-white px-3 py-1 rounded"
-                >
-                    + Añadir plato
-                </button>
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+
+                {/* BUSCADOR más el FILTRO */}
+                <div className="flex gap-3 items-center p-4 border-b">
+
+                    <input
+                        type="text"
+                        placeholder="Buscar plato..."
+                        value={busqueda}
+                        onChange={(e) => setBusqueda(e.target.value)}
+                        className="bg-gray-100 px-4 py-2 rounded-lg text-sm outline-none"
+                    />
+
+                    <select
+                        value={filtroTipo}
+                        onChange={(e) => setFiltroTipo(e.target.value)}
+                        className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
+                    >
+                        <option value="">Todos los tipos</option>
+                        <option value="Primero">Primero</option>
+                        <option value="Segundo">Segundo</option>
+                        <option value="Postre">Postre</option>
+                        <option value="Bebida">Bebida</option>
+                    </select>
+
+                    <button
+                        onClick={abrirFormularioCrear}
+                        className="ml-auto bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-emerald-700 transition"
+                    >
+                        + Añadir plato
+                    </button>
+
+                </div>
+
+                <table className="w-full text-sm">
+
+                    <thead className="bg-gray-50 text-gray-600">
+                        <tr>
+                            <th className="text-left p-3">Plato</th>
+                            <th className="text-left p-3">Descripción</th>
+                            <th className="text-left p-3">Tipo</th>
+                            <th className="text-left p-3">Disponible</th>
+                            <th className="text-left p-3">Precio</th>
+                            <th className="text-left p-3">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {platosFiltrados.map(plato => (
+
+                            <tr key={plato.id} className="border-t hover:bg-gray-50">
+
+                                <td className="p-3">
+                                    <div className="flex items-center gap-3">
+                                        <img
+                                            src={plato.imagen ? `/uploads/FotoPlatos/${plato.imagen}` : ""}
+                                            className="w-12 h-12 rounded-lg object-cover bg-gray-100"
+                                        />
+                                        {plato.nombre}
+                                    </div>
+                                </td>
+
+                                <td className="p-3">{plato.descripcion}</td>
+
+                                <td className="p-3">{plato.tipo}</td>
+
+                                <td className="p-3">
+                                    <div
+                                        onClick={() => toggleDisponible(plato.id)}
+                                        className={`w-10 h-5 flex items-center rounded-full px-1 cursor-pointer
+                                        ${plato.disponible ? "bg-emerald-500" : "bg-gray-300"}`}
+                                    >
+                                        <div className={`w-4 h-4 bg-white rounded-full transition
+                                        ${plato.disponible ? "translate-x-5" : ""}`} />
+                                    </div>
+                                </td>
+
+                                <td className="p-3">{plato.precio} €</td>
+
+                                <td className="p-3">
+                                    <div className="flex items-center gap-3">
+
+                                        <button
+                                            onClick={() => editarPlato(plato.id)}
+                                            className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-xs hover:bg-emerald-200"
+                                        >
+                                            Editar
+                                        </button>
+
+                                        <button
+                                            onClick={() => solicitarEliminarPlato(plato)}
+                                            className="text-red-500 hover:text-red-600"
+                                        >
+                                            <img src={deleteIcon} className="w-5 h-5" />
+                                        </button>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        ))}
+
+                    </tbody>
+
+                </table>
+
+                <div className="p-4 text-xs text-gray-500 border-t">
+                    Mostrando {platosFiltrados.length} platos
+                </div>
 
             </div>
 
-
+            {/* MODAL */}
             <DialogoModal
                 abierto={mostrarFormulario}
                 onCerrar={cerrarFormulario}
                 titulo={editar ? "Editar plato" : "Crear nuevo plato"}
             >
-
                 <FormularioPlato
                     nombre={nombre}
                     descripcion={descripcion}
                     precio={precio}
+                    tipo={tipo}
+                    disponible={disponible}
                     onNombreChange={(e) => setNombre(e.target.value)}
                     onDescripcionChange={(e) => setDescripcion(e.target.value)}
                     onPrecioChange={(e) => setPrecio(e.target.value)}
+                    onTipoChange={(e) => setTipo(e.target.value)}
+                    onDisponibleChange={(value) => setDisponible(value)}
                     onImagenChange={(e) => setImagen(e.target.files[0])}
                     onCancelar={cerrarFormulario}
                     onSubmit={guardarPlato}
                     editar={editar}
                 />
-
             </DialogoModal>
-
 
             <ConfirmacionEliminar
                 abierto={mostrarConfirmacionEliminar}
                 titulo="Eliminar plato"
-                mensaje={
-                    platoAEliminar
-                        ? `Se eliminará "${platoAEliminar.nombre}". Esta acción no se puede deshacer.`
-                        : "Esta acción no se puede deshacer."
-                }
+                mensaje={platoAEliminar ? `Se eliminará "${platoAEliminar.nombre}".` : ""}
                 onCancelar={cancelarEliminarPlato}
                 onConfirmar={confirmarEliminarPlato}
             />
 
-
-            <table className="w-full border">
-
-                <thead className="bg-gray-200 text-center">
-
-                    <tr>
-
-                        <th className="border p-2">
-                            Plato
-                        </th>
-
-                        <th className="border p-2">
-                            Descripción
-                        </th>
-
-                        <th className="border p-2">
-                            Precio
-                        </th>
-
-                        <th className="border p-2">
-                            Acciones
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {platos.map(plato => (
-
-                        <tr key={plato.id}>
-
-                            <td className="border p-2">
-
-                                <div className="flex items-center gap-3">
-
-                                    <img
-                                        src={plato.imagen ? `/uploads/FotoPlatos/${plato.imagen}` : ""}
-                                        className="w-10 h-10 rounded object-cover bg-gray-100"
-                                        alt={plato.nombre}
-                                    />
-
-                                    <span>
-                                        {plato.nombre}
-                                    </span>
-
-                                </div>
-
-                            </td>
-
-
-                            <td className="border p-2 text-center">
-                                {plato.descripcion}
-                            </td>
-
-
-                            <td className="border p-2 text-center">
-                                {plato.precio} €
-                            </td>
-
-
-                            <td className="border p-2 text-center">
-
-                                <button
-                                    className="bg-gray-300 px-2 mr-2"
-                                    onClick={() => editarPlato(plato.id)}
-                                >
-                                    Editar
-                                </button>
-
-                                <button
-                                    className="bg-red-500 text-white px-2"
-                                    onClick={() => solicitarEliminarPlato(plato)}
-                                >
-                                    Eliminar
-                                </button>
-
-                            </td>
-
-                        </tr>
-
-                    ))}
-
-                </tbody>
-
-            </table>
-
         </div>
-
     );
 }
 
-export default GestionCarta;
+export default GestionarCarta;

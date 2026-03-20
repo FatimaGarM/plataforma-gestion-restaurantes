@@ -1,115 +1,110 @@
 package com.gestionqr.backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
+import jakarta.persistence.*;
 
 @Entity
 public class Empleado {
-	
-	public enum TipoEmpleado{
-		Camarero, Cocinero, Gerente;
-	}
 
-	public enum Estado{
-		Descanso, Vacaciones, Activo;
-	}
+    public enum TipoEmpleado {
+        CAMARERO, COCINERO, GERENTE
+    }
 
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
+    public enum Estado {
+        DESCANSO, VACACIONES, ACTIVO
+    }
 
-	    private String nombre;
-	    private String email;
-	    private String contraseña;
-	    private String imagen;
-	    private TipoEmpleado tipoEmpleado;
-	    private Estado estado;
-	    
-		public Empleado() {
-		}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-		
+    private String nombre;
 
-		public Empleado(Long id, String nombre, String email, String contraseña, String imagen,
-				TipoEmpleado tipoEmpleado, Estado estado) {
-			this.id = id;
-			this.nombre = nombre;
-			this.email = email;
-			this.contraseña = contraseña;
-			this.imagen = imagen;
-			this.tipoEmpleado = tipoEmpleado;
-			this.estado = estado;
-		}
+    @Column(unique = true)
+    private String email;
 
+    private String contraseña;
 
+    private String imagen;
 
-		public Long getId() {
-			return id;
-		}
+    @Enumerated(EnumType.STRING)
+    private TipoEmpleado tipoEmpleado;
 
-		public void setId(Long id) {
-			this.id = id;
-		}
+    @Enumerated(EnumType.STRING)
+    private Estado estado;
 
-		public String getNombre() {
-			return nombre;
-		}
+    public Empleado() {
+    }
 
-		public void setNombre(String nombre) {
-			this.nombre = nombre;
-		}
+    public Empleado(Long id, String nombre, String email, String contraseña, String imagen,
+            TipoEmpleado tipoEmpleado, Estado estado) {
+        this.id = id;
+        this.nombre = nombre;
+        this.email = email;
+        this.contraseña = contraseña;
+        this.imagen = imagen;
+        this.tipoEmpleado = tipoEmpleado;
+        this.estado = estado;
+    }
 
-		public String getEmail() {
-			return email;
-		}
+    public Long getId() {
+        return id;
+    }
 
-		public void setEmail(String email) {
-			this.email = email;
-		}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-		public String getContraseña() {
-			return contraseña;
-		}
+    public String getNombre() {
+        return nombre;
+    }
 
-		public void setContraseña(String contraseña) {
-			this.contraseña = contraseña;
-		}
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-		public String getImagen() {
-			return imagen;
-		}
+    public String getEmail() {
+        return email;
+    }
 
-		public void setImagen(String imagen) {
-			this.imagen = imagen;
-		}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-		public TipoEmpleado getTipoEmpleado() {
-			return tipoEmpleado;
-		}
+    public String getContraseña() {
+        return contraseña;
+    }
 
-		public void setTipoEmpleado(TipoEmpleado tipoEmpleado) {
-			this.tipoEmpleado = tipoEmpleado;
-		}
+    public void setContraseña(String contraseña) {
+        this.contraseña = contraseña;
+    }
 
-		public Estado getEstado() {
-			return estado;
-		}
+    public String getImagen() {
+        return imagen;
+    }
 
-		public void setEstado(Estado estado) {
-			this.estado = estado;
-		}
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
 
-		@Override
-		public String toString() {
-			return "Empleado [id=" + id + ", nombre=" + nombre + ", email=" + email + ", contraseña=" + contraseña
-					+ ", tipoEmpleado=" + tipoEmpleado + ", estado=" + estado + "]";
-		}
-	    
-	    
-	    
-	    
-	    
+    public TipoEmpleado getTipoEmpleado() {
+        return tipoEmpleado;
+    }
+
+    public void setTipoEmpleado(TipoEmpleado tipoEmpleado) {
+        this.tipoEmpleado = tipoEmpleado;
+    }
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        return "Empleado [id=" + id + ", nombre=" + nombre + ", email=" + email +
+                ", tipoEmpleado=" + tipoEmpleado + ", estado=" + estado + "]";
+    }
 }

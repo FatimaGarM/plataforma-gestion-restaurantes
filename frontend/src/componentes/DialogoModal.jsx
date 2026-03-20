@@ -19,7 +19,7 @@ function DialogoModal({ abierto, titulo, onCerrar, children, maxAncho = "max-w-2
                         className="text-gray-500 hover:text-gray-700 text-xl"
                         onClick={onCerrar}
                     >
-                        x
+                        ✕
                     </button>
                 </div>
 
