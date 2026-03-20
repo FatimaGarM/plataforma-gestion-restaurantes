@@ -35,14 +35,14 @@ public class PedidoController {
     	return pedidoService.crearPedido(pedido);
     }
     
-    @PutMapping("/{id}/estado")
+    @PutMapping("/{id}/siguiente-estado")
     public Pedido cambiarEstado(
-            @PathVariable Long id,
-            @RequestParam EstadoPedido estado) {
+            @PathVariable Long id) {
 
-        return pedidoService.cambiarEstado(id, estado);
+        return pedidoService.cambiarEstado(id);
     }
     
+    @GetMapping("/activos")
     public List<Pedido> obtenerActivos() {
         return pedidoService.obtenerActivos();
     }

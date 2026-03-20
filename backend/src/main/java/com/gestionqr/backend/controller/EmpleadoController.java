@@ -1,6 +1,5 @@
 package com.gestionqr.backend.controller;
 
-import org.springframework.data.domain.Sort;
 
 import com.gestionqr.backend.model.Empleado;
 import com.gestionqr.backend.service.EmpleadoService;
@@ -8,9 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 

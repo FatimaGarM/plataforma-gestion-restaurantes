@@ -5,12 +5,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+
 
 import com.gestionqr.backend.model.Pedido;
 import com.gestionqr.backend.model.Pedido.EstadoPedido;
-import com.gestionqr.backend.model.Plato;
 import com.gestionqr.backend.model.Servicio;
 import com.gestionqr.backend.model.Servicio.EstadoServicio;
 import com.gestionqr.backend.repository.PlatoRepository;

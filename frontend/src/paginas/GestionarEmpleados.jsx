@@ -60,11 +60,11 @@ function GestionarEmpleados() {
 
     function cancelarEliminarEmpleado() {
         setMostrarConfirmacionEliminar(false);
-        setEmpleadoAEliminar(null);
+        setEmpleadoEliminar(null);
     }
 
     function eliminarEmpleado(id) {
-        if (platoAEliminar == null) {
+        if (empleadoEliminar == null) {
             return;
         }
 
@@ -89,7 +89,9 @@ function GestionarEmpleados() {
     function editarEmpleado(id) {
         setEditar(true);
         console.log("Editar empleado con ID:", id);
-        fetch(`/empleados/${id}`)
+        fetch(`/empleados/${id}`,{
+            method: "GET"
+        })
             .then(res => res.json())
             .then(data => {
                 setId(id);
@@ -179,7 +181,7 @@ function GestionarEmpleados() {
                     onContraseñaChange={(e) => setContraseña(e.target.value)}
                     onImagenChange={(e) => setImagen(e.target.files[0])}
                     onCancelar={cerrarFormulario}
-                    onSubmit={guardarPlato}
+                    onSubmit={guardarEmpleado}
                     editar={editar}
                 />
 
@@ -194,84 +196,8 @@ function GestionarEmpleados() {
                         : "Esta acción no se puede deshacer."
                 }
                 onCancelar={cancelarEliminarEmpleado}
-                onConfirmar={confirmarEliminarEmpleado}
+                onConfirmar={eliminarEmpleado(empleadoEliminar ? empleadoEliminar.id : null)}
             />
-
-            {mostrarFormulario && (
-                <div>
-                    <h1 className="text-xl font-bold">
-                        {editar ? "Editar empleado" : "Crear nuevo empleado"}
-                    </h1>
-
-                    <form
-                        onSubmit={guardarEmpleado}
-                        className="mb-6 flex gap-2 flex-wrap"
-                    >
-
-                        <input
-                            type="text"
-                            placeholder="Nombre"
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                            className="border p-2"
-                        />
-
-                        <input
-                            type="text"
-                            placeholder="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="border p-2"
-                        />
-
-                        <input
-                            type="password"
-                            placeholder="Contraseña"
-                            value={contraseña}
-                            onChange={(e) => setContraseña(e.target.value)}
-                            className="border p-2"
-                        />
-
-                        <select
-                            onChange={(e) => setTipoEmpleado(e.target.value)}
-                            className="border p-2"
-                        >
-                            <option value="">
-                                Selecciona tipo de empleado
-                            </option>
-                            <option value="Camarero">Camarero</option>
-                            <option value="Cocinero">Cocinero</option>
-                            <option value="Gerente">Gerente</option>
-                        </select>
-
-                        <select
-                            onChange={(e) => setEstado(e.target.value)}
-                            className="border p-2"
-                        >
-                            <option value="">
-                                Selecciona estado
-                            </option>
-                            <option value="Activo">En activo</option>
-                            <option value="Descanso">En descanso</option>
-                            <option value="Vacaciones">En vacaciones</option>
-                        </select>
-
-                        <input
-                            type="file"
-                            onChange={(e) => setImagen(e.target.files[0])}
-                            className="border p-2"
-                        />
-
-                        <button className="bg-orange-400 text-white px-3 py-2">
-                            Guardar
-                        </button>
-
-                    </form>
-                </div>
-
-            )}
-
-
 
             <table className="w-full border">
 

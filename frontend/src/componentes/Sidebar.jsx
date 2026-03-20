@@ -23,6 +23,10 @@ function Sidebar() {
           Gestión de carta
         </Link>
 
+        <Link to="/gestion-pedidos" className="text-left">
+          Gestión de pedidos
+        </Link>
+
       </nav>
 
       {/* Parte inferior , hay que mejorarla.. no se ve bien aún, implementar funcionalidades*/}

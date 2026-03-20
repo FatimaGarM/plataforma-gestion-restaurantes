@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.gestionqr.backend.model.Empleado.Estado;
 import com.gestionqr.backend.model.Pedido;
 import com.gestionqr.backend.model.Pedido.EstadoPedido;
 import com.gestionqr.backend.model.Servicio;
@@ -25,18 +26,9 @@ public class PedidoService {
 	
     public Pedido crearPedido(@RequestBody Pedido pedido) {    	
     	return pedidoRepository.save(pedido);
-    }
+    }    
     
-    private boolean esCambioValido(EstadoPedido actual, EstadoPedido nuevo) {
-        return switch (actual) {
-            case Pendiente -> nuevo == EstadoPedido.EnProceso;
-            case EnProceso -> nuevo == EstadoPedido.Listo;
-            case Listo -> nuevo == EstadoPedido.Servido;
-            case Servido -> false;
-        };
-    }
-    
-    public Pedido cambiarEstado(Long id, EstadoPedido nuevoEstado) {
+    public Pedido cambiarEstado(Long id) {
 
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
@@ -46,9 +38,13 @@ public class PedidoService {
         }
 
         EstadoPedido actual = pedido.getEstado();
-
-        if (!esCambioValido(actual, nuevoEstado)) {
-            throw new RuntimeException("Cambio de estado no permitido");
+        EstadoPedido nuevoEstado;
+        
+        switch (actual) {
+        case Pendiente -> nuevoEstado = EstadoPedido.EnProceso;
+        case EnProceso -> nuevoEstado= EstadoPedido.Listo;
+        case Listo -> nuevoEstado = EstadoPedido.Servido;
+		default -> throw new IllegalArgumentException("Unexpected value: " + actual);
         }
 
         pedido.setEstado(nuevoEstado);
@@ -77,7 +73,7 @@ public class PedidoService {
     
     public List<Pedido> obtenerActivos() {
         return pedidoRepository.findByEstadoIn(
-            List.of(EstadoPedido.Pendiente, EstadoPedido.EnProceso)
+            List.of(EstadoPedido.Pendiente, EstadoPedido.EnProceso, EstadoPedido.Listo)
         );
     }
 }
