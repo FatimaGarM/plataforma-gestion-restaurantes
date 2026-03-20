@@ -110,7 +110,7 @@ function GestionarCarta() {
         formData.append("descripcion", descripcion);
         formData.append("precio", parseFloat(precio));
         formData.append("tipo", tipo);
-        formData.append("disponible", disponible);
+        formData.append("disponible", disponible.toString());
 
         if (imagen) {
             formData.append("imagen", imagen);
@@ -143,7 +143,10 @@ function GestionarCarta() {
         fetch(`/platos/${id}/disponible`, {
             method: "PUT"
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("Error al cambiar disponibilidad");
+                return res.json();
+            })
             .then(platoActualizado => {
 
                 setPlatos(prev =>
@@ -151,10 +154,11 @@ function GestionarCarta() {
                         p.id === id ? platoActualizado : p
                     )
                 );
-            });
+            })
+            .catch(err => console.error(err));
     }
 
-   
+
     const platosFiltrados = platos.filter(plato => {
         return (
             plato.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
@@ -191,10 +195,10 @@ function GestionarCarta() {
                         className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
                     >
                         <option value="">Todos los tipos</option>
-                        <option value="Primero">Primero</option>
-                        <option value="Segundo">Segundo</option>
-                        <option value="Postre">Postre</option>
-                        <option value="Bebida">Bebida</option>
+                        <option value="PRIMERO">Primero</option>
+                        <option value="SEGUNDO">Segundo</option>
+                        <option value="POSTRE">Postre</option>
+                        <option value="BEBIDA">Bebida</option>
                     </select>
 
                     <button

@@ -4,33 +4,90 @@
 
 /* ===== SISTEMA DE DISEÑO ===== */
 
-/* BOTONES */
+/* ===== BOTONES ===== */
+
 .btn {
-  @apply px-4 py-2 rounded-lg text-sm font-medium transition;
+  @apply px-4 py-2 rounded-lg text-sm font-medium transition duration-200 ease-in-out;
 }
 
 .btn-primary {
-  @apply bg-amber-500 text-white hover:bg-amber-600;
+  @apply bg-amber-500 text-white hover:bg-amber-600 active:scale-95;
 }
 
 .btn-success {
-  @apply bg-emerald-600 text-white hover:bg-emerald-700;
+  @apply bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95;
 }
 
 .btn-danger {
-  @apply bg-red-500 text-white hover:bg-red-600;
+  @apply bg-red-500 text-white hover:bg-red-600 active:scale-95;
 }
 
 .btn-outline {
   @apply border border-gray-300 text-gray-700 hover:bg-gray-100;
 }
 
-/* INPUTS */
+/* ===== INPUTS ===== */
+
 .input {
-  @apply bg-gray-100 px-4 py-2 rounded-lg text-sm outline-none w-full;
+  @apply bg-gray-100 px-4 py-2 rounded-lg text-sm outline-none w-full transition;
 }
 
-/* CARDS */
+/* foco bonito */
+.input:focus {
+  @apply ring-2 ring-amber-400 bg-white;
+}
+
+/* ===== CARDS ===== */
+
 .card {
-  @apply bg-white rounded-xl shadow-sm border;
+  @apply bg-white rounded-xl shadow-sm border p-4;
+}
+
+/* ===== TABLAS ===== */
+
+.table {
+  @apply w-full text-sm;
+}
+
+.table th {
+  @apply p-3 text-left bg-gray-50 text-gray-500;
+}
+
+.table td {
+  @apply p-3 border-t;
+}
+
+/* ===== BADGES (ESTADOS) ===== */
+
+.badge {
+  @apply px-2 py-1 rounded text-xs font-medium;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-700;
+}
+
+.badge-warning {
+  @apply bg-orange-100 text-orange-700;
+}
+
+.badge-neutral {
+  @apply bg-gray-200 text-gray-700;
+}
+
+/* ===== UTILIDADES ===== */
+
+/* contenedor general */
+.container-page {
+  @apply bg-gray-50 min-h-screen p-6;
+}
+
+/* títulos */
+.title {
+  @apply text-2xl font-semibold text-gray-800;
+}
+
+/* separadores */
+.section {
+  @apply mb-6;
 }

@@ -29,6 +29,11 @@ function Login() {
                 //  buscamos el usuario logueado
                 const usuario = data.find(emp => emp.email === email);
 
+                if (!usuario) {
+                    setError("Usuario no encontrado");
+                    return;
+                }
+
                 //  guardamos datos del usuario
                 localStorage.setItem("usuario", JSON.stringify(usuario));
 

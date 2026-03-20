@@ -1,54 +1,57 @@
 package com.gestionqr.backend.controller;
 
-import org.springframework.data.domain.Sort;
 import com.gestionqr.backend.model.Empleado;
-import com.gestionqr.backend.repository.EmpleadoRepository;
+import com.gestionqr.backend.service.EmpleadoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Controlador REST para la gestión de empleados.
+ * Se encarga de recibir las peticiones HTTP y delegar la lógica al servicio.
+ */
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/empleados")
 public class EmpleadoController {
 
+    // Servicio donde está la lógica de negocio
     @Autowired
-    private EmpleadoRepository empleadoRepository;
+    private EmpleadoService empleadoService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    // Obtener todos
+    /**
+     * Obtener todos los empleados.
+     */
     @GetMapping
     public List<Empleado> obtenerEmpleados() {
-        return empleadoRepository.findAll(Sort.by(Sort.Direction.ASC, "nombre"));
+        return empleadoService.obtenerEmpleados();
     }
 
-    // Obtener por ID
+    /**
+     * Obtener un empleado por su ID.
+     */
     @GetMapping("/{id}")
     public Optional<Empleado> obtenerEmpleadoById(@PathVariable Long id) {
-        return empleadoRepository.findById(id);
+        return empleadoService.obtenerEmpleadosById(id);
     }
 
-    // Crear empleado SIN imagen
+    /**
+     * Crear un empleado sin imagen.
+     * El cifrado de contraseña se realiza en el Service.
+     */
     @PostMapping
     public Empleado crearEmpleado(@RequestBody Empleado empleado) {
-
-        empleado.setContraseña(passwordEncoder.encode(empleado.getContraseña()));
-
-        return empleadoRepository.save(empleado);
+        return empleadoService.crearEmpleado(empleado);
     }
 
-    // Crear empleado CON imagen
+    /**
+     * Crear un empleado con imagen.
+     * Los datos se envían como form-data.
+     */
     @PostMapping("/con-imagen")
     public Empleado crearEmpleadoConImagen(
             @RequestParam String nombre,
@@ -56,30 +59,23 @@ public class EmpleadoController {
             @RequestParam String contraseña,
             @RequestParam Empleado.TipoEmpleado tipoEmpleado,
             @RequestParam Empleado.Estado estado,
-            @RequestParam(name = "imagen", required = false) MultipartFile imagen) throws Exception {
+            @RequestParam(name = "imagen", required = false) MultipartFile imagen
+    ) throws Exception {
 
-        String nombreArchivo = "";
-
-        if (imagen != null && !imagen.isEmpty()) {
-            nombreArchivo = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
-
-            Path ruta = Paths.get("uploads/FotosEmpleados/" + nombreArchivo);
-            Files.createDirectories(ruta.getParent());
-            Files.write(ruta, imagen.getBytes());
-        }
-
-        Empleado empleado = new Empleado();
-        empleado.setNombre(nombre);
-        empleado.setEmail(email);
-        empleado.setContraseña(passwordEncoder.encode(contraseña));
-        empleado.setTipoEmpleado(tipoEmpleado);
-        empleado.setEstado(estado);
-        empleado.setImagen(nombreArchivo);
-
-        return empleadoRepository.save(empleado);
+        return empleadoService.crearEmpleadoConImagen(
+                nombre,
+                email,
+                contraseña,
+                tipoEmpleado,
+                estado,
+                imagen
+        );
     }
 
-    // ACTUALIZAR empleado
+    /**
+     * Actualizar un empleado existente.
+     * Permite modificar datos, contraseña e imagen.
+     */
     @PutMapping("/{id}")
     public Empleado actualizarEmpleado(
             @PathVariable Long id,
@@ -88,72 +84,25 @@ public class EmpleadoController {
             @RequestParam(required = false) String contraseña,
             @RequestParam Empleado.TipoEmpleado tipoEmpleado,
             @RequestParam Empleado.Estado estado,
-            @RequestParam(name = "imagen", required = false) MultipartFile imagen) throws Exception {
+            @RequestParam(name = "imagen", required = false) MultipartFile imagen
+    ) throws Exception {
 
-        Empleado empleado = empleadoRepository.findById(id).get();
-
-        empleado.setNombre(nombre);
-        empleado.setEmail(email);
-
-        // solo actualiza contraseña si viene
-        if (contraseña != null && !contraseña.isEmpty()) {
-            empleado.setContraseña(passwordEncoder.encode(contraseña));
-        }
-
-        empleado.setTipoEmpleado(tipoEmpleado);
-        empleado.setEstado(estado);
-
-        // manejar la imagen
-        if (imagen != null && !imagen.isEmpty()) {
-
-            String imagenAntigua = empleado.getImagen();
-
-            String nombreArchivo = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
-
-            Path rutaNueva = Paths.get("uploads/FotosEmpleados/" + nombreArchivo);
-            Files.createDirectories(rutaNueva.getParent());
-            Files.write(rutaNueva, imagen.getBytes());
-
-            empleado.setImagen(nombreArchivo);
-
-            if (imagenAntigua != null && !imagenAntigua.isEmpty()) {
-                Path rutaAntigua = Paths.get("uploads/FotosEmpleados/" + imagenAntigua);
-                Files.deleteIfExists(rutaAntigua);
-            }
-        }
-
-        return empleadoRepository.save(empleado);
+        return empleadoService.actualizarEmpleado(
+                id,
+                nombre,
+                email,
+                contraseña,
+                tipoEmpleado,
+                estado,
+                imagen
+        );
     }
 
-    // Cambiar estado para frontend tipo badge 
-    @PutMapping("/{id}/estado")
-    public Empleado cambiarEstado(@PathVariable Long id) {
-
-        Empleado empleado = empleadoRepository.findById(id).get();
-
-        // ejemplo simple de cambio
-        if (empleado.getEstado() == Empleado.Estado.ACTIVO) {
-            empleado.setEstado(Empleado.Estado.DESCANSO);
-        } else {
-            empleado.setEstado(Empleado.Estado.ACTIVO);
-        }
-
-        return empleadoRepository.save(empleado);
-    }
-
-    // Eliminar empleado y imagen
+    /**
+     * Eliminar un empleado por su ID.
+     */
     @DeleteMapping("/{id}")
     public void borrarEmpleado(@PathVariable Long id) throws Exception {
-
-        Empleado empleado = empleadoRepository.findById(id).get();
-
-        String nombreArchivo = empleado.getImagen();
-
-        if (nombreArchivo != null && !nombreArchivo.isEmpty()) {
-            Path ruta = Paths.get("uploads/FotosEmpleados/" + nombreArchivo);
-            Files.deleteIfExists(ruta);
-        }
-
-        empleadoRepository.deleteById(id);
+        empleadoService.borrarEmpleado(id);
     }
 }

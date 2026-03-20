@@ -14,12 +14,12 @@ function GestionarEmpleados() {
   const [imagen, setImagen] = useState(null);
   const [editar, setEditar] = useState(false);
 
-  //  filtros
+  // filtros
   const [busqueda, setBusqueda] = useState("");
   const [filtroRol, setFiltroRol] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("");
 
-  //  paginación
+  // paginación
   const [paginaActual, setPaginaActual] = useState(1);
   const porPagina = 5;
 
@@ -27,7 +27,6 @@ function GestionarEmpleados() {
     cargarEmpleados();
   }, []);
 
-  // reset página al filtrar
   useEffect(() => {
     setPaginaActual(1);
   }, [busqueda, filtroRol, filtroEstado]);
@@ -60,6 +59,7 @@ function GestionarEmpleados() {
         setEmail(data.email);
         setTipoEmpleado(data.tipoEmpleado);
         setEstado(data.estado);
+        setContraseña(""); // reset contraseña
       });
   }
 
@@ -69,13 +69,19 @@ function GestionarEmpleados() {
     const formData = new FormData();
     formData.append("nombre", nombre);
     formData.append("email", email);
-    formData.append("contraseña", contraseña);
+
+    if (contraseña) {
+      formData.append("contraseña", contraseña);
+    }
+
     formData.append("tipoEmpleado", tipoEmpleado);
     formData.append("estado", estado);
 
-    if (imagen) formData.append("imagen", imagen);
+    if (imagen) {
+      formData.append("imagen", imagen);
+    }
 
-    const url = id ? `/empleados/actualizar/${id}` : "/empleados/con-imagen";
+    const url = id ? `/empleados/${id}` : "/empleados/con-imagen";
     const method = id ? "PUT" : "POST";
 
     fetch(url, {
@@ -93,9 +99,9 @@ function GestionarEmpleados() {
   }
 
   function estadoColor(estado) {
-    if (estado === "Activo") return "bg-green-100 text-green-700";
-    if (estado === "Descanso") return "bg-gray-200 text-gray-700";
-    if (estado === "Vacaciones") return "bg-orange-100 text-orange-700";
+    if (estado === "ACTIVO") return "bg-green-100 text-green-700";
+    if (estado === "DESCANSO") return "bg-gray-200 text-gray-700";
+    if (estado === "VACACIONES") return "bg-orange-100 text-orange-700";
     return "";
   }
 
@@ -108,7 +114,7 @@ function GestionarEmpleados() {
     );
   });
 
-  //  PAGINACIÓN
+  // PAGINACIÓN
   const indexUltimo = paginaActual * porPagina;
   const indexPrimero = indexUltimo - porPagina;
 
@@ -124,13 +130,24 @@ function GestionarEmpleados() {
 
       <div className="flex gap-6">
 
-       
-        <div className="w-80 rounded-2xl p-5 shadow-md border 
-        bg-gradient-to-br from-emerald-50 to-green-100">
+        {/* FORMULARIO */}
+        <div className={`w-80 rounded-2xl p-5 shadow-md border transition-colors
+        ${editar ? "bg-gradient-to-br from-amber-50 to-orange-100 border-amber-200" : "bg-gradient-to-br from-emerald-50 to-green-100"}`}>
 
-          <h2 className="font-semibold mb-4 text-gray-800">
-            {editar ? "Editar empleado" : "Añadir empleado"}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className={`font-semibold ${editar ? "text-amber-800" : "text-gray-800"}`}>
+              {editar ? "Editar empleado" : "Añadir empleado"}
+            </h2>
+            {editar && (
+              <button
+                type="button"
+                onClick={limpiar}
+                className="text-xs text-amber-700 hover:text-amber-900 underline"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
 
           <form onSubmit={guardarEmpleado} className="flex flex-col gap-3">
 
@@ -170,9 +187,9 @@ function GestionarEmpleados() {
               required
             >
               <option value="">Seleccionar rol</option>
-              <option value="Camarero">Camarero</option>
-              <option value="Cocinero">Cocinero</option>
-              <option value="Gerente">Gerente</option>
+              <option value="CAMARERO">Camarero</option>
+              <option value="COCINERO">Cocinero</option>
+              <option value="GERENTE">Gerente</option>
             </select>
 
             <select
@@ -182,9 +199,9 @@ function GestionarEmpleados() {
               required
             >
               <option value="">Seleccionar estado</option>
-              <option value="Activo">Activo</option>
-              <option value="Descanso">Descanso</option>
-              <option value="Vacaciones">Vacaciones</option>
+              <option value="ACTIVO">Activo</option>
+              <option value="DESCANSO">Descanso</option>
+              <option value="VACACIONES">Vacaciones</option>
             </select>
 
             <input
@@ -193,7 +210,7 @@ function GestionarEmpleados() {
               className="bg-white border px-3 py-2 rounded-lg text-sm"
             />
 
-            <button className="bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg font-medium transition mt-2">
+            <button className={`${editar ? "bg-amber-500 hover:bg-amber-600" : "bg-emerald-600 hover:bg-emerald-700"} text-white py-2 rounded-lg font-medium transition mt-2`}>
               {editar ? "Actualizar" : "Añadir empleado"}
             </button>
 
@@ -201,7 +218,7 @@ function GestionarEmpleados() {
 
         </div>
 
-        {/* 🔵 LISTADO */}
+        {/* LISTADO */}
         <div className="flex-1 bg-white rounded-xl shadow-sm border overflow-hidden">
 
           {/* FILTROS */}
@@ -221,9 +238,9 @@ function GestionarEmpleados() {
               className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
             >
               <option value="">Todos los roles</option>
-              <option value="Camarero">Camarero</option>
-              <option value="Cocinero">Cocinero</option>
-              <option value="Gerente">Gerente</option>
+              <option value="CAMARERO">Camarero</option>
+              <option value="COCINERO">Cocinero</option>
+              <option value="GERENTE">Gerente</option>
             </select>
 
             <select
@@ -232,9 +249,9 @@ function GestionarEmpleados() {
               className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
             >
               <option value="">Todos los estados</option>
-              <option value="Activo">Activo</option>
-              <option value="Descanso">Descanso</option>
-              <option value="Vacaciones">Vacaciones</option>
+              <option value="ACTIVO">Activo</option>
+              <option value="DESCANSO">Descanso</option>
+              <option value="VACACIONES">Vacaciones</option>
             </select>
 
           </div>
@@ -261,7 +278,7 @@ function GestionarEmpleados() {
                     <div className="flex items-center gap-3">
 
                       <img
-                        src={`/uploads/FotosEmpleados/${emp.imagen}`}
+                        src={emp.imagen ? `/uploads/FotosEmpleados/${emp.imagen}` : "/default-user.png"}
                         className="w-10 h-10 rounded-full object-cover"
                       />
 
@@ -306,7 +323,7 @@ function GestionarEmpleados() {
 
           </table>
 
-          {/* 📄 PAGINACIÓN */}
+          {/* PAGINACIÓN */}
           <div className="p-4 border-t flex justify-between items-center text-sm">
 
             <span className="text-gray-500">
