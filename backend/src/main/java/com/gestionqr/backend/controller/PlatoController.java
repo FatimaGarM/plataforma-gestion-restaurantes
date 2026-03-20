@@ -40,6 +40,8 @@ public class PlatoController {
             @RequestParam String nombre,
             @RequestParam String descripcion,
             @RequestParam Double precio,
+            @RequestParam Plato.TipoPlato tipo,
+            @RequestParam Boolean disponible,
             @RequestParam("imagen") MultipartFile imagen) throws Exception {
 
         String nombreArchivo = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
@@ -54,6 +56,10 @@ public class PlatoController {
         plato.setPrecio(precio);
         plato.setImagen(nombreArchivo);
 
+
+        plato.setTipo(tipo);
+        plato.setDisponible(disponible);
+
         return platoRepository.save(plato);
     }
 
@@ -63,6 +69,8 @@ public class PlatoController {
             @RequestParam String nombre,
             @RequestParam String descripcion,
             @RequestParam Double precio,
+            @RequestParam Plato.TipoPlato tipo,
+            @RequestParam Boolean disponible,
             @RequestParam(name = "imagen", required = false) MultipartFile imagen) throws Exception {
 
         Plato plato = platoRepository.findById(id).get();
@@ -70,6 +78,9 @@ public class PlatoController {
         plato.setNombre(nombre);
         plato.setDescripcion(descripcion);
         plato.setPrecio(precio);
+
+        plato.setTipo(tipo);
+        plato.setDisponible(disponible);
 
         if (imagen != null && !imagen.isEmpty()) {
 
@@ -91,6 +102,17 @@ public class PlatoController {
 
         return platoRepository.save(plato);
 
+    }
+
+    @PutMapping("/{id}/disponible")
+    public Plato cambiarDisponible(@PathVariable Long id) {
+
+        Plato plato = platoRepository.findById(id).get();
+
+        //aquí invertimos el valor
+        plato.setDisponible(!plato.getDisponible());
+
+        return platoRepository.save(plato);
     }
 
     @DeleteMapping("/{id}")

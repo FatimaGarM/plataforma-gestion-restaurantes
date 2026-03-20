@@ -4,9 +4,13 @@ function FormularioPlato({
     nombre,
     descripcion,
     precio,
+    tipo,
+    disponible,
     onNombreChange,
     onDescripcionChange,
     onPrecioChange,
+    onTipoChange,
+    onDisponibleChange,
     onImagenChange,
     onCancelar,
     onSubmit,
@@ -16,13 +20,10 @@ function FormularioPlato({
     const [preview, setPreview] = useState(null);
 
     function manejarImagen(e) {
-
         const archivo = e.target.files[0];
-
         if (!archivo) return;
 
         setPreview(URL.createObjectURL(archivo));
-
         onImagenChange(e);
     }
 
@@ -32,6 +33,7 @@ function FormularioPlato({
             className="flex gap-2 flex-wrap"
         >
 
+            {/* NOMBRE */}
             <input
                 type="text"
                 placeholder="Nombre"
@@ -41,6 +43,7 @@ function FormularioPlato({
                 required
             />
 
+            {/* DESCRIPCIÓN */}
             <textarea
                 placeholder="Descripción"
                 value={descripcion}
@@ -49,6 +52,7 @@ function FormularioPlato({
                 required
             />
 
+            {/* PRECIO */}
             <input
                 type="number"
                 step="0.01"
@@ -60,6 +64,32 @@ function FormularioPlato({
                 min="0"
             />
 
+            {/* TIPO */}
+            <select
+                value={tipo}
+                onChange={onTipoChange}
+                className="border p-2 w-full sm:w-40"
+                required
+            >
+                <option value="">Tipo</option>
+                <option value="PRIMERO">Primer plato</option>
+                <option value="SEGUNDO">Segundo plato</option>
+                <option value="TERCERO">Tercer plato</option>
+                <option value="POSTRE">Postre</option>
+                <option value="BEBIDA">Bebida</option>
+            </select>
+
+            {/* DISPONIBLE */}
+            <div className="flex items-center gap-2 w-full sm:w-40">
+                <label className="text-sm">Disponible</label>
+                <input
+                    type="checkbox"
+                    checked={disponible}
+                    onChange={(e) => onDisponibleChange(e.target.checked)}
+                />
+            </div>
+
+            {/* IMAGEN */}
             <input
                 type="file"
                 onChange={manejarImagen}
@@ -68,6 +98,7 @@ function FormularioPlato({
                 required={!editar}
             />
 
+            {/* PREVIEW */}
             {preview && (
                 <div className="w-full mt-2">
                     <p className="text-sm text-gray-500 mb-1">
@@ -82,6 +113,7 @@ function FormularioPlato({
                 </div>
             )}
 
+            {/* BOTONES */}
             <div className="w-full flex justify-end gap-2 mt-2">
 
                 <button

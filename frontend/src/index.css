@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ===== SISTEMA DE DISEÑO ===== */
+
+/* BOTONES */
+.btn {
+  @apply px-4 py-2 rounded-lg text-sm font-medium transition;
+}
+
+.btn-primary {
+  @apply bg-amber-500 text-white hover:bg-amber-600;
+}
+
+.btn-success {
+  @apply bg-emerald-600 text-white hover:bg-emerald-700;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white hover:bg-red-600;
+}
+
+.btn-outline {
+  @apply border border-gray-300 text-gray-700 hover:bg-gray-100;
+}
+
+/* INPUTS */
+.input {
+  @apply bg-gray-100 px-4 py-2 rounded-lg text-sm outline-none w-full;
+}
+
+/* CARDS */
+.card {
+  @apply bg-white rounded-xl shadow-sm border;
+}
