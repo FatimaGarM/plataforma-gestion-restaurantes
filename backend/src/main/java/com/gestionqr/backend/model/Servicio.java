@@ -16,7 +16,7 @@ import jakarta.persistence.OneToMany;
 public class Servicio {
 
 	public enum EstadoServicio {
-		Abierto, Cerrado;
+		Abierto, Cerrado, Finalizado;
 	}
 
 	@Id
