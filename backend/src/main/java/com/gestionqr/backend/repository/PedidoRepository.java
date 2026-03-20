@@ -17,4 +17,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<Pedido> findByEstadoIn(List<EstadoPedido> estados);
 
     List<Pedido> findByServicioId(Long servicioId);
+    
+    List<Pedido> findByEstadoInOrderByEstadoAsc(List<EstadoPedido> estados);
 }

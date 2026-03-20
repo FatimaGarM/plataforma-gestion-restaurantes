@@ -32,12 +32,12 @@ public class PedidoService {
 		return pedidoRepository.save(pedido);
 	}
 
-	public Pedido cambiarEstado(Long id) {
+	public Pedido avanzarEstado(Long id) {
 
 		Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
 
-		if (pedido.getServicio().getEstado() == EstadoServicio.Cerrado) {
-			throw new RuntimeException("El servicio ya está cerrado");
+		if (pedido.getServicio().getEstado() == EstadoServicio.Finalizado) {
+			throw new RuntimeException("El servicio ya está finalizado");
 		}
 
 		EstadoPedido actual = pedido.getEstado();
@@ -61,6 +61,32 @@ public class PedidoService {
 
 		return actualizado;
 	}
+	
+	public Pedido retrocederEstado(Long id) {
+
+		Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+		if (pedido.getServicio().getEstado() == EstadoServicio.Finalizado) {
+			throw new RuntimeException("El servicio ya está finalizado");
+		}
+
+		EstadoPedido actual = pedido.getEstado();
+		EstadoPedido nuevoEstado;
+
+		switch (actual) {
+			case Pendiente -> throw new IllegalArgumentException("Unexpected value: " + actual);
+			case EnProceso -> nuevoEstado = EstadoPedido.Pendiente;
+			case Listo -> nuevoEstado = EstadoPedido.EnProceso;
+			default -> throw new IllegalArgumentException("Unexpected value: " + actual);
+		}
+
+		pedido.setEstado(nuevoEstado);
+
+		Pedido actualizado = pedidoRepository.save(pedido);
+
+		return actualizado;
+	}
+	
 
 	private void comprobarYCerrarServicio(Servicio servicio) {
 
@@ -74,9 +100,19 @@ public class PedidoService {
 		}
 		
 	}
+	
+	private void comprobarYAbrirServicio(Servicio servicio) {
+
+		if(servicio.getEstado()== EstadoServicio.Cerrado) {
+			servicio.setEstado(EstadoServicio.Abierto);
+			servicioRepository.save(servicio);
+		}
+		
+	}
 
 	public List<Pedido> obtenerActivos() {
-		return pedidoRepository
-				.findByEstadoIn(List.of(EstadoPedido.Pendiente, EstadoPedido.EnProceso, EstadoPedido.Listo));
+		return pedidoRepository.findByEstadoInOrderByEstadoAsc(
+			    List.of(EstadoPedido.Pendiente, EstadoPedido.EnProceso, EstadoPedido.Listo)
+				);
 	}
 }

@@ -15,9 +15,20 @@ function GestionarPedidos() {
             .then(data => setPedidos(data));
     }
 
-    function actualizarEstadoPedido(id) {
+    function avanzarEstadoPedido(id) {
         
-        fetch(`/pedidos/${id}/siguiente-estado`, {
+        fetch(`/pedidos/${id}/avanzar-estado`, {
+            method: "PUT"
+        })
+        .then(res => res.json())
+        .then(data => {
+            cargarPedidos();
+        });
+    }
+
+    function retrocederEstadoPedido(id) {
+        
+        fetch(`/pedidos/${id}/retroceder-estado`, {
             method: "PUT"
         })
         .then(res => res.json())
@@ -49,10 +60,17 @@ return (
                         <td className="border p-2">{pedido.estado}</td>
                         <td className="border p-2">
                             <button
-                                className="bg-green-500 text-white px-2"
-                                onClick={() => actualizarEstadoPedido(pedido.id)}
+                                className="bg-green-500 text-white px-2 mr-2"
+                                onClick={() => avanzarEstadoPedido(pedido.id)}
                             >
-                                Cambiar Estado
+                                Avanzar Estado
+                            </button>
+                            
+                            <button
+                                className="bg-green-500 text-white px-2 mr-2"
+                                onClick={() => retrocederEstadoPedido(pedido.id)}
+                            >
+                                Retroceder Estado
                             </button>
                         </td>
                     </tr>
