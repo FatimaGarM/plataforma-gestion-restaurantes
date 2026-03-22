@@ -52,9 +52,9 @@ function GestionarEmpleados() {
         limpiarFormularioEmpleado();
     }
 
-    function solicitarEliminarEmpleado(Empleado) {
+    function solicitarEliminarEmpleado(empleado) {
         setMostrarFormulario(false);
-        setEmpleadoEliminar(Empleado);
+        setEmpleadoEliminar(empleado);
         setMostrarConfirmacionEliminar(true);
     }
 
@@ -63,12 +63,12 @@ function GestionarEmpleados() {
         setEmpleadoEliminar(null);
     }
 
-    function eliminarEmpleado(id) {
+    function eliminarEmpleado() {
         if (empleadoEliminar == null) {
             return;
         }
 
-        fetch(`/empleados/${id}`, {
+        fetch(`/empleados/${empleadoEliminar.id}`, {
             method: "DELETE"
         })
             .then(res => {
@@ -79,17 +79,21 @@ function GestionarEmpleados() {
                     console.log("Error al eliminar empleado");
                 }
             })
-            .catch(error => console.log("Error:", error));
+            .catch(error => console.log("Error:", error))
 
-        cancelarEliminarPlato();
-        cerrarFormulario();
-        
+            .finally(() => {
+
+                cancelarEliminarEmpleado();
+                cerrarFormulario();
+
+            });
+
     }
 
     function editarEmpleado(id) {
         setEditar(true);
         console.log("Editar empleado con ID:", id);
-        fetch(`/empleados/${id}`,{
+        fetch(`/empleados/${id}`, {
             method: "GET"
         })
             .then(res => res.json())
@@ -130,6 +134,8 @@ function GestionarEmpleados() {
                 .then(res => res.json())
                 .then(data => {
                     console.log("Empleado guardado", data);
+                    cargarEmpleados();
+                    cerrarFormulario();
                 })
                 .catch(error => console.log("Error:", error));
         } else {
@@ -140,11 +146,11 @@ function GestionarEmpleados() {
                 .then(res => res.json())
                 .then(data => {
                     console.log("Empleado guardado", data);
+                    cargarEmpleados();
+                    cerrarFormulario();
                 })
                 .catch(error => console.log("Error:", error));
         }
-        cargarEmpleados();
-        cerrarFormulario();
     }
 
     return (
@@ -176,122 +182,125 @@ function GestionarEmpleados() {
                     nombre={nombre}
                     email={email}
                     contraseña={contraseña}
+                    tipoEmpleado={tipoEmpleado}
+                    estado={estado}
                     onNombreChange={(e) => setNombre(e.target.value)}
                     onEmailChange={(e) => setEmail(e.target.value)}
                     onContraseñaChange={(e) => setContraseña(e.target.value)}
+                    onTipoEmpleadoChange={(e) => setTipoEmpleado(e.target.value)}
+                    onEstadoChange={(e) => setEstado(e.target.value)}
                     onImagenChange={(e) => setImagen(e.target.files[0])}
                     onCancelar={cerrarFormulario}
                     onSubmit={guardarEmpleado}
                     editar={editar}
                 />
-
             </DialogoModal>
 
             <ConfirmacionEliminar
                 abierto={mostrarConfirmacionEliminar}
-                titulo="Eliminar plato"
+                titulo="Eliminar empleado"
                 mensaje={
                     empleadoEliminar
                         ? `Se eliminará "${empleadoEliminar.nombre}". Esta acción no se puede deshacer.`
                         : "Esta acción no se puede deshacer."
                 }
                 onCancelar={cancelarEliminarEmpleado}
-                onConfirmar={eliminarEmpleado(empleadoEliminar ? empleadoEliminar.id : null)}
-            />
+                onConfirmar={eliminarEmpleado}
+                    />
 
-            <table className="w-full border">
+                    <table className="w-full border">
 
-                <thead className="bg-gray-200 text-center">
+                        <thead className="bg-gray-200 text-center">
 
-                    <tr>
-                        <th className="border p-2">
-                            Foto
-                        </th>
+                            <tr>
+                                <th className="border p-2">
+                                    Foto
+                                </th>
 
-                        <th className="border p-2">
-                            Nombre
-                        </th>
+                                <th className="border p-2">
+                                    Nombre
+                                </th>
 
-                        <th className="border p-2">
-                            Email
-                        </th>
+                                <th className="border p-2">
+                                    Email
+                                </th>
 
-                        <th className="border p-2">
-                            Contraseña
-                        </th>
+                                <th className="border p-2">
+                                    Contraseña
+                                </th>
 
-                        <th className="border p-2">
-                            Tipo Empleado
-                        </th>
+                                <th className="border p-2">
+                                    Tipo Empleado
+                                </th>
 
-                        <th className="border p-2">
-                            Estado
-                        </th>
-                        <th className="border p-2">
-                            Acciones
-                        </th>
-                    </tr>
+                                <th className="border p-2">
+                                    Estado
+                                </th>
+                                <th className="border p-2">
+                                    Acciones
+                                </th>
+                            </tr>
 
-                </thead>
-
-
-                <tbody>
-
-                    {empleados.map(empleado => (
-
-                        <tr key={empleado.id}>
-
-                            <td className="border p-2">
-                                <div className="flex items-center justify-left gap-2">
-
-                                    <img
-                                        src={`/uploads/FotosEmpleados/${empleado.imagen}`}
-                                        className="w-10 h-10 rounded"
-                                    />
-
-                                </div>
-                            </td>
-
-                            <td className="border p-2 text-center">
-                                {empleado.nombre}
-                            </td>
-
-                            <td className="border p-2 text-center">
-                                {empleado.email}
-                            </td>
+                        </thead>
 
 
-                            <td className="border p-2 text-center">
-                                {empleado.contraseña}
-                            </td>
+                        <tbody>
 
-                            <td className="border p-2 text-center">
-                                {empleado.tipoEmpleado}
-                            </td>
+                            {empleados.map(empleado => (
 
-                            <td className="border p-2 text-center">
-                                {empleado.estado}
-                            </td>
+                                <tr key={empleado.id}>
 
-                            <td className="border p-2 text-center">
+                                    <td className="border p-2">
+                                        <div className="flex items-center justify-left gap-2">
 
-                                <button className="bg-gray-300 px-2 mr-2" onClick={() => editarEmpleado(empleado.id)}>
-                                    Editar
-                                </button>
+                                            <img
+                                                src={`/uploads/FotosEmpleados/${empleado.imagen}`}
+                                                className="w-10 h-10 rounded"
+                                            />
 
-                                <button className="bg-red-500 text-white px-2" onClick={() => solicitarEliminarEmpleado(empleado)}>
-                                    Eliminar
-                                </button>
+                                        </div>
+                                    </td>
 
-                            </td>
+                                    <td className="border p-2 text-center">
+                                        {empleado.nombre}
+                                    </td>
 
-                        </tr>
+                                    <td className="border p-2 text-center">
+                                        {empleado.email}
+                                    </td>
 
-                    ))}
 
-                </tbody>
+                                    <td className="border p-2 text-center">
+                                        {empleado.contraseña}
+                                    </td>
 
-            </table>
+                                    <td className="border p-2 text-center">
+                                        {empleado.tipoEmpleado}
+                                    </td>
+
+                                    <td className="border p-2 text-center">
+                                        {empleado.estado}
+                                    </td>
+
+                                    <td className="border p-2 text-center">
+
+                                        <button className="bg-gray-300 px-2 mr-2" onClick={() => editarEmpleado(empleado.id)}>
+                                            Editar
+                                        </button>
+
+                                        <button className="bg-red-500 text-white px-2" onClick={() => solicitarEliminarEmpleado(empleado)}>
+                                            Eliminar
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+                            ))}
+
+                        </tbody>
+
+                    </table>
 
         </div>
 

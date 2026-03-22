@@ -43,7 +43,7 @@ public class EmpleadoController {
             @RequestParam(name="imagen", required=false) MultipartFile imagen
             ) throws Exception {
     	
-    	return actualizarEmpleado(id, nombre, email, contraseña, tipoEmpleado, estado, imagen);
+    	return empleadoService.actualizarEmpleado(id, nombre, email, contraseña, tipoEmpleado, estado, imagen);
     }
     
     @PostMapping("/con-imagen")
@@ -58,13 +58,13 @@ public class EmpleadoController {
 
         
 
-        return crearEmpleadoConImagen(nombre, email, contraseña, tipoEmpleado, estado, imagen);
+        return empleadoService.crearEmpleadoConImagen(nombre, email, contraseña, tipoEmpleado, estado, imagen);
     }
     
     @DeleteMapping("/{id}")
     public void borrarEmpleado(@PathVariable Long id)  throws Exception {
         
-        borrarEmpleado(id);
+        empleadoService.borrarEmpleado(id);
     }
     
 }

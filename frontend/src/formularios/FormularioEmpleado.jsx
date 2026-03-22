@@ -5,10 +5,12 @@ function FormularioEmpleado({
     email,
     contraseña,
     tipoEmpleado,
+    estado,
     onNombreChange,
     onEmailChange,
     onContraseñaChange,
     onTipoEmpleadoChange,
+    onEstadoChange,
     onImagenChange,
     onCancelar,
     onSubmit,
@@ -62,14 +64,29 @@ function FormularioEmpleado({
                 min="0"
             />
 
-                <input
-                type="text"
-                placeholder="Tipo de empleado"
-                value={tipoEmpleado}
-                onChange={onTipoEmpleadoChange}
-                className="border p-2 w-full sm:w-40"
-                required
-            />
+                <select
+                    value={tipoEmpleado}
+                    onChange={onTipoEmpleadoChange}
+                    className="border p-2 w-full sm:w-40"
+                    required
+                >
+                    <option value="">Seleccionar tipo</option>
+                    <option value="Camarero">Camarero</option>
+                    <option value="Cocinero">Cocinero</option>
+                    <option value="Gerente">Gerente</option>
+                </select>
+
+                <select
+                    value={estado}
+                    onChange={onEstadoChange}
+                    className="border p-2 w-full sm:w-40"
+                    required
+                >
+                    <option value="">Seleccionar estado</option>
+                    <option value="Descanso">Descanso</option>
+                    <option value="Vacaciones">Vacaciones</option>
+                    <option value="Activo">Activo</option>
+                </select>
 
             <input
                 type="file"
