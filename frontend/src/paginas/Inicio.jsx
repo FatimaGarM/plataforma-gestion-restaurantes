@@ -26,7 +26,7 @@ function Inicio() {
     }, []);
 
     const pendientes = pedidos.filter(p => p.estado === "Pendiente").length;
-    const enProceso = pedidos.filter(p => p.estado === "EnProceso").length;
+    const enProceso = pedidos.filter(p => p.estado === "En proceso").length;
     const listos = pedidos.filter(p => p.estado === "Listo").length;
 
     return (

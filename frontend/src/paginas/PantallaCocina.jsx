@@ -27,7 +27,7 @@ function PantallaCocina() {
   }
 
   const pendientes = pedidos.filter(p => p.estado === "Pendiente");
-  const enProceso = pedidos.filter(p => p.estado === "EnProceso");
+  const enProceso = pedidos.filter(p => p.estado === "En proceso");
 
   return (
     <div className="container-page">
@@ -70,7 +70,7 @@ function PantallaCocina() {
         {/* EN PROCESO */}
         <div className="bg-blue-50 rounded-xl border p-5">
           <h2 className="font-semibold text-blue-700 mb-4">
-            En proceso ({enProceso.length})
+            En Proceso ({enProceso.length})
           </h2>
 
           {enProceso.length === 0 && (
