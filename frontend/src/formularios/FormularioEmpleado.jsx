@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function FormularioEmpleado({
     nombre,
@@ -6,10 +6,11 @@ function FormularioEmpleado({
     contraseña,
     tipoEmpleado,
     estado,
+    imagenActual,
     onNombreChange,
     onEmailChange,
     onContraseñaChange,
-    onTipoEmpleadoChange,
+    onTipoChange,
     onEstadoChange,
     onImagenChange,
     onCancelar,
@@ -19,111 +20,99 @@ function FormularioEmpleado({
 
     const [preview, setPreview] = useState(null);
 
+    // cargar imagen existente al editar
+    useEffect(() => {
+        if (editar && imagenActual) {
+            setPreview(`http://localhost:8080/uploads/FotosEmpleados/${imagenActual}`);
+        }
+    }, [editar, imagenActual]);
+
     function manejarImagen(e) {
-
         const archivo = e.target.files[0];
-
         if (!archivo) return;
 
         setPreview(URL.createObjectURL(archivo));
-
         onImagenChange(e);
     }
 
     return (
-        <form
-            onSubmit={onSubmit}
-            className="flex gap-2 flex-wrap"
-        >
+        <form onSubmit={onSubmit} className="flex flex-col gap-3">
 
             <input
                 type="text"
                 placeholder="Nombre"
                 value={nombre}
                 onChange={onNombreChange}
-                className="border p-2 flex-1 min-w-[180px]"
+                className="input"
                 required
             />
 
             <input
                 type="email"
-                placeholder="email"
+                placeholder="Email"
                 value={email}
                 onChange={onEmailChange}
-                className="border p-2 flex-1 min-w-[180px]"
+                className="input"
                 required
             />
 
-            <input
-                type="password"
-                placeholder="Contraseña"
-                value={contraseña}
-                onChange={onContraseñaChange}
-                className="border p-2 w-full sm:w-40"
+            {!editar && (
+                <input
+                    type="password"
+                    placeholder="Contraseña"
+                    value={contraseña}
+                    onChange={onContraseñaChange}
+                    className="input"
+                    required
+                />
+            )}
+
+            <select
+                value={tipoEmpleado}
+                onChange={onTipoChange}
+                className="input"
                 required
-                min="0"
-            />
+            >
+                <option value="">Seleccionar rol</option>
+                <option value="CAMARERO">Camarero</option>
+                <option value="COCINERO">Cocinero</option>
+                <option value="GERENTE">Gerente</option>
+            </select>
 
-                <select
-                    value={tipoEmpleado}
-                    onChange={onTipoEmpleadoChange}
-                    className="border p-2 w-full sm:w-40"
-                    required
-                >
-                    <option value="">Seleccionar tipo</option>
-                    <option value="Camarero">Camarero</option>
-                    <option value="Cocinero">Cocinero</option>
-                    <option value="Gerente">Gerente</option>
-                </select>
-
-                <select
-                    value={estado}
-                    onChange={onEstadoChange}
-                    className="border p-2 w-full sm:w-40"
-                    required
-                >
-                    <option value="">Seleccionar estado</option>
-                    <option value="Descanso">Descanso</option>
-                    <option value="Vacaciones">Vacaciones</option>
-                    <option value="Activo">Activo</option>
-                </select>
+            <select
+                value={estado}
+                onChange={onEstadoChange}
+                className="input"
+                required
+            >
+                <option value="">Seleccionar estado</option>
+                <option value="ACTIVO">Activo</option>
+                <option value="DESCANSO">Descanso</option>
+                <option value="VACACIONES">Vacaciones</option>
+            </select>
 
             <input
                 type="file"
                 onChange={manejarImagen}
-                className="border p-2 w-full"
+                className="input"
                 accept="image/*"
-                required={!editar}
             />
 
             {preview && (
-                <div className="w-full mt-2">
-                    <p className="text-sm text-gray-500 mb-1">
-                        Vista previa de la imagen
-                    </p>
-
-                    <img
-                        src={preview}
-                        alt="preview"
-                        className="w-32 h-32 object-cover rounded border"
-                    />
-                </div>
+                <img
+                    src={preview}
+                    className="w-24 h-24 object-cover rounded-lg"
+                />
             )}
 
-            <div className="w-full flex justify-end gap-2 mt-2">
-
-                <button
-                    type="button"
-                    className="bg-gray-300 text-black px-3 py-2"
-                    onClick={onCancelar}
-                >
+            <div className="flex justify-end gap-2 mt-2">
+                <button type="button" onClick={onCancelar} className="btn btn-outline">
                     Cancelar
                 </button>
 
-                <button className="bg-orange-400 text-white px-3 py-2">
+                <button className="btn btn-success">
                     Guardar
                 </button>
-
             </div>
 
         </form>

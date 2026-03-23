@@ -1,57 +1,58 @@
 package com.gestionqr.backend.controller;
 
+
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.gestionqr.backend.model.Pedido;
 import com.gestionqr.backend.model.Pedido.EstadoPedido;
 import com.gestionqr.backend.service.PedidoService;
 
+/**
+ * Controlador REST para la gestión de pedidos.
+ */
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/pedidos")
 public class PedidoController {
-	
-	@Autowired
-	PedidoService pedidoService;
-	
-	@GetMapping("{estado}")
-    public List<Pedido> obtenerPedidosPorEstado(@PathVariable EstadoPedido estado) {
-        return pedidoService.obtenerPedidosPorEstado(estado);
-    }
-	
-    public Pedido crearPedido(Pedido pedido) {    	
-    	return pedidoService.crearPedido(pedido);
-    }
-    
-    @PutMapping("/{id}/avanzar-estado")
-    public Pedido cambiarEstado(
-            @PathVariable Long id) {
 
-        return pedidoService.avanzarEstado(id);
-    }
+    @Autowired
+    private PedidoService pedidoService;
     
-    @PutMapping("/{id}/retroceder-estado")
-    public Pedido retrocederrEstado(
-            @PathVariable Long id) {
-
-        return pedidoService.retrocederEstado(id);
-    }
-    
+    /**
+     * Obtener pedidos activos en la pantalla cocina
+     */
     @GetMapping("/activos")
     public List<Pedido> obtenerActivos() {
         return pedidoService.obtenerActivos();
     }
 
+    /**
+     * Obtener pedidos por estado en cocina cocina.
+     */
+    @GetMapping("/estado/{estado}")
+    public List<Pedido> obtenerPedidosPorEstado(@PathVariable EstadoPedido estado) {
+        return pedidoService.obtenerPedidosPorEstado(estado);
+    }
+
+    /**
+     * Crear pedido manual (opcional).
+     */
+    @PostMapping
+    public Pedido crearPedido(@RequestBody Pedido pedido) {
+        return pedidoService.crearPedido(pedido);
+    }
+
+    /**
+     * Cambiar estado del pedido al siguiente.
+     */
+    @PutMapping("/{id}/siguiente-estado")
+    public Pedido cambiarEstado(
+            @PathVariable Long id) {
+
+        return pedidoService.siguienteEstado(id);
+    }
 }

@@ -1,17 +1,25 @@
 function Footer() {
   return (
-    <footer className="bg-orange-200 border-t mt-10 py-4">
+    <footer className="bg-white border-t border-gray-200 mt-10 py-6">
 
-      <div className="flex flex-col items-center text-sm gap-2">
+      <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
 
+        {/* LINKS */}
         <div className="flex gap-6">
-          <a href="#">Aviso legal</a>
-          <a href="#">Política de privacidad</a>
-          <a href="#">Política de cookies</a>
+          <a href="#" className="hover:text-gray-800 transition">
+            Aviso legal
+          </a>
+          <a href="#" className="hover:text-gray-800 transition">
+            Política de privacidad
+          </a>
+          <a href="#" className="hover:text-gray-800 transition">
+            Política de cookies
+          </a>
         </div>
 
-        <p className="text-gray-600">
-          Copyright © Todos los derechos reservados 2026 Gestión - Restaurante QR
+        {/* COPYRIGHT */}
+        <p className="text-center md:text-right">
+          © 2026 Gestión Restaurante QR
         </p>
 
       </div>

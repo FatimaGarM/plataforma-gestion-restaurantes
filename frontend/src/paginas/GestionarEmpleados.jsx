@@ -1,310 +1,367 @@
 import { useEffect, useState } from "react";
-import FormularioEmpleado from "../formularios/FormularioEmpleado";
-import ConfirmacionEliminar from "../componentes/ConfirmacionEliminar";
-import DialogoModal from "../componentes/DialogoModal";
+import deleteIcon from "../assets/iconos/eliminar.png";
 
 function GestionarEmpleados() {
 
-    const [empleados, setEmpleados] = useState([]);
-    const [mostrarFormulario, setMostrarFormulario] = useState(false);
-    const [mostrarConfirmacionEliminar, setMostrarConfirmacionEliminar] = useState(false);
+  const [empleados, setEmpleados] = useState([]);
 
-    const [id, setId] = useState(null);
-    const [nombre, setNombre] = useState("");
-    const [email, setEmail] = useState("");
-    const [contraseña, setContraseña] = useState("");
-    const [tipoEmpleado, setTipoEmpleado] = useState("");
-    const [estado, setEstado] = useState("");
-    const [imagen, setImagen] = useState(null);
-    const [editar, setEditar] = useState(false);
-    const [empleadoEliminar, setEmpleadoEliminar] = useState(null);
+  const [id, setId] = useState(null);
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [contraseña, setContraseña] = useState("");
+  const [tipoEmpleado, setTipoEmpleado] = useState("");
+  const [estado, setEstado] = useState("");
+  const [imagen, setImagen] = useState(null);
+  const [editar, setEditar] = useState(false);
 
+  // filtros
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroRol, setFiltroRol] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("");
 
-    useEffect(() => {
-        cargarEmpleados();
-    }, []);
+  // paginación
+  const [paginaActual, setPaginaActual] = useState(1);
+  const porPagina = 5;
 
+  useEffect(() => {
+    cargarEmpleados();
+  }, []);
 
-    function cargarEmpleados() {
-        fetch("/empleados")
-            .then(res => res.json())
-            .then(data => setEmpleados(data));
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [busqueda, filtroRol, filtroEstado]);
+
+  function cargarEmpleados() {
+    fetch("/empleados")
+      .then(res => res.json())
+      .then(data => setEmpleados(data));
+  }
+
+  function limpiar() {
+    setId(null);
+    setNombre("");
+    setEmail("");
+    setContraseña("");
+    setTipoEmpleado("");
+    setEstado("");
+    setImagen(null);
+    setEditar(false);
+  }
+
+  function editarEmpleado(id) {
+    setEditar(true);
+
+    fetch(`/empleados/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setId(id);
+        setNombre(data.nombre);
+        setEmail(data.email);
+        setTipoEmpleado(data.tipoEmpleado);
+        setEstado(data.estado);
+        setContraseña(""); // reset contraseña
+      });
+  }
+
+  function guardarEmpleado(e) {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("nombre", nombre);
+    formData.append("email", email);
+
+    if (contraseña) {
+      formData.append("contraseña", contraseña);
     }
 
-    function limpiarFormularioEmpleado() {
-        setId(null);
-        setNombre("");
-        setEmail("");
-        setContraseña("");
-        setTipoEmpleado("");
-        setEstado("");
-        setImagen(null);
-        setEditar(false);
+    formData.append("tipoEmpleado", tipoEmpleado);
+    formData.append("estado", estado);
+
+    if (imagen) {
+      formData.append("imagen", imagen);
     }
 
-    function abrirFormularioCrear() {
-        limpiarFormularioEmpleado();
-        setMostrarFormulario(true);
-    }
+    const url = id ? `/empleados/${id}` : "/empleados/con-imagen";
+    const method = id ? "PUT" : "POST";
 
-    function cerrarFormulario() {
-        setMostrarFormulario(false);
-        limpiarFormularioEmpleado();
-    }
+    fetch(url, {
+      method,
+      body: formData
+    }).then(() => {
+      cargarEmpleados();
+      limpiar();
+    });
+  }
 
-    function solicitarEliminarEmpleado(empleado) {
-        setMostrarFormulario(false);
-        setEmpleadoEliminar(empleado);
-        setMostrarConfirmacionEliminar(true);
-    }
+  function eliminarEmpleado(id) {
+    fetch(`/empleados/${id}`, { method: "DELETE" })
+      .then(() => cargarEmpleados());
+  }
 
-    function cancelarEliminarEmpleado() {
-        setMostrarConfirmacionEliminar(false);
-        setEmpleadoEliminar(null);
-    }
+  function estadoColor(estado) {
+    if (estado === "ACTIVO") return "bg-green-100 text-green-700";
+    if (estado === "DESCANSO") return "bg-gray-200 text-gray-700";
+    if (estado === "VACACIONES") return "bg-orange-100 text-orange-700";
+    return "";
+  }
 
-    function eliminarEmpleado() {
-        if (empleadoEliminar == null) {
-            return;
-        }
-
-        fetch(`/empleados/${empleadoEliminar.id}`, {
-            method: "DELETE"
-        })
-            .then(res => {
-                if (res.ok) {
-                    console.log("Empleado eliminado");
-                    cargarEmpleados();
-                } else {
-                    console.log("Error al eliminar empleado");
-                }
-            })
-            .catch(error => console.log("Error:", error))
-
-            .finally(() => {
-
-                cancelarEliminarEmpleado();
-                cerrarFormulario();
-
-            });
-
-    }
-
-    function editarEmpleado(id) {
-        setEditar(true);
-        console.log("Editar empleado con ID:", id);
-        fetch(`/empleados/${id}`, {
-            method: "GET"
-        })
-            .then(res => res.json())
-            .then(data => {
-                setId(id);
-                setNombre(data.nombre);
-                setEmail(data.email);
-                setContraseña(data.contraseña);
-                setTipoEmpleado(data.tipoEmpleado);
-                setEstado(data.estado);
-                setMostrarFormulario(true);
-            })
-            .catch(error => console.log("Error:", error));
-
-    }
-
-    function guardarEmpleado(e) {
-
-        e.preventDefault();
-
-        console.log("Guardando empleado...");
-
-        const formData = new FormData();
-        formData.append("nombre", nombre);
-        formData.append("email", email);
-        formData.append("contraseña", contraseña);
-        formData.append("tipoEmpleado", tipoEmpleado);
-        formData.append("estado", estado);
-        if (imagen != null) {
-            formData.append("imagen", imagen);
-        }
-
-        if (id != null) {
-            fetch(`/empleados/actualizar/${id}`, {
-                method: "PUT",
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    console.log("Empleado guardado", data);
-                    cargarEmpleados();
-                    cerrarFormulario();
-                })
-                .catch(error => console.log("Error:", error));
-        } else {
-            fetch("/empleados/con-imagen", {
-                method: "POST",
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    console.log("Empleado guardado", data);
-                    cargarEmpleados();
-                    cerrarFormulario();
-                })
-                .catch(error => console.log("Error:", error));
-        }
-    }
-
+  // FILTRADO
+  const empleadosFiltrados = empleados.filter(emp => {
     return (
+      emp.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
+      (filtroRol === "" || emp.tipoEmpleado === filtroRol) &&
+      (filtroEstado === "" || emp.estado === filtroEstado)
+    );
+  });
 
-        <div className="p-6">
+  // PAGINACIÓN
+  const indexUltimo = paginaActual * porPagina;
+  const indexPrimero = indexUltimo - porPagina;
 
-            <div className="flex justify-between mb-4">
+  const empleadosPaginados = empleadosFiltrados.slice(indexPrimero, indexUltimo);
+  const totalPaginas = Math.ceil(empleadosFiltrados.length / porPagina);
 
-                <h1 className="text-xl font-bold">
-                    Empleados
-                </h1>
+  return (
+    <div className="bg-gray-50 min-h-screen p-6">
 
-                <button
-                    onClick={abrirFormularioCrear}
-                    className="bg-green-600 text-white px-3 py-1 rounded"
-                >
-                    + Añadir empleado
-                </button>
+      <h1 className="text-2xl font-semibold mb-6">
+        Empleados
+      </h1>
 
-            </div>
+      <div className="flex gap-6">
 
-            <DialogoModal
-                abierto={mostrarFormulario}
-                onCerrar={cerrarFormulario}
-                titulo={editar ? "Editar plato" : "Crear nuevo plato"}
+        {/* FORMULARIO */}
+        <div className={`w-80 rounded-2xl p-5 shadow-md border transition-colors
+        ${editar ? "bg-gradient-to-br from-amber-50 to-orange-100 border-amber-200" : "bg-gradient-to-br from-emerald-50 to-green-100"}`}>
+
+          <div className="flex items-center justify-between mb-4">
+            <h2 className={`font-semibold ${editar ? "text-amber-800" : "text-gray-800"}`}>
+              {editar ? "Editar empleado" : "Añadir empleado"}
+            </h2>
+            {editar && (
+              <button
+                type="button"
+                onClick={limpiar}
+                className="text-xs text-amber-700 hover:text-amber-900 underline"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+
+          <form onSubmit={guardarEmpleado} className="flex flex-col gap-3">
+
+            <input
+              type="text"
+              placeholder="Nombre..."
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className="bg-white border px-4 py-2 rounded-lg text-sm"
+              required
+            />
+
+            <input
+              type="email"
+              placeholder="Email..."
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="bg-white border px-4 py-2 rounded-lg text-sm"
+              required
+            />
+
+            {!editar && (
+              <input
+                type="password"
+                placeholder="Contraseña..."
+                value={contraseña}
+                onChange={(e) => setContraseña(e.target.value)}
+                className="bg-white border px-4 py-2 rounded-lg text-sm"
+                required
+              />
+            )}
+
+            <select
+              value={tipoEmpleado}
+              onChange={(e) => setTipoEmpleado(e.target.value)}
+              className="bg-white border px-4 py-2 rounded-lg text-sm"
+              required
             >
+              <option value="">Seleccionar rol</option>
+              <option value="CAMARERO">Camarero</option>
+              <option value="COCINERO">Cocinero</option>
+              <option value="GERENTE">Gerente</option>
+            </select>
 
-                <FormularioEmpleado
-                    nombre={nombre}
-                    email={email}
-                    contraseña={contraseña}
-                    tipoEmpleado={tipoEmpleado}
-                    estado={estado}
-                    onNombreChange={(e) => setNombre(e.target.value)}
-                    onEmailChange={(e) => setEmail(e.target.value)}
-                    onContraseñaChange={(e) => setContraseña(e.target.value)}
-                    onTipoEmpleadoChange={(e) => setTipoEmpleado(e.target.value)}
-                    onEstadoChange={(e) => setEstado(e.target.value)}
-                    onImagenChange={(e) => setImagen(e.target.files[0])}
-                    onCancelar={cerrarFormulario}
-                    onSubmit={guardarEmpleado}
-                    editar={editar}
-                />
-            </DialogoModal>
+            <select
+              value={estado}
+              onChange={(e) => setEstado(e.target.value)}
+              className="bg-white border px-4 py-2 rounded-lg text-sm"
+              required
+            >
+              <option value="">Seleccionar estado</option>
+              <option value="ACTIVO">Activo</option>
+              <option value="DESCANSO">Descanso</option>
+              <option value="VACACIONES">Vacaciones</option>
+            </select>
 
-            <ConfirmacionEliminar
-                abierto={mostrarConfirmacionEliminar}
-                titulo="Eliminar empleado"
-                mensaje={
-                    empleadoEliminar
-                        ? `Se eliminará "${empleadoEliminar.nombre}". Esta acción no se puede deshacer.`
-                        : "Esta acción no se puede deshacer."
-                }
-                onCancelar={cancelarEliminarEmpleado}
-                onConfirmar={eliminarEmpleado}
-                    />
+            <input
+              type="file"
+              onChange={(e) => setImagen(e.target.files[0])}
+              className="bg-white border px-3 py-2 rounded-lg text-sm"
+            />
 
-                    <table className="w-full border">
+            <button className={`${editar ? "bg-amber-500 hover:bg-amber-600" : "bg-emerald-600 hover:bg-emerald-700"} text-white py-2 rounded-lg font-medium transition mt-2`}>
+              {editar ? "Actualizar" : "Añadir empleado"}
+            </button>
 
-                        <thead className="bg-gray-200 text-center">
-
-                            <tr>
-                                <th className="border p-2">
-                                    Foto
-                                </th>
-
-                                <th className="border p-2">
-                                    Nombre
-                                </th>
-
-                                <th className="border p-2">
-                                    Email
-                                </th>
-
-                                <th className="border p-2">
-                                    Contraseña
-                                </th>
-
-                                <th className="border p-2">
-                                    Tipo Empleado
-                                </th>
-
-                                <th className="border p-2">
-                                    Estado
-                                </th>
-                                <th className="border p-2">
-                                    Acciones
-                                </th>
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {empleados.map(empleado => (
-
-                                <tr key={empleado.id}>
-
-                                    <td className="border p-2">
-                                        <div className="flex items-center justify-left gap-2">
-
-                                            <img
-                                                src={`/uploads/FotosEmpleados/${empleado.imagen}`}
-                                                className="w-10 h-10 rounded"
-                                            />
-
-                                        </div>
-                                    </td>
-
-                                    <td className="border p-2 text-center">
-                                        {empleado.nombre}
-                                    </td>
-
-                                    <td className="border p-2 text-center">
-                                        {empleado.email}
-                                    </td>
-
-
-                                    <td className="border p-2 text-center">
-                                        {empleado.contraseña}
-                                    </td>
-
-                                    <td className="border p-2 text-center">
-                                        {empleado.tipoEmpleado}
-                                    </td>
-
-                                    <td className="border p-2 text-center">
-                                        {empleado.estado}
-                                    </td>
-
-                                    <td className="border p-2 text-center">
-
-                                        <button className="bg-gray-300 px-2 mr-2" onClick={() => editarEmpleado(empleado.id)}>
-                                            Editar
-                                        </button>
-
-                                        <button className="bg-red-500 text-white px-2" onClick={() => solicitarEliminarEmpleado(empleado)}>
-                                            Eliminar
-                                        </button>
-
-                                    </td>
-
-                                </tr>
-
-                            ))}
-
-                        </tbody>
-
-                    </table>
+          </form>
 
         </div>
 
-    );
+        {/* LISTADO */}
+        <div className="flex-1 bg-white rounded-xl shadow-sm border overflow-hidden">
+
+          {/* FILTROS */}
+          <div className="flex gap-3 p-4 border-b">
+
+            <input
+              type="text"
+              placeholder="Buscar empleado..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
+            />
+
+            <select
+              value={filtroRol}
+              onChange={(e) => setFiltroRol(e.target.value)}
+              className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
+            >
+              <option value="">Todos los roles</option>
+              <option value="CAMARERO">Camarero</option>
+              <option value="COCINERO">Cocinero</option>
+              <option value="GERENTE">Gerente</option>
+            </select>
+
+            <select
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
+              className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
+            >
+              <option value="">Todos los estados</option>
+              <option value="ACTIVO">Activo</option>
+              <option value="DESCANSO">Descanso</option>
+              <option value="VACACIONES">Vacaciones</option>
+            </select>
+
+          </div>
+
+          {/* TABLA */}
+          <table className="w-full text-sm">
+
+            <thead className="bg-gray-50 text-gray-500">
+              <tr>
+                <th className="p-3 text-left">Empleado</th>
+                <th className="p-3 text-left">Rol</th>
+                <th className="p-3 text-left">Estado</th>
+                <th className="p-3 text-left">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {empleadosPaginados.map(emp => (
+
+                <tr key={emp.id} className="border-t hover:bg-gray-50">
+
+                  <td className="p-3">
+                    <div className="flex items-center gap-3">
+
+                      <img
+                        src={emp.imagen ? `/uploads/FotosEmpleados/${emp.imagen}` : "/default-user.png"}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+
+                      <div>
+                        <p className="font-medium">{emp.nombre}</p>
+                        <p className="text-xs text-gray-400">{emp.email}</p>
+                      </div>
+
+                    </div>
+                  </td>
+
+                  <td className="p-3">{emp.tipoEmpleado}</td>
+
+                  <td className="p-3">
+                    <span className={`px-2 py-1 rounded text-xs ${estadoColor(emp.estado)}`}>
+                      {emp.estado}
+                    </span>
+                  </td>
+
+                  <td className="p-3">
+                    <div className="flex items-center gap-3">
+
+                      <button
+                        onClick={() => editarEmpleado(emp.id)}
+                        className="border px-3 py-1 rounded-lg text-sm hover:bg-gray-100"
+                      >
+                        Editar
+                      </button>
+
+                      <button onClick={() => eliminarEmpleado(emp.id)}>
+                        <img src={deleteIcon} className="w-5 h-5" />
+                      </button>
+
+                    </div>
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+          {/* PAGINACIÓN */}
+          <div className="p-4 border-t flex justify-between items-center text-sm">
+
+            <span className="text-gray-500">
+              Mostrando {empleadosPaginados.length} de {empleadosFiltrados.length} empleados
+            </span>
+
+            <div className="flex items-center gap-2">
+
+              <button
+                onClick={() => setPaginaActual(paginaActual - 1)}
+                disabled={paginaActual === 1}
+                className="px-3 py-1 border rounded disabled:opacity-40"
+              >
+                ←
+              </button>
+
+              <span>
+                {paginaActual} / {totalPaginas || 1}
+              </span>
+
+              <button
+                onClick={() => setPaginaActual(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas || totalPaginas === 0}
+                className="px-3 py-1 border rounded disabled:opacity-40"
+              >
+                →
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
 }
 
 export default GestionarEmpleados;

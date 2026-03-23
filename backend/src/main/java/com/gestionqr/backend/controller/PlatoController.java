@@ -1,38 +1,40 @@
 package com.gestionqr.backend.controller;
 
 import com.gestionqr.backend.model.Plato;
-import com.gestionqr.backend.repository.PlatoRepository;
+import com.gestionqr.backend.service.PlatoService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Controlador REST para la gestión de platos.
+ * Solo recibe peticiones y delega en el servicio.
+ */
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/platos")
 public class PlatoController {
 
     @Autowired
-    private PlatoRepository platoRepository;
+    private PlatoService platoService;
 
     @GetMapping
     public List<Plato> obtenerPlatos() {
-        return platoRepository.findAll();
+        return platoService.obtenerPlatos();
     }
 
     @GetMapping("/{id}")
     public Optional<Plato> obtenerPlatoById(@PathVariable Long id) {
-        return platoRepository.findById(id);
+        return platoService.obtenerPlatoById(id);
     }
 
     @PostMapping
     public Plato crearPlato(@RequestBody Plato plato) {
-        return platoRepository.save(plato);
+        return platoService.crearPlato(plato);
     }
 
     @PostMapping("/con-imagen")
@@ -40,21 +42,19 @@ public class PlatoController {
             @RequestParam String nombre,
             @RequestParam String descripcion,
             @RequestParam Double precio,
-            @RequestParam("imagen") MultipartFile imagen) throws Exception {
+            @RequestParam String tipo,
+            @RequestParam(required = false, defaultValue = "true") Boolean disponible,
+            @RequestParam(name = "imagen", required = false) MultipartFile imagen
+    ) throws Exception {
 
-        String nombreArchivo = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
-
-        Path ruta = Paths.get("uploads/FotoPlatos/" + nombreArchivo);
-        Files.createDirectories(ruta.getParent());
-        Files.write(ruta, imagen.getBytes());
-
-        Plato plato = new Plato();
-        plato.setNombre(nombre);
-        plato.setDescripcion(descripcion);
-        plato.setPrecio(precio);
-        plato.setImagen(nombreArchivo);
-
-        return platoRepository.save(plato);
+        return platoService.crearPlatoConImagen(
+                nombre,
+                descripcion,
+                precio,
+                tipo,
+                disponible,
+                imagen
+        );
     }
 
     @PutMapping("/{id}")
@@ -63,48 +63,29 @@ public class PlatoController {
             @RequestParam String nombre,
             @RequestParam String descripcion,
             @RequestParam Double precio,
-            @RequestParam(name = "imagen", required = false) MultipartFile imagen) throws Exception {
+            @RequestParam String tipo,
+            @RequestParam Boolean disponible,
+            @RequestParam(name = "imagen", required = false) MultipartFile imagen
+    ) throws Exception {
 
-        Plato plato = platoRepository.findById(id).get();
+        return platoService.actualizarPlato(
+                id,
+                nombre,
+                descripcion,
+                precio,
+                tipo,
+                disponible,
+                imagen
+        );
+    }
 
-        plato.setNombre(nombre);
-        plato.setDescripcion(descripcion);
-        plato.setPrecio(precio);
-
-        if (imagen != null && !imagen.isEmpty()) {
-
-            String imagenAntigua = plato.getImagen();
-
-            String nombreArchivo = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
-
-            Path rutaNueva = Paths.get("uploads/FotoPlatos/" + nombreArchivo);
-            Files.createDirectories(rutaNueva.getParent());
-            Files.write(rutaNueva, imagen.getBytes());
-
-            plato.setImagen(nombreArchivo);
-
-            if (imagenAntigua != null) {
-                Path rutaAntigua = Paths.get("uploads/FotoPlatos/" + imagenAntigua);
-                Files.deleteIfExists(rutaAntigua);
-            }
-        }
-
-        return platoRepository.save(plato);
-
+    @PutMapping("/{id}/disponible")
+    public Plato toggleDisponible(@PathVariable Long id) {
+        return platoService.toggleDisponible(id);
     }
 
     @DeleteMapping("/{id}")
     public void borrarPlato(@PathVariable Long id) throws Exception {
-
-        String nombreArchivo = platoRepository.findById(id).get().getImagen();
-
-        if (nombreArchivo != null) {
-            Path ruta = nombreArchivo.contains("/") || nombreArchivo.contains("\\")
-                    ? Paths.get("uploads/" + nombreArchivo)
-                    : Paths.get("uploads/FotoPlatos/" + nombreArchivo);
-            Files.deleteIfExists(ruta);
-        }
-
-        platoRepository.deleteById(id);
+        platoService.borrarPlato(id);
     }
 }

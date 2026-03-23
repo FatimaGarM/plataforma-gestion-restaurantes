@@ -1,94 +1,88 @@
 package com.gestionqr.backend.model;
 
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 @Entity
 public class Pedido {
-	public enum EstadoPedido{
-		Pendiente, EnProceso, Listo, Servido;
-	}
 
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
-	 	
-	    private int mesa;
-	    private EstadoPedido estado;
-	    
-	    @ManyToOne
-	 	@JoinColumn(name = "plato_id")
-	    private Plato plato;
-	    
-	    @ManyToOne
-	    @JoinColumn(name = "servicio_id")
-	    @JsonBackReference
-	    private Servicio servicio;
+    public enum EstadoPedido {
+        Pendiente,
+        EnProceso,
+        Listo,
+        Servido
+    }
 
-		public Pedido() {
-		}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-		public Pedido(Long id, Plato plato, int mesa, EstadoPedido estado, Servicio servicio) {
-			this.id = id;
-			this.plato = plato;
-			this.mesa = mesa;
-			this.estado = estado;
-			this.servicio = servicio;
-		}
+    private int mesa;
 
-		public Long getId() {
-			return id;
-		}
+    @Column(name = "fecha_hora")
+    private LocalDateTime fechaHora;
 
-		public void setId(Long id) {
-			this.id = id;
-		}
+    @PrePersist
+    protected void onCreate() {
+        if (this.fechaHora == null) {
+            this.fechaHora = LocalDateTime.now();
+        }
+    }
 
-		public Plato getPlato() {
-			return plato;
-		}
+    @Enumerated(EnumType.STRING)
+    private EstadoPedido estado;
 
-		public void setPlato(Plato plato) {
-			this.plato = plato;
-		}
+    @ManyToOne
+    @JoinColumn(name = "plato_id")
+    private Plato plato;
 
-		public int getMesa() {
-			return mesa;
-		}
+    @ManyToOne
+    @JoinColumn(name = "servicio_id")
+    @JsonBackReference
+    private Servicio servicio;
 
-		public void setMesa(int mesa) {
-			this.mesa = mesa;
-		}
+    public Pedido() {}
 
-		public EstadoPedido getEstado() {
-			return estado;
-		}
+    public Pedido(Long id, Plato plato, int mesa, EstadoPedido estado, Servicio servicio) {
+        this.id = id;
+        this.plato = plato;
+        this.mesa = mesa;
+        this.estado = estado;
+        this.servicio = servicio;
+    }
 
-		public void setEstado(EstadoPedido estado) {
-			this.estado = estado;
-		}
+    public Long getId() { return id; }
 
-		public Servicio getServicio() {
-			return servicio;
-		}
+    public void setId(Long id) { this.id = id; }
 
-		public void setServicio(Servicio servicio) {
-			this.servicio = servicio;
-		}
+    public Plato getPlato() { return plato; }
 
-		@Override
-		public String toString() {
-			return "Pedido [id=" + id + ", plato=" + plato + ", mesa=" + mesa + ", estado=" + estado + ", Servicio="
-					+ servicio + "]";
-		}
-	    
-	    
+    public void setPlato(Plato plato) { this.plato = plato; }
+
+    public int getMesa() { return mesa; }
+
+    public void setMesa(int mesa) { this.mesa = mesa; }
+
+    public EstadoPedido getEstado() { return estado; }
+
+    public void setEstado(EstadoPedido estado) { this.estado = estado; }
+
+    public Servicio getServicio() { return servicio; }
+
+    public void setServicio(Servicio servicio) { this.servicio = servicio; }
+
+    public LocalDateTime getFechaHora() { return fechaHora; }
+
+    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
+
+    @Override
+    public String toString() {
+        return "Pedido [id=" + id +
+                ", plato=" + plato +
+                ", mesa=" + mesa +
+                ", estado=" + estado + "]";
+    }
 }
-

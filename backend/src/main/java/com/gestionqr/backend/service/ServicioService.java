@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 import com.gestionqr.backend.model.Pedido;
 import com.gestionqr.backend.model.Pedido.EstadoPedido;
 import com.gestionqr.backend.model.Servicio;
@@ -17,40 +16,35 @@ import com.gestionqr.backend.repository.ServicioRepository;
 @Service
 public class ServicioService {
 
-	@Autowired
-	ServicioRepository servicioRepository;
-	
-	@Autowired
-	PedidoService pedidoService;
-	
-	@Autowired
-	PlatoRepository platoRepository;
-	
-	public List<Servicio> obtenerServiciosPorEstado(EstadoServicio estado){
-		return servicioRepository.findServiciosFiltrados(estado);
-	}
-	
-	public Servicio crearServicio(List<Long> platosIds, int mesa) {
+    @Autowired
+    private ServicioRepository servicioRepository;
 
-	    Servicio servicio = new Servicio();
-	    servicio.setEstado(EstadoServicio.Abierto);
-	    servicio.setMesa(mesa);
+    @Autowired
+    private PlatoRepository platoRepository;
 
-	    List<Pedido> pedidos = new ArrayList<>();
+    public List<Servicio> obtenerServiciosPorEstado(EstadoServicio estado) {
+        return servicioRepository.findByEstado(estado);
+    }
 
-	    for (Long platoId : platosIds) {
-	        Pedido pedido = new Pedido();
-	        pedido.setMesa(mesa);
-	        pedido.setPlato(platoRepository.findById(platoId).get());
-	        pedido.setEstado(EstadoPedido.Pendiente);
-	        
-	        pedido.setServicio(servicio);
+    public Servicio crearServicio(List<Long> platosIds, int mesa) {
 
-	        pedidos.add(pedido);
-	    }
+        Servicio servicio = new Servicio();
+        servicio.setEstado(EstadoServicio.Abierto);
+        servicio.setMesa(mesa);
 
-	    servicio.setPedidos(pedidos);
+        List<Pedido> pedidos = new ArrayList<>();
 
-	    return servicioRepository.save(servicio);
-	}
+        for (Long platoId : platosIds) {
+            Pedido pedido = new Pedido();
+            pedido.setMesa(mesa);
+            pedido.setPlato(platoRepository.findById(platoId).orElseThrow(() -> new RuntimeException("Plato no encontrado")));
+            pedido.setEstado(EstadoPedido.Pendiente);
+            pedido.setServicio(servicio);
+            pedidos.add(pedido);
+        }
+
+        servicio.setPedidos(pedidos);
+
+        return servicioRepository.save(servicio);
+    }
 }

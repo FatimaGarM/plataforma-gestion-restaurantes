@@ -12,74 +12,80 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 
+/**
+ * Entidad que representa un servicio (mesa activa).
+ * Un servicio contiene varios pedidos.
+ */
 @Entity
 public class Servicio {
 
-	public enum EstadoServicio {
-		Abierto, Cerrado, Finalizado;
-	}
+    public enum EstadoServicio {
+        Abierto, Cerrado, Finalizado
+    }
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	EstadoServicio estado;
-	
-	int mesa;
+    private EstadoServicio estado;
 
-	@OneToMany(mappedBy = "servicio", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JsonManagedReference
-	List<Pedido> pedidos;
+    private int mesa;
 
-	public Servicio() {
-	}
+    /**
+     * Relación 1:N con Pedido
+     * Un servicio puede tener muchos pedidos
+     */
+    @OneToMany(mappedBy = "servicio", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Pedido> pedidos;
 
-	public Servicio(Long id, EstadoServicio estado, int mesa, List<Pedido> pedidos) {
-		this.id = id;
-		this.estado = estado;
-		this.mesa = mesa;
-		this.pedidos = pedidos;
-	}
+    public Servicio() {
+    }
 
+    public Servicio(Long id, EstadoServicio estado, int mesa, List<Pedido> pedidos) {
+        this.id = id;
+        this.estado = estado;
+        this.mesa = mesa;
+        this.pedidos = pedidos;
+    }
 
+    public Long getId() {
+        return id;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public EstadoServicio getEstado() {
+        return estado;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public int getMesa() {
+        return mesa;
+    }
 
-	public EstadoServicio getEstado() {
-		return estado;
-	}
+    public List<Pedido> getPedidos() {
+        return pedidos;
+    }
 
-	public void setEstado(EstadoServicio estado) {
-		this.estado = estado;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public int getMesa() {
-		return mesa;
-	}
+    public void setEstado(EstadoServicio estado) {
+        this.estado = estado;
+    }
 
-	public void setMesa(int mesa) {
-		this.mesa = mesa;
-	}
+    public void setMesa(int mesa) {
+        this.mesa = mesa;
+    }
 
-	public List<Pedido> getPedidos() {
-		return pedidos;
-	}
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
+    }
 
-	public void setPedidos(List<Pedido> pedidos) {
-		this.pedidos = pedidos;
-	}
-
-	@Override
-	public String toString() {
-		return "Servicio [id=" + id + ", estado=" + estado + ", pedidos=" + pedidos + "]";
-	}
-	
-	
-
+    @Override
+    public String toString() {
+        return "Servicio [id=" + id +
+                ", estado=" + estado +
+                ", mesa=" + mesa +
+                ", pedidos=" + pedidos + "]";
+    }
 }

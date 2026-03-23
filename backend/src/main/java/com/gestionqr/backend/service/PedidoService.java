@@ -1,13 +1,11 @@
 package com.gestionqr.backend.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import com.gestionqr.backend.model.Empleado.Estado;
 import com.gestionqr.backend.model.Pedido;
 import com.gestionqr.backend.model.Pedido.EstadoPedido;
 import com.gestionqr.backend.model.Servicio;
@@ -18,101 +16,67 @@ import com.gestionqr.backend.repository.ServicioRepository;
 @Service
 public class PedidoService {
 
-	@Autowired
-	PedidoRepository pedidoRepository;
-	
-	@Autowired
-	ServicioRepository servicioRepository;
+    @Autowired
+    private PedidoRepository pedidoRepository;
 
-	public List<Pedido> obtenerPedidosPorEstado(EstadoPedido estado) {
-		return pedidoRepository.findByEstado(estado);
-	}
+    @Autowired
+    private ServicioRepository servicioRepository;
 
-	public Pedido crearPedido(@RequestBody Pedido pedido) {
-		return pedidoRepository.save(pedido);
-	}
+    public List<Pedido> obtenerPedidosPorEstado(EstadoPedido estado) {
+        return pedidoRepository.findByEstado(estado);
+    }
 
-	public Pedido avanzarEstado(Long id) {
+    public Pedido crearPedido(Pedido pedido) {
+        return pedidoRepository.save(pedido);
+    }
 
-		Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+    public Pedido siguienteEstado(Long id) {
 
-		if (pedido.getServicio().getEstado() == EstadoServicio.Finalizado) {
-			throw new RuntimeException("El servicio ya está finalizado");
-		}
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
 
-		EstadoPedido actual = pedido.getEstado();
-		EstadoPedido nuevoEstado;
+        if (pedido.getServicio().getEstado() == EstadoServicio.Cerrado) {
+            throw new RuntimeException("El servicio ya está cerrado");
+        }
 
-		switch (actual) {
-			case Pendiente -> nuevoEstado = EstadoPedido.EnProceso;
-			case EnProceso -> nuevoEstado = EstadoPedido.Listo;
-			case Listo -> nuevoEstado = EstadoPedido.Servido;
-			default -> throw new IllegalArgumentException("Unexpected value: " + actual);
-		}
+        EstadoPedido actual = pedido.getEstado();
+        EstadoPedido nuevoEstado;
 
-		pedido.setEstado(nuevoEstado);
+        switch (actual) {
+            case Pendiente -> nuevoEstado = EstadoPedido.EnProceso;
+            case EnProceso -> nuevoEstado = EstadoPedido.Listo;
+            case Listo -> nuevoEstado = EstadoPedido.Servido;
+            default -> throw new IllegalArgumentException("Unexpected value: " + actual);
+        }
 
-		Pedido actualizado = pedidoRepository.save(pedido);
+        pedido.setEstado(nuevoEstado);
 
-		Servicio servicio = pedido.getServicio();
-		if (servicio != null) {
-			comprobarYCerrarServicio(servicio);
-		}
+        Pedido actualizado = pedidoRepository.save(pedido);
 
-		return actualizado;
-	}
-	
-	public Pedido retrocederEstado(Long id) {
+        Servicio servicio = pedido.getServicio();
+        if (servicio != null) {
+            comprobarYCerrarServicio(servicio);
+        }
 
-		Pedido pedido = pedidoRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+        return actualizado;
+    }
 
-		if (pedido.getServicio().getEstado() == EstadoServicio.Finalizado) {
-			throw new RuntimeException("El servicio ya está finalizado");
-		}
+    private void comprobarYCerrarServicio(Servicio servicio) {
 
-		EstadoPedido actual = pedido.getEstado();
-		EstadoPedido nuevoEstado;
+        List<Pedido> pedidos = pedidoRepository.findByServicioId(servicio.getId());
 
-		switch (actual) {
-			case Pendiente -> throw new IllegalArgumentException("Unexpected value: " + actual);
-			case EnProceso -> nuevoEstado = EstadoPedido.Pendiente;
-			case Listo -> nuevoEstado = EstadoPedido.EnProceso;
-			default -> throw new IllegalArgumentException("Unexpected value: " + actual);
-		}
+        boolean todosServidos = pedidos.stream()
+                .allMatch(p -> p.getEstado() == EstadoPedido.Servido);
 
-		pedido.setEstado(nuevoEstado);
+        if (todosServidos) {
+            servicio.setEstado(EstadoServicio.Cerrado);
+            servicioRepository.save(servicio);
+        }
+    }
 
-		Pedido actualizado = pedidoRepository.save(pedido);
-
-		return actualizado;
-	}
-	
-
-	private void comprobarYCerrarServicio(Servicio servicio) {
-
-		List<Pedido> pedidos = pedidoRepository.findByServicioId(servicio.getId());
-
-		boolean todosServidos = pedidos.stream().allMatch(p -> p.getEstado() == EstadoPedido.Servido);
-
-		if (todosServidos) {
-			servicio.setEstado(EstadoServicio.Cerrado);
-			servicioRepository.save(servicio);
-		}
-		
-	}
-	
-	private void comprobarYAbrirServicio(Servicio servicio) {
-
-		if(servicio.getEstado()== EstadoServicio.Cerrado) {
-			servicio.setEstado(EstadoServicio.Abierto);
-			servicioRepository.save(servicio);
-		}
-		
-	}
-
-	public List<Pedido> obtenerActivos() {
-		return pedidoRepository.findByEstadoInOrderByEstadoAsc(
-			    List.of(EstadoPedido.Pendiente, EstadoPedido.EnProceso, EstadoPedido.Listo)
-				);
-	}
+    public List<Pedido> obtenerActivos() {
+        return pedidoRepository.findByEstadoIn(
+                List.of(EstadoPedido.Pendiente, EstadoPedido.EnProceso, EstadoPedido.Listo)
+        );
+    }
 }
