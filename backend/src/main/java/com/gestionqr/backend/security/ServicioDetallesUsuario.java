@@ -1,10 +1,6 @@
 package com.gestionqr.backend.security;
 
 import com.gestionqr.backend.model.Empleado;
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/luis2
 import com.gestionqr.backend.repository.EmpleadoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
