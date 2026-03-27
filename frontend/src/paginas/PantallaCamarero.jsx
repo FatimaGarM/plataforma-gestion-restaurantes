@@ -25,7 +25,11 @@ function PantallaCamarero() {
   }
 
   const listos = pedidos.filter(p => p.estado === "Listo");
+<<<<<<< HEAD
   const enCocina = pedidos.filter(p => p.estado === "Pendiente" || p.estado === "EnProceso");
+=======
+  const enCocina = pedidos.filter(p => p.estado === "Pendiente" || p.estado === "En proceso");
+>>>>>>> origin/luis2
 
   // Agrupar pedidos listos por mesa
   const mesasListas = {};

@@ -3,18 +3,43 @@ package com.gestionqr.backend.model;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+<<<<<<< HEAD
+=======
+import com.fasterxml.jackson.annotation.JsonValue;
+>>>>>>> origin/luis2
 
 import jakarta.persistence.*;
 
 @Entity
 public class Pedido {
 
+<<<<<<< HEAD
     public enum EstadoPedido {
         Pendiente,
         EnProceso,
         Listo,
         Servido
     }
+=======
+	public enum EstadoPedido {
+
+	    Pendiente("Pendiente"),
+	    EnProceso("En proceso"),
+	    Listo("Listo"),
+	    Servido("Servido");
+
+	    private final String descripcion;
+
+	    EstadoPedido(String descripcion) {
+	        this.descripcion = descripcion;
+	    }
+	    
+	    @JsonValue
+	    public String getDescripcion() {
+	        return descripcion;
+	    }
+	}
+>>>>>>> origin/luis2
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -8,6 +8,10 @@ function Estadisticas() {
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
+    console.log("Cargando estadísticas...");
+>>>>>>> origin/luis2
     fetch("/estadisticas")
       .then(res => res.json())
       .then(data => setStats(data))

@@ -6,8 +6,11 @@ function GestionPedidos() {
 
   useEffect(() => {
     cargarPedidos();
+<<<<<<< HEAD
 
     // refresco automático cada 5s
+=======
+>>>>>>> origin/luis2
     const intervalo = setInterval(cargarPedidos, 5000);
     return () => clearInterval(intervalo);
 
@@ -30,15 +33,24 @@ function GestionPedidos() {
 
   function colorEstado(estado) {
     if (estado === "Pendiente") return "bg-yellow-100 text-yellow-700";
+<<<<<<< HEAD
     if (estado === "EnProceso") return "bg-blue-100 text-blue-700";
+=======
+    if (estado === "En proceso") return "bg-blue-100 text-blue-700";
+>>>>>>> origin/luis2
     if (estado === "Listo") return "bg-green-100 text-green-700";
     if (estado === "Servido") return "bg-gray-300 text-gray-700";
     return "";
   }
 
   function siguienteEstado(estado) {
+<<<<<<< HEAD
     if (estado === "Pendiente") return "EnProceso";
     if (estado === "EnProceso") return "Listo";
+=======
+    if (estado === "Pendiente") return "En proceso";
+    if (estado === "En proceso") return "Listo";
+>>>>>>> origin/luis2
     if (estado === "Listo") return "Servido";
     return null;
   }
@@ -63,7 +75,11 @@ function GestionPedidos() {
         {/* EN PROCESO */}
         <ColumnaPedidos
           titulo="En proceso"
+<<<<<<< HEAD
           pedidos={pedidos.filter(p => p.estado === "EnProceso")}
+=======
+          pedidos={pedidos.filter(p => p.estado === "En proceso")}
+>>>>>>> origin/luis2
           color="bg-blue-50"
           onAccion={cambiarEstado}
           siguienteEstado={siguienteEstado}

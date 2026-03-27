@@ -13,7 +13,13 @@ function PantallaCocina() {
   function cargarPedidos() {
     fetch("/pedidos/activos")
       .then(res => res.json())
+<<<<<<< HEAD
       .then(data => setPedidos(data))
+=======
+      .then(data => {
+        setPedidos(data);
+      })
+>>>>>>> origin/luis2
       .catch(() => {});
   }
 
@@ -25,7 +31,11 @@ function PantallaCocina() {
   }
 
   const pendientes = pedidos.filter(p => p.estado === "Pendiente");
+<<<<<<< HEAD
   const enProceso = pedidos.filter(p => p.estado === "EnProceso");
+=======
+  const enProceso = pedidos.filter(p => p.estado === "En proceso");
+>>>>>>> origin/luis2
 
   return (
     <div className="container-page">
@@ -68,7 +78,11 @@ function PantallaCocina() {
         {/* EN PROCESO */}
         <div className="bg-blue-50 rounded-xl border p-5">
           <h2 className="font-semibold text-blue-700 mb-4">
+<<<<<<< HEAD
             En proceso ({enProceso.length})
+=======
+            En Proceso ({enProceso.length})
+>>>>>>> origin/luis2
           </h2>
 
           {enProceso.length === 0 && (

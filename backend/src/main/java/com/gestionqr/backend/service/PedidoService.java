@@ -1,6 +1,10 @@
 package com.gestionqr.backend.service;
 
 import java.util.List;
+<<<<<<< HEAD
+=======
+import java.util.Optional;
+>>>>>>> origin/luis2
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +33,11 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
+<<<<<<< HEAD
     public Pedido cambiarEstado(Long id) {
+=======
+    public Pedido siguienteEstado(Long id) {
+>>>>>>> origin/luis2
 
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));

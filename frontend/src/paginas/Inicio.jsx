@@ -12,7 +12,13 @@ function Inicio() {
     useEffect(() => {
         fetch("/pedidos/activos")
             .then(res => res.json())
+<<<<<<< HEAD
             .then(data => setPedidos(data))
+=======
+            .then(data => {
+                setPedidos(data);
+            })
+>>>>>>> origin/luis2
             .catch(() => {});
 
         if (usuario.tipoEmpleado === "GERENTE") {
@@ -24,7 +30,11 @@ function Inicio() {
     }, []);
 
     const pendientes = pedidos.filter(p => p.estado === "Pendiente").length;
+<<<<<<< HEAD
     const enProceso = pedidos.filter(p => p.estado === "EnProceso").length;
+=======
+    const enProceso = pedidos.filter(p => p.estado === "En proceso").length;
+>>>>>>> origin/luis2
     const listos = pedidos.filter(p => p.estado === "Listo").length;
 
     return (

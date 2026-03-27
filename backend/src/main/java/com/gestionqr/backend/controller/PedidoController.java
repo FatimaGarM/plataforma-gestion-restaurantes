@@ -1,6 +1,8 @@
 package com.gestionqr.backend.controller;
 
+
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +21,19 @@ public class PedidoController {
 
     @Autowired
     private PedidoService pedidoService;
+    
+    /**
+     * Obtener pedidos activos en la pantalla cocina
+     */
+    @GetMapping("/activos")
+    public List<Pedido> obtenerActivos() {
+        return pedidoService.obtenerActivos();
+    }
 
     /**
      * Obtener pedidos por estado en cocina cocina.
      */
-    @GetMapping("/{estado}")
+    @GetMapping("/estado/{estado}")
     public List<Pedido> obtenerPedidosPorEstado(@PathVariable EstadoPedido estado) {
         return pedidoService.obtenerPedidosPorEstado(estado);
     }
@@ -43,14 +53,6 @@ public class PedidoController {
     public Pedido cambiarEstado(
             @PathVariable Long id) {
 
-        return pedidoService.cambiarEstado(id);
-    }
-
-    /**
-     * Obtener pedidos activos en la pantalla cocina
-     */
-    @GetMapping("/activos")
-    public List<Pedido> obtenerActivos() {
-        return pedidoService.obtenerActivos();
+        return pedidoService.siguienteEstado(id);
     }
 }
