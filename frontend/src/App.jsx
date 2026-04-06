@@ -9,6 +9,9 @@ import Footer from "./componentes/Footer";
 import PrivateRoute from "./componentes/PrivateRoute";
 import Inicio from "./paginas/Inicio";
 import Estadisticas from "./paginas/Estadisticas";
+import GestionPedidos from "./paginas/GestionPedidos";
+import PantallaCocina from "./paginas/PantallaCocina";
+import PantallaCamarero from "./paginas/PantallaCamarero";
 
 function Layout() {
   const location = useLocation();
@@ -91,7 +94,32 @@ function Layout() {
               }
             />
 
-         
+            <Route
+              path="/gestion-pedidos"
+              element={
+                <PrivateRoute>
+                  <GestionPedidos />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/cocina"
+              element={
+                <PrivateRoute>
+                  <PantallaCocina />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/pedidos"
+              element={
+                <PrivateRoute>
+                  <PantallaCamarero />
+                </PrivateRoute>
+              }
+            />
 
             {/* cualquier ruta rara → inicio */}
             <Route path="*" element={<Navigate to="/" />} />

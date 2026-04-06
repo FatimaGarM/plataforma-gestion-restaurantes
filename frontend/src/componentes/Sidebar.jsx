@@ -2,7 +2,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function Sidebar() {
 
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  let usuario = null;
+  try { usuario = JSON.parse(localStorage.getItem("usuario")); } catch { /* localStorage inválido */ }
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -29,7 +30,7 @@ function Sidebar() {
         <nav className="flex flex-col gap-2">
 
           {/* GERENTE */}
-          {usuario?.tipoEmpleado === "Gerente" && (
+          {usuario?.tipoEmpleado === "GERENTE" && (
             <>
               <Link to="/inicio" className={linkClass("/inicio")}>
                 Inicio
@@ -50,11 +51,15 @@ function Sidebar() {
               <Link to="/gestion-carta" className={linkClass("/gestion-carta")}>
                 Carta
               </Link>
+
+              <Link to="/gestion-pedidos" className={linkClass("/gestion-pedidos")}>
+                Pedidos
+              </Link>
             </>
           )}
 
           {/* CAMARERO */}
-          {usuario?.tipoEmpleado === "Camarero" && (
+          {usuario?.tipoEmpleado === "CAMARERO" && (
             <>
               <Link to="/inicio" className={linkClass("/inicio")}>
                 Inicio
@@ -67,7 +72,7 @@ function Sidebar() {
           )}
 
           {/* COCINA */}
-          {usuario?.tipoEmpleado === "Cocinero" && (
+          {usuario?.tipoEmpleado === "COCINERO" && (
             <>
               <Link to="/inicio" className={linkClass("/inicio")}>
                 Inicio

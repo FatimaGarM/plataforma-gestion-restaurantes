@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function FormularioEmpleado({
     nombre,
@@ -6,6 +6,7 @@ function FormularioEmpleado({
     contraseña,
     tipoEmpleado,
     estado,
+    imagenActual,
     onNombreChange,
     onEmailChange,
     onContraseñaChange,
@@ -18,6 +19,13 @@ function FormularioEmpleado({
 }) {
 
     const [preview, setPreview] = useState(null);
+
+    // cargar imagen existente al editar
+    useEffect(() => {
+        if (editar && imagenActual) {
+            setPreview(`http://localhost:8080/uploads/FotosEmpleados/${imagenActual}`);
+        }
+    }, [editar, imagenActual]);
 
     function manejarImagen(e) {
         const archivo = e.target.files[0];
@@ -66,9 +74,9 @@ function FormularioEmpleado({
                 required
             >
                 <option value="">Seleccionar rol</option>
-                <option value="Camarero">Camarero</option>
-                <option value="Cocinero">Cocinero</option>
-                <option value="Gerente">Gerente</option>
+                <option value="CAMARERO">Camarero</option>
+                <option value="COCINERO">Cocinero</option>
+                <option value="GERENTE">Gerente</option>
             </select>
 
             <select
@@ -78,9 +86,9 @@ function FormularioEmpleado({
                 required
             >
                 <option value="">Seleccionar estado</option>
-                <option value="Activo">Activo</option>
-                <option value="Descanso">Descanso</option>
-                <option value="Vacaciones">Vacaciones</option>
+                <option value="ACTIVO">Activo</option>
+                <option value="DESCANSO">Descanso</option>
+                <option value="VACACIONES">Vacaciones</option>
             </select>
 
             <input
@@ -98,11 +106,7 @@ function FormularioEmpleado({
             )}
 
             <div className="flex justify-end gap-2 mt-2">
-                <button
-                    type="button"
-                    onClick={onCancelar}
-                    className="btn btn-outline"
-                >
+                <button type="button" onClick={onCancelar} className="btn btn-outline">
                     Cancelar
                 </button>
 

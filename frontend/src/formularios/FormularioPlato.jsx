@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function FormularioPlato({
     nombre,
@@ -6,6 +6,7 @@ function FormularioPlato({
     precio,
     tipo,
     disponible,
+    imagenActual,
     onNombreChange,
     onDescripcionChange,
     onPrecioChange,
@@ -19,6 +20,13 @@ function FormularioPlato({
 
     const [preview, setPreview] = useState(null);
 
+    // cargar imagen existente
+    useEffect(() => {
+        if (editar && imagenActual) {
+            setPreview(`http://localhost:8080/uploads/FotoPlatos/${imagenActual}`);
+        }
+    }, [editar, imagenActual]);
+
     function manejarImagen(e) {
         const archivo = e.target.files[0];
         if (!archivo) return;
@@ -28,106 +36,109 @@ function FormularioPlato({
     }
 
     return (
-        <form
-            onSubmit={onSubmit}
-            className="flex gap-2 flex-wrap"
-        >
+        <form onSubmit={onSubmit} className="flex flex-col gap-4">
 
-            {/* NOMBRE */}
-            <input
-                type="text"
-                placeholder="Nombre"
-                value={nombre}
-                onChange={onNombreChange}
-                className="border p-2 flex-1 min-w-[180px]"
-                required
-            />
-
-            {/* DESCRIPCIÓN */}
-            <textarea
-                placeholder="Descripción"
-                value={descripcion}
-                onChange={onDescripcionChange}
-                className="border p-2 flex-1 min-w-[180px]"
-                required
-            />
-
-            {/* PRECIO */}
-            <input
-                type="number"
-                step="0.01"
-                placeholder="Precio"
-                value={precio}
-                onChange={onPrecioChange}
-                className="border p-2 w-full sm:w-40"
-                required
-                min="0"
-            />
-
-            {/* TIPO */}
-            <select
-                value={tipo}
-                onChange={onTipoChange}
-                className="border p-2 w-full sm:w-40"
-                required
-            >
-                <option value="">Tipo</option>
-                <option value="PRIMERO">Primer plato</option>
-                <option value="SEGUNDO">Segundo plato</option>
-                <option value="TERCERO">Tercer plato</option>
-                <option value="POSTRE">Postre</option>
-                <option value="BEBIDA">Bebida</option>
-            </select>
-
-            {/* DISPONIBLE */}
-            <div className="flex items-center gap-2 w-full sm:w-40">
-                <label className="text-sm">Disponible</label>
+            <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Nombre</label>
                 <input
-                    type="checkbox"
-                    checked={disponible}
-                    onChange={(e) => onDisponibleChange(e.target.checked)}
+                    type="text"
+                    placeholder="Nombre del plato..."
+                    value={nombre}
+                    onChange={onNombreChange}
+                    className="bg-white border px-4 py-2 rounded-lg text-sm w-full outline-none focus:ring-2 focus:ring-emerald-300"
+                    required
                 />
             </div>
 
-            {/* IMAGEN */}
-            <input
-                type="file"
-                onChange={manejarImagen}
-                className="border p-2 w-full"
-                accept="image/*"
-                required={!editar}
-            />
+            <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Descripción</label>
+                <textarea
+                    placeholder="Descripción del plato..."
+                    value={descripcion}
+                    onChange={onDescripcionChange}
+                    className="bg-white border px-4 py-2 rounded-lg text-sm w-full outline-none focus:ring-2 focus:ring-emerald-300 resize-none"
+                    rows={3}
+                    required
+                />
+            </div>
 
-            {/* PREVIEW */}
+            <div className="flex gap-4">
+                <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Precio (€)</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={precio}
+                        onChange={onPrecioChange}
+                        className="bg-white border px-4 py-2 rounded-lg text-sm w-full outline-none focus:ring-2 focus:ring-emerald-300"
+                        required
+                        min="0"
+                    />
+                </div>
+
+                <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Tipo</label>
+                    <select
+                        value={tipo}
+                        onChange={onTipoChange}
+                        className="bg-white border px-4 py-2 rounded-lg text-sm w-full outline-none focus:ring-2 focus:ring-emerald-300"
+                        required
+                    >
+                        <option value="">Seleccionar tipo</option>
+                        <option value="PRIMERO">Primer plato</option>
+                        <option value="SEGUNDO">Segundo plato</option>
+                        <option value="POSTRE">Postre</option>
+                        <option value="BEBIDA">Bebida</option>
+                    </select>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+                <label className="text-sm font-medium text-gray-600">Disponible</label>
+                <div
+                    onClick={() => onDisponibleChange(!disponible)}
+                    className={`w-10 h-5 flex items-center rounded-full px-1 cursor-pointer transition
+                        ${disponible ? "bg-emerald-500" : "bg-gray-300"}`}
+                >
+                    <div className={`w-4 h-4 bg-white rounded-full transition
+                        ${disponible ? "translate-x-5" : ""}`} />
+                </div>
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Imagen</label>
+                <input
+                    type="file"
+                    onChange={manejarImagen}
+                    className="bg-white border px-4 py-2 rounded-lg text-sm w-full file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                    accept="image/*"
+                    required={!editar}
+                />
+            </div>
+
             {preview && (
-                <div className="w-full mt-2">
-                    <p className="text-sm text-gray-500 mb-1">
-                        Vista previa de la imagen
-                    </p>
-
+                <div>
+                    <p className="text-sm text-gray-500 mb-1">Vista previa</p>
                     <img
                         src={preview}
-                        alt="preview"
-                        className="w-32 h-32 object-cover rounded border"
+                        className="w-32 h-32 object-cover rounded-lg border"
                     />
                 </div>
             )}
 
-            {/* BOTONES */}
-            <div className="w-full flex justify-end gap-2 mt-2">
-
+            <div className="flex justify-end gap-3 mt-2 pt-4 border-t">
                 <button
                     type="button"
-                    className="bg-gray-300 text-black px-3 py-2"
                     onClick={onCancelar}
+                    className="px-4 py-2 rounded-lg text-sm border text-gray-600 hover:bg-gray-100 transition"
                 >
                     Cancelar
                 </button>
 
-                <button className="bg-orange-400 text-white px-3 py-2">
+                <button className="px-4 py-2 rounded-lg text-sm bg-emerald-600 text-white hover:bg-emerald-700 transition">
                     Guardar
                 </button>
-
             </div>
 
         </form>
