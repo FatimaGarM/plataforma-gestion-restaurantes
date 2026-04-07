@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { authFetch } from "../utils/authFetch";
 import FormularioPlato from "../formularios/FormularioPlato";
 import ConfirmacionEliminar from "../componentes/ConfirmacionEliminar";
 import DialogoModal from "../componentes/DialogoModal";
 import deleteIcon from "../assets/iconos/eliminar.png";
+import { useIdioma } from "../context/IdiomaContext";
 
 function GestionarCarta() {
 
@@ -23,13 +25,14 @@ function GestionarCarta() {
 
     const [busqueda, setBusqueda] = useState("");
     const [filtroTipo, setFiltroTipo] = useState("");
+    const { t } = useIdioma();
 
     useEffect(() => {
         cargarPlatos();
     }, []);
 
     function cargarPlatos() {
-        fetch("/platos")
+        authFetch("/platos")
             .then(res => res.json())
             .then(data => setPlatos(data));
     }
@@ -69,7 +72,7 @@ function GestionarCarta() {
 
         if (!platoAEliminar) return;
 
-        fetch(`/platos/${platoAEliminar.id}`, {
+        authFetch(`/platos/${platoAEliminar.id}`, {
             method: "DELETE"
         })
             .then(res => {
@@ -84,7 +87,7 @@ function GestionarCarta() {
 
         setEditar(true);
 
-        fetch(`/platos/${idPlato}`)
+        authFetch(`/platos/${idPlato}`)
             .then(res => res.json())
             .then(data => {
 
@@ -118,7 +121,7 @@ function GestionarCarta() {
 
         if (id) {
 
-            fetch(`/platos/${id}`, {
+            authFetch(`/platos/${id}`, {
                 method: "PUT",
                 body: formData
             }).then(() => {
@@ -128,7 +131,7 @@ function GestionarCarta() {
 
         } else {
 
-            fetch("/platos/con-imagen", {
+            authFetch("/platos/con-imagen", {
                 method: "POST",
                 body: formData
             }).then(() => {
@@ -140,7 +143,7 @@ function GestionarCarta() {
 
     function toggleDisponible(id) {
 
-        fetch(`/platos/${id}/disponible`, {
+        authFetch(`/platos/${id}/disponible`, {
             method: "PUT"
         })
             .then(res => {
@@ -172,7 +175,7 @@ function GestionarCarta() {
 
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-semibold text-gray-800">
-                    Platos y Bebidas
+                    {t("carta.titulo")}
                 </h1>
             </div>
 
@@ -183,7 +186,7 @@ function GestionarCarta() {
 
                     <input
                         type="text"
-                        placeholder="Buscar plato..."
+                        placeholder={t("carta.buscar")}
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
                         className="bg-gray-100 px-4 py-2 rounded-lg text-sm outline-none"
@@ -194,18 +197,18 @@ function GestionarCarta() {
                         onChange={(e) => setFiltroTipo(e.target.value)}
                         className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
                     >
-                        <option value="">Todos los tipos</option>
-                        <option value="PRIMERO">Primero</option>
-                        <option value="SEGUNDO">Segundo</option>
-                        <option value="POSTRE">Postre</option>
-                        <option value="BEBIDA">Bebida</option>
+                        <option value="">{t("carta.todosTipos")}</option>
+                        <option value="PRIMERO">{t("carta.primero")}</option>
+                        <option value="SEGUNDO">{t("carta.segundo")}</option>
+                        <option value="POSTRE">{t("carta.postre")}</option>
+                        <option value="BEBIDA">{t("carta.bebida")}</option>
                     </select>
 
                     <button
                         onClick={abrirFormularioCrear}
                         className="ml-auto bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-emerald-700 transition"
                     >
-                        + Añadir plato
+                        {t("carta.añadirPlato")}
                     </button>
 
                 </div>
@@ -214,12 +217,12 @@ function GestionarCarta() {
 
                     <thead className="bg-gray-50 text-gray-600">
                         <tr>
-                            <th className="text-left p-3">Plato</th>
-                            <th className="text-left p-3">Descripción</th>
-                            <th className="text-left p-3">Tipo</th>
-                            <th className="text-left p-3">Disponible</th>
-                            <th className="text-left p-3">Precio</th>
-                            <th className="text-left p-3">Acciones</th>
+                            <th className="text-left p-3">{t("carta.plato")}</th>
+                            <th className="text-left p-3">{t("carta.descripcion")}</th>
+                            <th className="text-left p-3">{t("carta.tipo")}</th>
+                            <th className="text-left p-3">{t("carta.disponible")}</th>
+                            <th className="text-left p-3">{t("carta.precio")}</th>
+                            <th className="text-left p-3">{t("carta.acciones")}</th>
                         </tr>
                     </thead>
 

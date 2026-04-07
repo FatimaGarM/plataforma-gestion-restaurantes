@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { authFetch } from "../utils/authFetch";
 import deleteIcon from "../assets/iconos/eliminar.png";
+import { useIdioma } from "../context/IdiomaContext";
 
 function GestionarEmpleados() {
 
@@ -22,6 +24,7 @@ function GestionarEmpleados() {
   // paginación
   const [paginaActual, setPaginaActual] = useState(1);
   const porPagina = 5;
+  const { t } = useIdioma();
 
   useEffect(() => {
     cargarEmpleados();
@@ -32,7 +35,7 @@ function GestionarEmpleados() {
   }, [busqueda, filtroRol, filtroEstado]);
 
   function cargarEmpleados() {
-    fetch("/empleados")
+    authFetch("/empleados")
       .then(res => res.json())
       .then(data => setEmpleados(data));
   }
@@ -51,7 +54,7 @@ function GestionarEmpleados() {
   function editarEmpleado(id) {
     setEditar(true);
 
-    fetch(`/empleados/${id}`)
+    authFetch(`/empleados/${id}`)
       .then(res => res.json())
       .then(data => {
         setId(id);
@@ -84,7 +87,7 @@ function GestionarEmpleados() {
     const url = id ? `/empleados/${id}` : "/empleados/con-imagen";
     const method = id ? "PUT" : "POST";
 
-    fetch(url, {
+    authFetch(url, {
       method,
       body: formData
     }).then(() => {
@@ -94,7 +97,7 @@ function GestionarEmpleados() {
   }
 
   function eliminarEmpleado(id) {
-    fetch(`/empleados/${id}`, { method: "DELETE" })
+    authFetch(`/empleados/${id}`, { method: "DELETE" })
       .then(() => cargarEmpleados());
   }
 
@@ -125,7 +128,7 @@ function GestionarEmpleados() {
     <div className="bg-gray-50 min-h-screen p-6">
 
       <h1 className="text-2xl font-semibold mb-6">
-        Empleados
+        {t("empleados.titulo")}
       </h1>
 
       <div className="flex gap-6">
@@ -136,7 +139,7 @@ function GestionarEmpleados() {
 
           <div className="flex items-center justify-between mb-4">
             <h2 className={`font-semibold ${editar ? "text-amber-800" : "text-gray-800"}`}>
-              {editar ? "Editar empleado" : "Añadir empleado"}
+              {editar ? t("empleados.editar") : t("empleados.añadir")}
             </h2>
             {editar && (
               <button
@@ -144,7 +147,7 @@ function GestionarEmpleados() {
                 onClick={limpiar}
                 className="text-xs text-amber-700 hover:text-amber-900 underline"
               >
-                Cancelar
+                {t("empleados.cancelar")}
               </button>
             )}
           </div>
@@ -153,7 +156,7 @@ function GestionarEmpleados() {
 
             <input
               type="text"
-              placeholder="Nombre..."
+              placeholder={t("empleados.nombre")}
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               className="bg-white border px-4 py-2 rounded-lg text-sm"
@@ -162,7 +165,7 @@ function GestionarEmpleados() {
 
             <input
               type="email"
-              placeholder="Email..."
+              placeholder={t("empleados.email")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="bg-white border px-4 py-2 rounded-lg text-sm"
@@ -172,7 +175,7 @@ function GestionarEmpleados() {
             {!editar && (
               <input
                 type="password"
-                placeholder="Contraseña..."
+                placeholder={t("empleados.contrasena")}
                 value={contraseña}
                 onChange={(e) => setContraseña(e.target.value)}
                 className="bg-white border px-4 py-2 rounded-lg text-sm"
@@ -186,10 +189,10 @@ function GestionarEmpleados() {
               className="bg-white border px-4 py-2 rounded-lg text-sm"
               required
             >
-              <option value="">Seleccionar rol</option>
-              <option value="CAMARERO">Camarero</option>
-              <option value="COCINERO">Cocinero</option>
-              <option value="GERENTE">Gerente</option>
+              <option value="">{t("empleados.seleccionarRol")}</option>
+              <option value="CAMARERO">{t("empleados.camarero")}</option>
+              <option value="COCINERO">{t("empleados.cocinero")}</option>
+              <option value="GERENTE">{t("empleados.gerente")}</option>
             </select>
 
             <select
@@ -198,10 +201,10 @@ function GestionarEmpleados() {
               className="bg-white border px-4 py-2 rounded-lg text-sm"
               required
             >
-              <option value="">Seleccionar estado</option>
-              <option value="ACTIVO">Activo</option>
-              <option value="DESCANSO">Descanso</option>
-              <option value="VACACIONES">Vacaciones</option>
+              <option value="">{t("empleados.seleccionarEstado")}</option>
+              <option value="ACTIVO">{t("empleados.activo")}</option>
+              <option value="DESCANSO">{t("empleados.descanso")}</option>
+              <option value="VACACIONES">{t("empleados.vacaciones")}</option>
             </select>
 
             <input
@@ -211,7 +214,7 @@ function GestionarEmpleados() {
             />
 
             <button className={`${editar ? "bg-amber-500 hover:bg-amber-600" : "bg-emerald-600 hover:bg-emerald-700"} text-white py-2 rounded-lg font-medium transition mt-2`}>
-              {editar ? "Actualizar" : "Añadir empleado"}
+              {editar ? t("empleados.actualizar") : t("empleados.añadir")}
             </button>
 
           </form>
@@ -226,7 +229,7 @@ function GestionarEmpleados() {
 
             <input
               type="text"
-              placeholder="Buscar empleado..."
+              placeholder={t("empleados.buscar")}
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
@@ -237,10 +240,10 @@ function GestionarEmpleados() {
               onChange={(e) => setFiltroRol(e.target.value)}
               className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
             >
-              <option value="">Todos los roles</option>
-              <option value="CAMARERO">Camarero</option>
-              <option value="COCINERO">Cocinero</option>
-              <option value="GERENTE">Gerente</option>
+              <option value="">{t("empleados.todosRoles")}</option>
+              <option value="CAMARERO">{t("empleados.camarero")}</option>
+              <option value="COCINERO">{t("empleados.cocinero")}</option>
+              <option value="GERENTE">{t("empleados.gerente")}</option>
             </select>
 
             <select
@@ -248,10 +251,10 @@ function GestionarEmpleados() {
               onChange={(e) => setFiltroEstado(e.target.value)}
               className="bg-gray-100 px-4 py-2 rounded-lg text-sm"
             >
-              <option value="">Todos los estados</option>
-              <option value="ACTIVO">Activo</option>
-              <option value="DESCANSO">Descanso</option>
-              <option value="VACACIONES">Vacaciones</option>
+              <option value="">{t("empleados.todosEstados")}</option>
+              <option value="ACTIVO">{t("empleados.activo")}</option>
+              <option value="DESCANSO">{t("empleados.descanso")}</option>
+              <option value="VACACIONES">{t("empleados.vacaciones")}</option>
             </select>
 
           </div>
@@ -261,10 +264,10 @@ function GestionarEmpleados() {
 
             <thead className="bg-gray-50 text-gray-500">
               <tr>
-                <th className="p-3 text-left">Empleado</th>
-                <th className="p-3 text-left">Rol</th>
-                <th className="p-3 text-left">Estado</th>
-                <th className="p-3 text-left">Acciones</th>
+                <th className="p-3 text-left">{t("empleados.columnaEmpleado")}</th>
+                <th className="p-3 text-left">{t("empleados.columnaRol")}</th>
+                <th className="p-3 text-left">{t("empleados.columnaEstado")}</th>
+                <th className="p-3 text-left">{t("carta.acciones")}</th>
               </tr>
             </thead>
 

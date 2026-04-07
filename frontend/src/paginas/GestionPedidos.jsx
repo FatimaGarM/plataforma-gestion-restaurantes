@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { authFetch } from "../utils/authFetch";
+import { useIdioma } from "../context/IdiomaContext";
 
 function GestionPedidos() {
 
   const [pedidos, setPedidos] = useState([]);
+  const { t } = useIdioma();
 
   useEffect(() => {
     cargarPedidos();
@@ -12,14 +15,14 @@ function GestionPedidos() {
   }, []);
 
   function cargarPedidos() {
-    fetch("/pedidos/activos")
+    authFetch("/pedidos/activos")
       .then(res => res.json())
       .then(data => setPedidos(data));
   }
 
   function cambiarEstado(id) {
 
-    fetch(`/pedidos/${id}/siguiente-estado`, {
+    authFetch(`/pedidos/${id}/siguiente-estado`, {
       method: "PUT"
     })
       .then(res => res.json())
@@ -44,38 +47,41 @@ function GestionPedidos() {
   return (
     <div className="container-page">
 
-      <h1 className="title mb-6">Gestión de Pedidos</h1>
+      <h1 className="title mb-6">{t("pedidos.titulo")}</h1>
 
       <div className="grid md:grid-cols-3 gap-4">
 
         {/* PENDIENTES */}
         <ColumnaPedidos
-          titulo="Pendientes"
+          titulo={t("pedidos.pendientes")}
           pedidos={pedidos.filter(p => p.estado === "Pendiente")}
           color="bg-yellow-50"
           onAccion={cambiarEstado}
           siguienteEstado={siguienteEstado}
           colorEstado={colorEstado}
+          t={t}
         />
 
         {/* EN PROCESO */}
         <ColumnaPedidos
-          titulo="En proceso"
+          titulo={t("pedidos.enProceso")}
           pedidos={pedidos.filter(p => p.estado === "En proceso")}
           color="bg-blue-50"
           onAccion={cambiarEstado}
           siguienteEstado={siguienteEstado}
           colorEstado={colorEstado}
+          t={t}
         />
 
         {/* LISTOS */}
         <ColumnaPedidos
-          titulo="Listos"
+          titulo={t("pedidos.listos")}
           pedidos={pedidos.filter(p => p.estado === "Listo")}
           color="bg-green-50"
           onAccion={cambiarEstado}
           siguienteEstado={siguienteEstado}
           colorEstado={colorEstado}
+          t={t}
         />
 
       </div>
@@ -90,7 +96,7 @@ export default GestionPedidos;
 
 // ================= COMPONENTE COLUMNA =================
 
-function ColumnaPedidos({ titulo, pedidos, color, onAccion, siguienteEstado, colorEstado }) {
+function ColumnaPedidos({ titulo, pedidos, color, onAccion, siguienteEstado, colorEstado, t }) {
 
   return (
     <div className={`p-4 rounded-xl border ${color}`}>
@@ -98,7 +104,7 @@ function ColumnaPedidos({ titulo, pedidos, color, onAccion, siguienteEstado, col
       <h2 className="font-semibold mb-4">{titulo}</h2>
 
       {pedidos.length === 0 && (
-        <p className="text-sm text-gray-400">Sin pedidos</p>
+        <p className="text-sm text-gray-400">{t ? t("cocina.sinPendientes") : "Sin pedidos"}</p>
       )}
 
       <div className="flex flex-col gap-3">
@@ -108,7 +114,7 @@ function ColumnaPedidos({ titulo, pedidos, color, onAccion, siguienteEstado, col
           <div key={pedido.id} className="card">
 
             <p className="font-medium">
-              Mesa {pedido.mesa}
+              {t ? t("pedidos.mesa") : "Mesa"} {pedido.mesa}
             </p>
 
             <p className="text-sm text-gray-500">
@@ -124,7 +130,7 @@ function ColumnaPedidos({ titulo, pedidos, color, onAccion, siguienteEstado, col
                 className="btn btn-success mt-2"
                 onClick={() => onAccion(pedido.id)}
               >
-                Pasar a {siguienteEstado(pedido.estado)}
+                {t ? `${t("guardar")} → ${siguienteEstado(pedido.estado)}` : `Pasar a ${siguienteEstado(pedido.estado)}`}
               </button>
             )}
 

@@ -62,4 +62,29 @@ public class ArchivoService {
         Path ruta = Paths.get(RUTA_PLATOS + nombreArchivo);
         Files.deleteIfExists(ruta);
     }
+
+    private final String RUTA_CONFIGURACION = "uploads/Configuracion/";
+
+    public String guardarImagenConfiguracion(MultipartFile imagen) throws Exception {
+
+        if (imagen == null || imagen.isEmpty())
+            return "";
+
+        String nombreArchivo = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
+
+        Path ruta = Paths.get(RUTA_CONFIGURACION + nombreArchivo);
+        Files.createDirectories(ruta.getParent());
+        Files.write(ruta, imagen.getBytes());
+
+        return nombreArchivo;
+    }
+
+    public void eliminarImagenConfiguracion(String nombreArchivo) throws Exception {
+
+        if (nombreArchivo == null || nombreArchivo.isEmpty())
+            return;
+
+        Path ruta = Paths.get(RUTA_CONFIGURACION + nombreArchivo);
+        Files.deleteIfExists(ruta);
+    }
 }

@@ -4,10 +4,12 @@ import com.gestionqr.backend.model.Empleado;
 import com.gestionqr.backend.service.EmpleadoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -104,5 +106,26 @@ public class EmpleadoController {
     @DeleteMapping("/{id}")
     public void borrarEmpleado(@PathVariable Long id) throws Exception {
         empleadoService.borrarEmpleado(id);
+    }
+
+    /**
+     * Cambiar la contraseña de un empleado.
+     * Requiere la contraseña actual para validar.
+     */
+    @PutMapping("/{id}/contrasena")
+    public ResponseEntity<?> cambiarContrasena(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body
+    ) {
+        String actual = body.get("contrasenaActual");
+        String nueva = body.get("contrasenaNueva");
+
+        boolean resultado = empleadoService.cambiarContrasena(id, actual, nueva);
+
+        if (resultado) {
+            return ResponseEntity.ok(Map.of("mensaje", "Contraseña actualizada correctamente"));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", "La contraseña actual no es correcta"));
+        }
     }
 }

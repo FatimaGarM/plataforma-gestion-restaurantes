@@ -19,3 +19,5 @@ backend/uploads/FotoPlatos/*
 backend/uploads/FotosEmpleados/*
 !backend/uploads/FotoPlatos/.gitkeep
 !backend/uploads/FotosEmpleados/.gitkeep
+backend/uploads/Configuracion/*
+!backend/uploads/Configuracion/.gitkeep

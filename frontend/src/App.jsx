@@ -12,6 +12,7 @@ import Estadisticas from "./paginas/Estadisticas";
 import GestionPedidos from "./paginas/GestionPedidos";
 import PantallaCocina from "./paginas/PantallaCocina";
 import PantallaCamarero from "./paginas/PantallaCamarero";
+import Configuracion from "./paginas/Configuracion";
 
 function Layout() {
   const location = useLocation();
@@ -117,6 +118,15 @@ function Layout() {
               element={
                 <PrivateRoute>
                   <PantallaCamarero />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/configuracion"
+              element={
+                <PrivateRoute>
+                  <Configuracion />
                 </PrivateRoute>
               }
             />

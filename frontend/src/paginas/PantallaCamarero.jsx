@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { authFetch } from "../utils/authFetch";
+import { useIdioma } from "../context/IdiomaContext";
 
 function PantallaCamarero() {
 
   const [pedidos, setPedidos] = useState([]);
+  const { t } = useIdioma();
 
   useEffect(() => {
     cargarPedidos();
@@ -11,14 +14,14 @@ function PantallaCamarero() {
   }, []);
 
   function cargarPedidos() {
-    fetch("/pedidos/activos")
+    authFetch("/pedidos/activos")
       .then(res => res.json())
       .then(data => setPedidos(data))
       .catch(() => {});
   }
 
   function servirPedido(id) {
-    fetch(`/pedidos/${id}/siguiente-estado`, { method: "PUT" })
+    authFetch(`/pedidos/${id}/siguiente-estado`, { method: "PUT" })
       .then(res => res.json())
       .then(() => cargarPedidos())
       .catch(() => {});
@@ -44,16 +47,16 @@ function PantallaCamarero() {
   return (
     <div className="container-page">
 
-      <h1 className="title mb-6">Pedidos</h1>
+      <h1 className="title mb-6">{t("camarero.titulo")}</h1>
 
       {/* LISTOS PARA SERVIR */}
       <div className="mb-8">
         <h2 className="font-semibold text-green-700 text-lg mb-4">
-          Listos para servir ({listos.length})
+          {t("camarero.listosParaServir")} ({listos.length})
         </h2>
 
         {listos.length === 0 && (
-          <div className="card text-sm text-gray-400">No hay pedidos listos</div>
+          <div className="card text-sm text-gray-400">{t("camarero.sinListos")}</div>
         )}
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -71,7 +74,7 @@ function PantallaCamarero() {
                       className="btn btn-success mt-2 w-full text-xs"
                       onClick={() => servirPedido(pedido.id)}
                     >
-                      Marcar como servido
+                      {t("camarero.marcarServido")}
                     </button>
                   </div>
                 ))}

@@ -25,6 +25,18 @@ export default defineConfig({
       '/uploads': {
         target: 'http://localhost:8080',
         changeOrigin: true
+      },
+      '/configuracion': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      },
+      '/auth': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      },
+      '/servicios': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
       }
     }
   }

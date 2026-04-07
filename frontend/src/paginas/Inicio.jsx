@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { authFetch } from "../utils/authFetch";
+import { useIdioma } from "../context/IdiomaContext";
 
 function Inicio() {
 
@@ -8,9 +10,10 @@ function Inicio() {
 
     const [pedidos, setPedidos] = useState([]);
     const [stats, setStats] = useState(null);
+    const { t } = useIdioma();
 
     useEffect(() => {
-        fetch("/pedidos/activos")
+        authFetch("/pedidos/activos")
             .then(res => res.json())
             .then(data => {
                 setPedidos(data);
@@ -18,7 +21,7 @@ function Inicio() {
             .catch(() => {});
 
         if (usuario.tipoEmpleado === "GERENTE") {
-            fetch("/estadisticas")
+            authFetch("/estadisticas")
                 .then(res => res.json())
                 .then(data => setStats(data))
                 .catch(() => {});
@@ -32,7 +35,7 @@ function Inicio() {
     return (
         <div className="container-page">
 
-            <h1 className="title mb-2">Bienvenido, {usuario?.nombre}</h1>
+            <h1 className="title mb-2">{t("inicio.bienvenido")}, {usuario?.nombre}</h1>
             <p className="text-sm text-gray-500 mb-6">{usuario?.tipoEmpleado}</p>
 
             {/* ========== GERENTE ========== */}
@@ -40,37 +43,37 @@ function Inicio() {
                 <>
                     <div className="grid md:grid-cols-4 gap-4 mb-6">
                         <div className="card">
-                            <p className="text-sm text-gray-500">Pedidos hoy</p>
+                            <p className="text-sm text-gray-500">{t("inicio.pedidosHoy")}</p>
                             <p className="text-3xl font-bold text-amber-600">{stats?.pedidosHoy ?? "—"}</p>
                         </div>
                         <div className="card">
-                            <p className="text-sm text-gray-500">Ingresos hoy</p>
+                            <p className="text-sm text-gray-500">{t("inicio.ingresosHoy")}</p>
                             <p className="text-3xl font-bold text-emerald-600">
                                 {stats ? `${stats.ingresosHoy.toFixed(2)} €` : "—"}
                             </p>
                         </div>
                         <div className="card">
-                            <p className="text-sm text-gray-500">Pendientes ahora</p>
+                            <p className="text-sm text-gray-500">{t("inicio.pendientesAhora")}</p>
                             <p className="text-3xl font-bold text-yellow-600">{pendientes}</p>
                         </div>
                         <div className="card">
-                            <p className="text-sm text-gray-500">Listos para servir</p>
+                            <p className="text-sm text-gray-500">{t("inicio.listosParaServir")}</p>
                             <p className="text-3xl font-bold text-green-600">{listos}</p>
                         </div>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-4">
                         <Link to="/estadisticas" className="card hover:shadow-md transition text-center">
-                            <p className="text-amber-600 font-semibold">Estadísticas</p>
-                            <p className="text-xs text-gray-400">Ver métricas detalladas</p>
+                            <p className="text-amber-600 font-semibold">{t("inicio.estadisticas")}</p>
+                            <p className="text-xs text-gray-400">{t("inicio.verMetricas")}</p>
                         </Link>
                         <Link to="/gestion-carta" className="card hover:shadow-md transition text-center">
-                            <p className="text-amber-600 font-semibold">Carta</p>
-                            <p className="text-xs text-gray-400">Gestionar platos</p>
+                            <p className="text-amber-600 font-semibold">{t("inicio.carta")}</p>
+                            <p className="text-xs text-gray-400">{t("inicio.gestionarPlatos")}</p>
                         </Link>
                         <Link to="/gestion-pedidos" className="card hover:shadow-md transition text-center">
-                            <p className="text-amber-600 font-semibold">Pedidos</p>
-                            <p className="text-xs text-gray-400">Ver todos los pedidos</p>
+                            <p className="text-amber-600 font-semibold">{t("inicio.pedidos")}</p>
+                            <p className="text-xs text-gray-400">{t("inicio.verTodosPedidos")}</p>
                         </Link>
                     </div>
                 </>
@@ -81,22 +84,22 @@ function Inicio() {
                 <>
                     <div className="grid md:grid-cols-3 gap-4 mb-6">
                         <div className="card">
-                            <p className="text-sm text-gray-500">Listos para servir</p>
+                            <p className="text-sm text-gray-500">{t("inicio.listosParaServir")}</p>
                             <p className="text-3xl font-bold text-green-600">{listos}</p>
                         </div>
                         <div className="card">
-                            <p className="text-sm text-gray-500">En cocina</p>
+                            <p className="text-sm text-gray-500">{t("inicio.enCocina")}</p>
                             <p className="text-3xl font-bold text-blue-600">{pendientes + enProceso}</p>
                         </div>
                         <div className="card">
-                            <p className="text-sm text-gray-500">Total activos</p>
+                            <p className="text-sm text-gray-500">{t("inicio.totalActivos")}</p>
                             <p className="text-3xl font-bold text-amber-600">{pedidos.length}</p>
                         </div>
                     </div>
 
                     <Link to="/pedidos" className="card hover:shadow-md transition text-center block">
-                        <p className="text-amber-600 font-semibold">Ir a Pedidos</p>
-                        <p className="text-xs text-gray-400">Ver pedidos por mesa</p>
+                        <p className="text-amber-600 font-semibold">{t("inicio.irAPedidos")}</p>
+                        <p className="text-xs text-gray-400">{t("inicio.verPedidosMesa")}</p>
                     </Link>
                 </>
             )}
@@ -106,15 +109,15 @@ function Inicio() {
                 <>
                     <div className="grid md:grid-cols-3 gap-4 mb-6">
                         <div className="card">
-                            <p className="text-sm text-gray-500">Pedidos esperando</p>
+                            <p className="text-sm text-gray-500">{t("inicio.pedidosEsperando")}</p>
                             <p className="text-3xl font-bold text-yellow-600">{pendientes}</p>
                         </div>
                         <div className="card">
-                            <p className="text-sm text-gray-500">En preparación</p>
+                            <p className="text-sm text-gray-500">{t("inicio.enPreparacion")}</p>
                             <p className="text-3xl font-bold text-blue-600">{enProceso}</p>
                         </div>
                         <div className="card">
-                            <p className="text-sm text-gray-500">Listos</p>
+                            <p className="text-sm text-gray-500">{t("inicio.listos")}</p>
                             <p className="text-3xl font-bold text-green-600">{listos}</p>
                         </div>
                     </div>

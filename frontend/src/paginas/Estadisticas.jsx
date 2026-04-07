@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { authFetch } from "../utils/authFetch";
+import { useIdioma } from "../context/IdiomaContext";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from "recharts";
@@ -6,16 +8,17 @@ import {
 function Estadisticas() {
 
   const [stats, setStats] = useState(null);
+  const { t } = useIdioma();
 
   useEffect(() => {
     console.log("Cargando estadísticas...");
-    fetch("/estadisticas")
+    authFetch("/estadisticas")
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(() => {});
   }, []);
 
-  if (!stats) return <div className="container-page"><p className="text-gray-400">Cargando estadísticas...</p></div>;
+  if (!stats) return <div className="container-page"><p className="text-gray-400">{t("stats.cargando")}</p></div>;
 
   const porcentajeIngresos = stats.ingresosAyer > 0
     ? (((stats.ingresosHoy - stats.ingresosAyer) / stats.ingresosAyer) * 100).toFixed(1)
@@ -28,34 +31,34 @@ function Estadisticas() {
   return (
     <div className="container-page">
 
-      <h1 className="title mb-6">Estadísticas</h1>
+      <h1 className="title mb-6">{t("stats.titulo")}</h1>
 
       {/* ===== TARJETAS RESUMEN ===== */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
 
         <div className="card">
-          <p className="text-sm text-gray-500">Ingresos hoy</p>
+          <p className="text-sm text-gray-500">{t("stats.ingresosHoy")}</p>
           <p className="text-2xl font-bold text-emerald-600">{stats.ingresosHoy.toFixed(2)} €</p>
           <p className={`text-xs mt-1 ${Number(porcentajeIngresos) >= 0 ? "text-green-500" : "text-red-500"}`}>
-            {Number(porcentajeIngresos) >= 0 ? "+" : ""}{porcentajeIngresos}% vs ayer
+            {Number(porcentajeIngresos) >= 0 ? "+" : ""}{porcentajeIngresos}% {t("stats.vsAyer")}
           </p>
         </div>
 
         <div className="card">
-          <p className="text-sm text-gray-500">Ingresos ayer</p>
+          <p className="text-sm text-gray-500">{t("stats.ingresosAyer")}</p>
           <p className="text-2xl font-bold text-gray-600">{stats.ingresosAyer.toFixed(2)} €</p>
         </div>
 
         <div className="card">
-          <p className="text-sm text-gray-500">Pedidos hoy</p>
+          <p className="text-sm text-gray-500">{t("stats.pedidosHoy")}</p>
           <p className="text-2xl font-bold text-amber-600">{stats.pedidosHoy}</p>
           <p className={`text-xs mt-1 ${Number(porcentajePedidos) >= 0 ? "text-green-500" : "text-red-500"}`}>
-            {Number(porcentajePedidos) >= 0 ? "+" : ""}{porcentajePedidos}% vs ayer
+            {Number(porcentajePedidos) >= 0 ? "+" : ""}{porcentajePedidos}% {t("stats.vsAyer")}
           </p>
         </div>
 
         <div className="card">
-          <p className="text-sm text-gray-500">Pedidos ayer</p>
+          <p className="text-sm text-gray-500">{t("stats.pedidosAyer")}</p>
           <p className="text-2xl font-bold text-gray-600">{stats.pedidosAyer}</p>
         </div>
 
@@ -66,9 +69,9 @@ function Estadisticas() {
 
         {/* RANKING PLATOS MÁS VENDIDOS */}
         <div className="card">
-          <h2 className="font-semibold text-gray-700 mb-4">Platos más vendidos</h2>
+          <h2 className="font-semibold text-gray-700 mb-4">{t("stats.platosMasVendidos")}</h2>
           {stats.rankingPlatos.length === 0
-            ? <p className="text-sm text-gray-400">Sin datos aún</p>
+            ? <p className="text-sm text-gray-400">{t("stats.sinDatos")}</p>
             : (
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={stats.rankingPlatos} layout="vertical">
