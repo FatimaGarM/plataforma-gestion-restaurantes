@@ -37,6 +37,10 @@ export default defineConfig({
       '/servicios': {
         target: 'http://localhost:8080',
         changeOrigin: true
+      },
+      '/cartas': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
       }
     }
   }

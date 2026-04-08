@@ -129,7 +129,9 @@ DROP TABLE IF EXISTS `plato`;
 CREATE TABLE `plato` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(255) DEFAULT NULL,
+  `nombre_en` varchar(255) DEFAULT NULL,
   `descripcion` varchar(255) DEFAULT NULL,
+  `descripcion_en` varchar(255) DEFAULT NULL,
   `precio` double DEFAULT NULL,
   `imagen` varchar(255) DEFAULT NULL,
   `tipo` varchar(50) DEFAULT NULL,
@@ -144,7 +146,7 @@ CREATE TABLE `plato` (
 
 LOCK TABLES `plato` WRITE;
 /*!40000 ALTER TABLE `plato` DISABLE KEYS */;
-INSERT INTO `plato` VALUES (1,'Pizza Margarita','Pizza clásica con tomate y queso',8.5,'pizza.jpg','PRIMERO',1),(2,'Hamburguesa','Hamburguesa con patatas',9.9,'hamburguesa.jpg','SEGUNDO',1),(3,'Ensalada César','Ensalada fresca con pollo',6.5,'ensalada.jpg','PRIMERO',1),(4,'Tarta de queso','Postre casero',4.5,'tarta.jpg','POSTRE',1),(5,'Coca-Cola','Refresco',2.5,'cocacola.jpg','BEBIDA',1);
+INSERT INTO `plato` VALUES (1,'Pizza Margarita',NULL,'Pizza clásica con tomate y queso',NULL,8.5,'pizza.jpg','PRIMERO',1),(2,'Hamburguesa',NULL,'Hamburguesa con patatas',NULL,9.9,'hamburguesa.jpg','SEGUNDO',1),(3,'Ensalada César',NULL,'Ensalada fresca con pollo',NULL,6.5,'ensalada.jpg','PRIMERO',1),(4,'Tarta de queso',NULL,'Postre casero',NULL,4.5,'tarta.jpg','POSTRE',1),(5,'Coca-Cola',NULL,'Refresco',NULL,2.5,'cocacola.jpg','BEBIDA',1);
 /*!40000 ALTER TABLE `plato` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -183,3 +185,48 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-04-07 21:45:53
+
+--
+-- Table structure for table `carta`
+--
+
+DROP TABLE IF EXISTS `carta`;
+CREATE TABLE `carta` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(255) DEFAULT NULL,
+  `imagen_banner` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `seccion_carta`
+--
+
+DROP TABLE IF EXISTS `seccion_carta`;
+CREATE TABLE `seccion_carta` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(255) DEFAULT NULL,
+  `nombre_en` varchar(255) DEFAULT NULL,
+  `orden` int(11) DEFAULT NULL,
+  `carta_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_seccion_carta` (`carta_id`),
+  CONSTRAINT `fk_seccion_carta` FOREIGN KEY (`carta_id`) REFERENCES `carta` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `item_seccion`
+--
+
+DROP TABLE IF EXISTS `item_seccion`;
+CREATE TABLE `item_seccion` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `orden` int(11) DEFAULT NULL,
+  `seccion_id` bigint(20) DEFAULT NULL,
+  `plato_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_item_seccion` (`seccion_id`),
+  KEY `fk_item_plato` (`plato_id`),
+  CONSTRAINT `fk_item_seccion` FOREIGN KEY (`seccion_id`) REFERENCES `seccion_carta` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_item_plato` FOREIGN KEY (`plato_id`) REFERENCES `plato` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -40,7 +40,9 @@ public class PlatoController {
     @PostMapping("/con-imagen")
     public Plato crearPlatoConImagen(
             @RequestParam String nombre,
+            @RequestParam(required = false) String nombreEn,
             @RequestParam String descripcion,
+            @RequestParam(required = false) String descripcionEn,
             @RequestParam Double precio,
             @RequestParam String tipo,
             @RequestParam(required = false, defaultValue = "true") Boolean disponible,
@@ -49,7 +51,9 @@ public class PlatoController {
 
         return platoService.crearPlatoConImagen(
                 nombre,
+                nombreEn,
                 descripcion,
+                descripcionEn,
                 precio,
                 tipo,
                 disponible,
@@ -61,7 +65,9 @@ public class PlatoController {
     public Plato actualizarPlato(
             @PathVariable Long id,
             @RequestParam String nombre,
+            @RequestParam(required = false) String nombreEn,
             @RequestParam String descripcion,
+            @RequestParam(required = false) String descripcionEn,
             @RequestParam Double precio,
             @RequestParam String tipo,
             @RequestParam Boolean disponible,
@@ -71,7 +77,9 @@ public class PlatoController {
         return platoService.actualizarPlato(
                 id,
                 nombre,
+                nombreEn,
                 descripcion,
+                descripcionEn,
                 precio,
                 tipo,
                 disponible,

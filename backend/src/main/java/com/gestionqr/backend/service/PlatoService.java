@@ -36,7 +36,9 @@ public class PlatoService {
 
     public Plato crearPlatoConImagen(
             String nombre,
+            String nombreEn,
             String descripcion,
+            String descripcionEn,
             Double precio,
             String tipo,
             Boolean disponible,
@@ -47,7 +49,9 @@ public class PlatoService {
 
         Plato plato = new Plato();
         plato.setNombre(nombre);
+        plato.setNombreEn(nombreEn);
         plato.setDescripcion(descripcion);
+        plato.setDescripcionEn(descripcionEn);
         plato.setPrecio(precio);
         plato.setTipo(Plato.TipoPlato.valueOf(tipo));
         plato.setDisponible(disponible);
@@ -59,7 +63,9 @@ public class PlatoService {
     public Plato actualizarPlato(
             Long id,
             String nombre,
+            String nombreEn,
             String descripcion,
+            String descripcionEn,
             Double precio,
             String tipo,
             Boolean disponible,
@@ -70,7 +76,9 @@ public class PlatoService {
                 .orElseThrow(() -> new RuntimeException("Plato no encontrado"));
 
         plato.setNombre(nombre);
+        plato.setNombreEn(nombreEn);
         plato.setDescripcion(descripcion);
+        plato.setDescripcionEn(descripcionEn);
         plato.setPrecio(precio);
         plato.setTipo(Plato.TipoPlato.valueOf(tipo));
         plato.setDisponible(disponible);

@@ -21,7 +21,9 @@ public class Plato {
 
     // Variables que definimos en figma y en la documentación
     private String nombre;
+    private String nombreEn;
     private String descripcion;
+    private String descripcionEn;
     private Double precio;
     private String imagen;
 
@@ -52,12 +54,28 @@ public class Plato {
         this.nombre = nombre;
     }
 
+    public String getNombreEn() {
+        return nombreEn;
+    }
+
+    public void setNombreEn(String nombreEn) {
+        this.nombreEn = nombreEn;
+    }
+
     public String getDescripcion() {
         return descripcion;
     }
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public String getDescripcionEn() {
+        return descripcionEn;
+    }
+
+    public void setDescripcionEn(String descripcionEn) {
+        this.descripcionEn = descripcionEn;
     }
 
     public Double getPrecio() {

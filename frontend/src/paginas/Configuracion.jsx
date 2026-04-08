@@ -11,7 +11,8 @@ function Configuracion() {
   const [emailContacto, setEmailContacto] = useState("");
   const [colorPrimario, setColorPrimario] = useState("#f59e0b");
   const [colorSecundario, setColorSecundario] = useState("#059669");
-  const [idiomaCarta, setIdiomaCarta] = useState("es");
+  const [idiomaEs, setIdiomaEs] = useState(true);
+  const [idiomaEn, setIdiomaEn] = useState(false);
   const [logo, setLogo] = useState(null);
   const [imagenFondo, setImagenFondo] = useState(null);
   const [logoActual, setLogoActual] = useState("");
@@ -32,7 +33,9 @@ function Configuracion() {
         setEmailContacto(data.emailContacto || "");
         setColorPrimario(data.colorPrimario || "#f59e0b");
         setColorSecundario(data.colorSecundario || "#059669");
-        setIdiomaCarta(data.idiomaCarta || "es");
+        const idiomas2 = (data.idiomaCarta || "es").split(",");
+        setIdiomaEs(idiomas2.includes("es"));
+        setIdiomaEn(idiomas2.includes("en"));
         setLogoActual(data.logo || "");
         setFondoActual(data.imagenFondo || "");
       });
@@ -51,7 +54,8 @@ function Configuracion() {
     formData.append("emailContacto", emailContacto);
     formData.append("colorPrimario", colorPrimario);
     formData.append("colorSecundario", colorSecundario);
-    formData.append("idiomaCarta", idiomaCarta);
+    const idiomasSeleccionados = [idiomaEs && "es", idiomaEn && "en"].filter(Boolean).join(",") || "es";
+    formData.append("idiomaCarta", idiomasSeleccionados);
 
     if (logo) formData.append("logo", logo);
     if (imagenFondo) formData.append("imagenFondo", imagenFondo);
@@ -85,7 +89,9 @@ function Configuracion() {
         setEmailContacto(data.emailContacto || "");
         setColorPrimario(data.colorPrimario || "#f59e0b");
         setColorSecundario(data.colorSecundario || "#059669");
-        setIdiomaCarta(data.idiomaCarta || "es");
+        const idiomas2 = (data.idiomaCarta || "es").split(",");
+        setIdiomaEs(idiomas2.includes("es"));
+        setIdiomaEn(idiomas2.includes("en"));
         setLogoActual(data.logo || "");
         setFondoActual(data.imagenFondo || "");
         setLogo(null);
@@ -239,24 +245,20 @@ function Configuracion() {
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
-                      type="radio"
-                      name="idioma"
-                      value="es"
-                      checked={idiomaCarta === "es"}
-                      onChange={e => setIdiomaCarta(e.target.value)}
-                      className="accent-amber-500"
+                      type="checkbox"
+                      checked={idiomaEs}
+                      onChange={e => setIdiomaEs(e.target.checked)}
+                      className="accent-amber-500 w-4 h-4"
                     />
                     <span className="text-sm">{t("config.español")}</span>
                   </label>
 
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
-                      type="radio"
-                      name="idioma"
-                      value="en"
-                      checked={idiomaCarta === "en"}
-                      onChange={e => setIdiomaCarta(e.target.value)}
-                      className="accent-amber-500"
+                      type="checkbox"
+                      checked={idiomaEn}
+                      onChange={e => setIdiomaEn(e.target.checked)}
+                      className="accent-amber-500 w-4 h-4"
                     />
                     <span className="text-sm">{t("config.ingles")}</span>
                   </label>

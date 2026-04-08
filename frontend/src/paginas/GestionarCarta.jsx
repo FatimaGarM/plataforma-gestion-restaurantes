@@ -5,8 +5,11 @@ import ConfirmacionEliminar from "../componentes/ConfirmacionEliminar";
 import DialogoModal from "../componentes/DialogoModal";
 import deleteIcon from "../assets/iconos/eliminar.png";
 import { useIdioma } from "../context/IdiomaContext";
+import CartaEditor from "../componentes/CartaEditor";
 
 function GestionarCarta() {
+
+    const [tabActiva, setTabActiva] = useState("platos");
 
     const [platos, setPlatos] = useState([]);
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -14,7 +17,9 @@ function GestionarCarta() {
 
     const [id, setId] = useState(null);
     const [nombre, setNombre] = useState("");
+    const [nombreEn, setNombreEn] = useState("");
     const [descripcion, setDescripcion] = useState("");
+    const [descripcionEn, setDescripcionEn] = useState("");
     const [precio, setPrecio] = useState("");
     const [imagen, setImagen] = useState(null);
     const [editar, setEditar] = useState(false);
@@ -40,7 +45,9 @@ function GestionarCarta() {
     function limpiarFormularioPlato() {
         setId(null);
         setNombre("");
+        setNombreEn("");
         setDescripcion("");
+        setDescripcionEn("");
         setPrecio("");
         setImagen(null);
         setEditar(false);
@@ -93,7 +100,9 @@ function GestionarCarta() {
 
                 setId(idPlato);
                 setNombre(data.nombre);
+                setNombreEn(data.nombreEn || "");
                 setDescripcion(data.descripcion);
+                setDescripcionEn(data.descripcionEn || "");
                 setPrecio(data.precio);
                 setImagen(null);
                 setTipo(data.tipo);
@@ -110,7 +119,9 @@ function GestionarCarta() {
         const formData = new FormData();
 
         formData.append("nombre", nombre);
+        if (nombreEn) formData.append("nombreEn", nombreEn);
         formData.append("descripcion", descripcion);
+        if (descripcionEn) formData.append("descripcionEn", descripcionEn);
         formData.append("precio", parseFloat(precio));
         formData.append("tipo", tipo);
         formData.append("disponible", disponible.toString());
@@ -173,13 +184,31 @@ function GestionarCarta() {
 
         <div className="bg-gray-50 min-h-screen p-6">
 
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-semibold text-gray-800">
-                    {t("carta.titulo")}
-                </h1>
+            {/* TABS DE NAVEGACIÓN */}
+            <div className="flex gap-1 mb-6 border-b border-gray-200">
+                {[
+                    { key: "platos", label: t("carta.tabPlatos") },
+                    { key: "cartas", label: t("carta.tabCartas") },
+                    { key: "menus", label: t("carta.tabMenus") },
+                    { key: "qrs", label: t("carta.tabQRs") },
+                ].map(tab => (
+                    <button
+                        key={tab.key}
+                        onClick={() => setTabActiva(tab.key)}
+                        className={`px-5 py-2 text-sm rounded-t-lg transition
+                            ${tabActiva === tab.key
+                                ? "border border-b-white border-gray-200 bg-white text-emerald-700 font-medium -mb-px"
+                                : "text-gray-500 hover:text-gray-700"}`}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+            {/* TAB: PLATOS Y BEBIDAS */}
+            {tabActiva === "platos" && (
+                <>
+                <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
 
                 {/* BUSCADOR más el FILTRO */}
                 <div className="flex gap-3 items-center p-4 border-b">
@@ -266,7 +295,7 @@ function GestionarCarta() {
                                             onClick={() => editarPlato(plato.id)}
                                             className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-xs hover:bg-emerald-200"
                                         >
-                                            Editar
+                                            {t("editar")}
                                         </button>
 
                                         <button
@@ -288,42 +317,65 @@ function GestionarCarta() {
                 </table>
 
                 <div className="p-4 text-xs text-gray-500 border-t">
-                    Mostrando {platosFiltrados.length} platos
+                    {t("carta.mostrando")} {platosFiltrados.length} {t("carta.platos")}
                 </div>
 
-            </div>
+                </div>
 
-            {/* MODAL */}
-            <DialogoModal
-                abierto={mostrarFormulario}
-                onCerrar={cerrarFormulario}
-                titulo={editar ? "Editar plato" : "Crear nuevo plato"}
-            >
-                <FormularioPlato
-                    nombre={nombre}
-                    descripcion={descripcion}
-                    precio={precio}
-                    tipo={tipo}
-                    disponible={disponible}
-                    onNombreChange={(e) => setNombre(e.target.value)}
-                    onDescripcionChange={(e) => setDescripcion(e.target.value)}
-                    onPrecioChange={(e) => setPrecio(e.target.value)}
-                    onTipoChange={(e) => setTipo(e.target.value)}
-                    onDisponibleChange={(value) => setDisponible(value)}
-                    onImagenChange={(e) => setImagen(e.target.files[0])}
-                    onCancelar={cerrarFormulario}
-                    onSubmit={guardarPlato}
-                    editar={editar}
+                {/* MODAL */}
+                <DialogoModal
+                    abierto={mostrarFormulario}
+                    onCerrar={cerrarFormulario}
+                    titulo={editar ? t("carta.editarPlato") : t("carta.crearPlato")}
+                >
+                    <FormularioPlato
+                        nombre={nombre}
+                        nombreEn={nombreEn}
+                        descripcion={descripcion}
+                        descripcionEn={descripcionEn}
+                        precio={precio}
+                        tipo={tipo}
+                        disponible={disponible}
+                        onNombreChange={(e) => setNombre(e.target.value)}
+                        onNombreEnChange={(e) => setNombreEn(e.target.value)}
+                        onDescripcionChange={(e) => setDescripcion(e.target.value)}
+                        onDescripcionEnChange={(e) => setDescripcionEn(e.target.value)}
+                        onPrecioChange={(e) => setPrecio(e.target.value)}
+                        onTipoChange={(e) => setTipo(e.target.value)}
+                        onDisponibleChange={(value) => setDisponible(value)}
+                        onImagenChange={(e) => setImagen(e.target.files[0])}
+                        onCancelar={cerrarFormulario}
+                        onSubmit={guardarPlato}
+                        editar={editar}
+                    />
+                </DialogoModal>
+
+                <ConfirmacionEliminar
+                    abierto={mostrarConfirmacionEliminar}
+                    titulo={t("carta.eliminarPlato")}
+                    mensaje={platoAEliminar ? `${t("carta.confirmarEliminar")} "${platoAEliminar.nombre}".` : ""}
+                    onCancelar={cancelarEliminarPlato}
+                    onConfirmar={confirmarEliminarPlato}
                 />
-            </DialogoModal>
+                </>
+            )}
 
-            <ConfirmacionEliminar
-                abierto={mostrarConfirmacionEliminar}
-                titulo="Eliminar plato"
-                mensaje={platoAEliminar ? `Se eliminará "${platoAEliminar.nombre}".` : ""}
-                onCancelar={cancelarEliminarPlato}
-                onConfirmar={confirmarEliminarPlato}
-            />
+            {/* TAB: CARTAS */}
+            {tabActiva === "cartas" && <CartaEditor />}
+
+            {/* TAB: MENÚS — placeholder */}
+            {tabActiva === "menus" && (
+                <div className="bg-white rounded-xl shadow-sm border p-12 text-center text-gray-400">
+                    {t("carta.proximamente")}
+                </div>
+            )}
+
+            {/* TAB: CÓDIGOS QR — placeholder */}
+            {tabActiva === "qrs" && (
+                <div className="bg-white rounded-xl shadow-sm border p-12 text-center text-gray-400">
+                    {t("carta.proximamente")}
+                </div>
+            )}
 
         </div>
     );
