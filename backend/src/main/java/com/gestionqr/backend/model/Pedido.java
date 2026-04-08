@@ -1,6 +1,7 @@
 package com.gestionqr.backend.model;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -37,7 +38,10 @@ public class Pedido {
 
     @Column(name = "fecha_hora")
     private LocalDateTime fechaHora;
-
+    
+    @Column(name = "fecha_hora_listo")
+    private LocalDateTime fechaHoraListo;
+    
     @PrePersist
     protected void onCreate() {
         if (this.fechaHora == null) {
@@ -91,7 +95,15 @@ public class Pedido {
 
     public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
 
-    @Override
+    public LocalDateTime getFechaHoraListo() {
+		return fechaHoraListo;
+	}
+
+	public void setFechaHoraListo(LocalDateTime fechaHoraListo) {
+		this.fechaHoraListo = fechaHoraListo;
+	}
+
+	@Override
     public String toString() {
         return "Pedido [id=" + id +
                 ", plato=" + plato +

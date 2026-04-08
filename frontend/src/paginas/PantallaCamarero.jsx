@@ -14,14 +14,14 @@ function PantallaCamarero() {
     fetch("/pedidos/activos")
       .then(res => res.json())
       .then(data => setPedidos(data))
-      .catch(() => {});
+      .catch(() => { });
   }
 
   function servirPedido(id) {
     fetch(`/pedidos/${id}/siguiente-estado`, { method: "PUT" })
       .then(res => res.json())
       .then(() => cargarPedidos())
-      .catch(() => {});
+      .catch(() => { });
   }
 
   const listos = pedidos.filter(p => p.estado === "Listo");
@@ -66,6 +66,9 @@ function PantallaCamarero() {
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium">{pedido.plato?.nombre}</p>
                       <span className="badge bg-green-100 text-green-700">Listo</span>
+                      <span className="text-xs text-gray-500">{pedido?.fechaHoraListo
+                        ? pedido.fechaHoraListo.substring(11, 19)
+                        : "-"}</span>
                     </div>
                     <button
                       className="btn btn-success mt-2 w-full text-xs"
@@ -100,12 +103,11 @@ function PantallaCamarero() {
                   <div key={pedido.id} className="card">
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium">{pedido.plato?.nombre}</p>
-                      <span className={`badge ${
-                        pedido.estado === "Pendiente"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-blue-100 text-blue-700"
-                      }`}>
-                        {pedido.estado === "EnProceso" ? "En proceso" : pedido.estado}
+                      <span className={`badge ${pedido.estado === "Pendiente"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-blue-100 text-blue-700"
+                        }`}>
+                        {pedido.estado}
                       </span>
                     </div>
                   </div>

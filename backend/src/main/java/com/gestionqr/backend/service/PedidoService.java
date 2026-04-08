@@ -1,9 +1,11 @@
 package com.gestionqr.backend.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.gestionqr.backend.model.Pedido;
@@ -50,7 +52,11 @@ public class PedidoService {
         }
 
         pedido.setEstado(nuevoEstado);
-
+        
+        if(pedido.getEstado()== EstadoPedido.Listo) {
+        	pedido.setFechaHoraListo(LocalDateTime.now());
+        }
+        
         Pedido actualizado = pedidoRepository.save(pedido);
 
         Servicio servicio = pedido.getServicio();
@@ -76,7 +82,7 @@ public class PedidoService {
 
     public List<Pedido> obtenerActivos() {
         return pedidoRepository.findByEstadoIn(
-                List.of(EstadoPedido.Pendiente, EstadoPedido.EnProceso, EstadoPedido.Listo)
+                List.of(EstadoPedido.Pendiente, EstadoPedido.EnProceso, EstadoPedido.Listo), Sort.by(Sort.Direction.ASC, "fechaHoraListo")
         );
     }
 }
