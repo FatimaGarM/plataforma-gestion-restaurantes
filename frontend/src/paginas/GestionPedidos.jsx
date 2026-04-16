@@ -98,13 +98,27 @@ export default GestionPedidos;
 
 function ColumnaPedidos({ titulo, pedidos, color, onAccion, siguienteEstado, colorEstado, t }) {
 
+  const estadoBadge = {
+    "Pendiente":  t("pedidos.estadoPendiente"),
+    "En proceso": t("pedidos.enProceso"),
+    "Listo":      t("pedidos.estadoListo"),
+    "Servido":    t("pedidos.servido"),
+  };
+
+  function accionLabel(estado) {
+    if (estado === "Pendiente")  return t("pedidos.iniciarPreparacion");
+    if (estado === "En proceso") return t("pedidos.marcarListo");
+    if (estado === "Listo")      return t("pedidos.marcarServido");
+    return "";
+  }
+
   return (
     <div className={`p-4 rounded-xl border ${color}`}>
 
       <h2 className="font-semibold mb-4">{titulo}</h2>
 
       {pedidos.length === 0 && (
-        <p className="text-sm text-gray-400">{t ? t("cocina.sinPendientes") : "Sin pedidos"}</p>
+        <p className="text-sm text-gray-400">{t("cocina.sinPendientes")}</p>
       )}
 
       <div className="flex flex-col gap-3">
@@ -114,7 +128,7 @@ function ColumnaPedidos({ titulo, pedidos, color, onAccion, siguienteEstado, col
           <div key={pedido.id} className="card">
 
             <p className="font-medium">
-              {t ? t("pedidos.mesa") : "Mesa"} {pedido.mesa}
+              {t("pedidos.mesa")} {pedido.mesa}
             </p>
 
             <p className="text-sm text-gray-500">
@@ -122,7 +136,7 @@ function ColumnaPedidos({ titulo, pedidos, color, onAccion, siguienteEstado, col
             </p>
 
             <span className={`badge ${colorEstado(pedido.estado)}`}>
-              {pedido.estado}
+              {estadoBadge[pedido.estado] || pedido.estado}
             </span>
 
             {siguienteEstado(pedido.estado) && (
@@ -130,7 +144,7 @@ function ColumnaPedidos({ titulo, pedidos, color, onAccion, siguienteEstado, col
                 className="btn btn-success mt-2"
                 onClick={() => onAccion(pedido.id)}
               >
-                {t ? `${t("guardar")} → ${siguienteEstado(pedido.estado)}` : `Pasar a ${siguienteEstado(pedido.estado)}`}
+                {accionLabel(pedido.estado)}
               </button>
             )}
 

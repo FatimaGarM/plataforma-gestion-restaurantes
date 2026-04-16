@@ -1,13 +1,22 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { authFetch } from "../utils/authFetch";
 import DialogoModal from "./DialogoModal";
 import { useIdioma } from "../context/IdiomaContext";
 
 function Sidebar() {
 
-  let usuario = null;
-  try { usuario = JSON.parse(localStorage.getItem("usuario")); } catch { /* localStorage inválido */ }
+  const [usuario, setUsuario] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("usuario")); } catch { return null; }
+  });
+
+  useEffect(() => {
+    const actualizar = () => {
+      try { setUsuario(JSON.parse(localStorage.getItem("usuario"))); } catch { }
+    };
+    window.addEventListener("usuarioActualizado", actualizar);
+    return () => window.removeEventListener("usuarioActualizado", actualizar);
+  }, []);
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useIdioma();
@@ -172,7 +181,11 @@ function Sidebar() {
               {usuario?.nombre}
             </p>
             <p className="text-xs text-gray-500">
-              {usuario?.tipoEmpleado}
+              {(() => {
+                const map = { CAMARERO: "empleados.camarero", COCINERO: "empleados.cocinero", GERENTE: "empleados.gerente" };
+                const key = map[usuario?.tipoEmpleado];
+                return key ? t(key) : usuario?.tipoEmpleado;
+              })()}
             </p>
           </div>
 

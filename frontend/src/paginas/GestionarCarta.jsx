@@ -27,10 +27,14 @@ function GestionarCarta() {
 
     const [tipo, setTipo] = useState("");
     const [disponible, setDisponible] = useState(true);
+    const [esNovedad, setEsNovedad] = useState(false);
 
     const [busqueda, setBusqueda] = useState("");
     const [filtroTipo, setFiltroTipo] = useState("");
-    const { t } = useIdioma();
+    const { t, idioma } = useIdioma();
+
+    const nombrePlato = (p) => (idioma === "en" && p.nombreEn) ? p.nombreEn : p.nombre;
+    const descPlato  = (p) => (idioma === "en" && p.descripcionEn) ? p.descripcionEn : p.descripcion;
 
     useEffect(() => {
         cargarPlatos();
@@ -53,6 +57,7 @@ function GestionarCarta() {
         setEditar(false);
         setTipo("");
         setDisponible(true);
+        setEsNovedad(false);
     }
 
     function abrirFormularioCrear() {
@@ -107,6 +112,7 @@ function GestionarCarta() {
                 setImagen(null);
                 setTipo(data.tipo);
                 setDisponible(data.disponible);
+                setEsNovedad(data.esNovedad || false);
 
                 setMostrarFormulario(true);
             });
@@ -125,6 +131,7 @@ function GestionarCarta() {
         formData.append("precio", parseFloat(precio));
         formData.append("tipo", tipo);
         formData.append("disponible", disponible.toString());
+        formData.append("esNovedad", esNovedad.toString());
 
         if (imagen) {
             formData.append("imagen", imagen);
@@ -173,11 +180,23 @@ function GestionarCarta() {
     }
 
 
+    function tipoLabel(tipo) {
+        const map = {
+            PRIMERO: "carta.primero",
+            SEGUNDO: "carta.segundo",
+            TERCERO: "carta.tercero",
+            POSTRE: "carta.postre",
+            BEBIDA: "carta.bebida"
+        };
+        return map[tipo] ? t(map[tipo]) : tipo;
+    }
+
     const platosFiltrados = platos.filter(plato => {
-        return (
-            plato.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
-            (filtroTipo === "" || plato.tipo === filtroTipo)
-        );
+        const textoBusqueda = busqueda.toLowerCase();
+        const coincideNombre =
+            plato.nombre.toLowerCase().includes(textoBusqueda) ||
+            (plato.nombreEn && plato.nombreEn.toLowerCase().includes(textoBusqueda));
+        return coincideNombre && (filtroTipo === "" || plato.tipo === filtroTipo);
     });
 
     return (
@@ -267,13 +286,18 @@ function GestionarCarta() {
                                             src={plato.imagen ? `/uploads/FotoPlatos/${plato.imagen}` : ""}
                                             className="w-12 h-12 rounded-lg object-cover bg-gray-100"
                                         />
-                                        {plato.nombre}
+                                        <div>
+                                            <span>{nombrePlato(plato)}</span>
+                                            {plato.esNovedad && (
+                                                <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">{t("carta.novedad")}</span>
+                                            )}
+                                        </div>
                                     </div>
                                 </td>
 
-                                <td className="p-3">{plato.descripcion}</td>
+                                <td className="p-3">{descPlato(plato)}</td>
 
-                                <td className="p-3">{plato.tipo}</td>
+                                <td className="p-3">{tipoLabel(plato.tipo)}</td>
 
                                 <td className="p-3">
                                     <div
@@ -336,13 +360,15 @@ function GestionarCarta() {
                         precio={precio}
                         tipo={tipo}
                         disponible={disponible}
+                        esNovedad={esNovedad}
                         onNombreChange={(e) => setNombre(e.target.value)}
                         onNombreEnChange={(e) => setNombreEn(e.target.value)}
                         onDescripcionChange={(e) => setDescripcion(e.target.value)}
                         onDescripcionEnChange={(e) => setDescripcionEn(e.target.value)}
                         onPrecioChange={(e) => setPrecio(e.target.value)}
-                        onTipoChange={(e) => setTipo(e.target.value)}
+                        onTipoChange={(e) => { setTipo(e.target.value); if (e.target.value === "BEBIDA") setEsNovedad(false); }}
                         onDisponibleChange={(value) => setDisponible(value)}
+                        onNovedad={(value) => setEsNovedad(value)}
                         onImagenChange={(e) => setImagen(e.target.files[0])}
                         onCancelar={cerrarFormulario}
                         onSubmit={guardarPlato}

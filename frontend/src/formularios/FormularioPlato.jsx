@@ -9,6 +9,7 @@ function FormularioPlato({
     precio,
     tipo,
     disponible,
+    esNovedad,
     imagenActual,
     onNombreChange,
     onNombreEnChange,
@@ -17,6 +18,7 @@ function FormularioPlato({
     onPrecioChange,
     onTipoChange,
     onDisponibleChange,
+    onNovedad,
     onImagenChange,
     onCancelar,
     onSubmit,
@@ -131,6 +133,20 @@ function FormularioPlato({
                     <div className={`w-4 h-4 bg-white rounded-full transition
                         ${disponible ? "translate-x-5" : ""}`} />
                 </div>
+            </div>
+
+            <div className={`flex items-center gap-3 ${tipo === "BEBIDA" ? "opacity-40 pointer-events-none" : ""}`}>
+                <label className="text-sm font-medium text-gray-600">{t("carta.novedad")}</label>
+                <div
+                    onClick={() => onNovedad && onNovedad(!esNovedad)}
+                    className={`w-10 h-5 flex items-center rounded-full px-1 cursor-pointer transition
+                        ${esNovedad ? "bg-amber-400" : "bg-gray-300"}`}
+                >
+                    <div className={`w-4 h-4 bg-white rounded-full transition
+                        ${esNovedad ? "translate-x-5" : ""}`} />
+                </div>
+                {esNovedad && <span className="text-xs text-amber-600 font-medium">{t("carta.novedad")}</span>}
+                {tipo === "BEBIDA" && <span className="text-xs text-gray-400">{t("carta.novedadNoBebida")}</span>}
             </div>
 
             <div>

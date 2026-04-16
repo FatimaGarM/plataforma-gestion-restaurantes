@@ -13,11 +13,16 @@ export function authFetch(url, options = {}) {
         }
     }).then(res => {
         if (res.status === 401) {
-            localStorage.removeItem("auth");
-            localStorage.removeItem("usuario");
-            const path = window.location.pathname;
-            if (path !== "/login" && path !== "/") {
-                window.location.href = "/login";
+            // Solo cerrar sesión si la respuesta es JSON de error del backend,
+            // no si es HTML (que indicaría un fallo de proxy/navegación)
+            const contentType = res.headers.get("content-type") || "";
+            if (contentType.includes("application/json")) {
+                localStorage.removeItem("auth");
+                localStorage.removeItem("usuario");
+                const path = window.location.pathname;
+                if (path !== "/login" && path !== "/") {
+                    window.location.href = "/login";
+                }
             }
         }
         return res;

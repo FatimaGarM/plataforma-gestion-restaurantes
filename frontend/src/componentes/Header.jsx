@@ -5,8 +5,9 @@ import { useIdioma } from "../context/IdiomaContext";
 
 function Header() {
 
-    let usuario = {};
-    try { usuario = JSON.parse(localStorage.getItem("usuario")) || {}; } catch { /* localStorage inválido */ }
+    const [usuario, setUsuario] = useState(() => {
+        try { return JSON.parse(localStorage.getItem("usuario")) || {}; } catch { return {}; }
+    });
     const navigate = useNavigate();
     const { idioma, setIdioma, t } = useIdioma();
 
@@ -14,14 +15,32 @@ function Header() {
     const [logoRestaurante, setLogoRestaurante] = useState("");
 
     useEffect(() => {
+        const actualizar = () => {
+            try { setUsuario(JSON.parse(localStorage.getItem("usuario")) || {}); } catch { }
+        };
+        window.addEventListener("usuarioActualizado", actualizar);
+        return () => window.removeEventListener("usuarioActualizado", actualizar);
+    }, []);
+
+    const cargarConfig = () => {
         if (!localStorage.getItem("auth")) return;
         authFetch("/configuracion")
             .then(res => res?.json?.())
             .then(data => {
                 if (data?.nombreRestaurante) setNombreRestaurante(data.nombreRestaurante);
-                if (data?.logo) setLogoRestaurante(data.logo);
+                if (data?.logo !== undefined) setLogoRestaurante(data.logo || "");
             })
             .catch(() => {});
+    };
+
+    useEffect(() => {
+        cargarConfig();
+        const intervalo = setInterval(cargarConfig, 30000);
+        window.addEventListener("configuracionActualizada", cargarConfig);
+        return () => {
+            clearInterval(intervalo);
+            window.removeEventListener("configuracionActualizada", cargarConfig);
+        };
     }, []);
 
     const logout = () => {
@@ -69,7 +88,7 @@ function Header() {
 
                     <div className="text-right">
                         <p className="text-sm font-medium">{usuario?.nombre}</p>
-                        <p className="text-xs text-gray-500">{usuario?.tipoEmpleado}</p>
+                        <p className="text-xs text-gray-500">{(() => { const m = { CAMARERO: "empleados.camarero", COCINERO: "empleados.cocinero", GERENTE: "empleados.gerente" }; const k = m[usuario?.tipoEmpleado]; return k ? t(k) : usuario?.tipoEmpleado; })()}</p>
                     </div>
 
                     {usuario?.imagen ? (

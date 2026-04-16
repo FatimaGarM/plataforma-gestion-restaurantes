@@ -12,6 +12,12 @@ function Inicio() {
     const [stats, setStats] = useState(null);
     const { t } = useIdioma();
 
+    const rolLabel = (rol) => ({
+        CAMARERO: t("empleados.camarero"),
+        COCINERO: t("empleados.cocinero"),
+        GERENTE: t("empleados.gerente"),
+    }[rol] || rol);
+
     useEffect(() => {
         authFetch("/pedidos/activos")
             .then(res => res.json())
@@ -36,7 +42,7 @@ function Inicio() {
         <div className="container-page">
 
             <h1 className="title mb-2">{t("inicio.bienvenido")}, {usuario?.nombre}</h1>
-            <p className="text-sm text-gray-500 mb-6">{usuario?.tipoEmpleado}</p>
+            <p className="text-sm text-gray-500 mb-6">{rolLabel(usuario?.tipoEmpleado)}</p>
 
             {/* ========== GERENTE ========== */}
             {usuario.tipoEmpleado === "GERENTE" && (
@@ -62,7 +68,7 @@ function Inicio() {
                         </div>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-4 gap-4">
                         <Link to="/estadisticas" className="card hover:shadow-md transition text-center">
                             <p className="text-amber-600 font-semibold">{t("inicio.estadisticas")}</p>
                             <p className="text-xs text-gray-400">{t("inicio.verMetricas")}</p>
@@ -74,6 +80,10 @@ function Inicio() {
                         <Link to="/gestion-pedidos" className="card hover:shadow-md transition text-center">
                             <p className="text-amber-600 font-semibold">{t("inicio.pedidos")}</p>
                             <p className="text-xs text-gray-400">{t("inicio.verTodosPedidos")}</p>
+                        </Link>
+                        <Link to="/gestion-empleados" className="card hover:shadow-md transition text-center">
+                            <p className="text-amber-600 font-semibold">{t("inicio.empleados")}</p>
+                            <p className="text-xs text-gray-400">{t("inicio.gestionarEmpleados")}</p>
                         </Link>
                     </div>
                 </>
@@ -123,8 +133,8 @@ function Inicio() {
                     </div>
 
                     <Link to="/cocina" className="card hover:shadow-md transition text-center block">
-                        <p className="text-amber-600 font-semibold">Ir a Cocina</p>
-                        <p className="text-xs text-gray-400">Gestionar pedidos</p>
+                        <p className="text-amber-600 font-semibold">{t("inicio.irACocina")}</p>
+                        <p className="text-xs text-gray-400">{t("inicio.gestionarPedidos")}</p>
                     </Link>
                 </>
             )}

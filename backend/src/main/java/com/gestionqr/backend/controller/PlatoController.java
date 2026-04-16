@@ -46,6 +46,7 @@ public class PlatoController {
             @RequestParam Double precio,
             @RequestParam String tipo,
             @RequestParam(required = false, defaultValue = "true") Boolean disponible,
+            @RequestParam(required = false, defaultValue = "false") Boolean esNovedad,
             @RequestParam(name = "imagen", required = false) MultipartFile imagen
     ) throws Exception {
 
@@ -57,6 +58,7 @@ public class PlatoController {
                 precio,
                 tipo,
                 disponible,
+                esNovedad,
                 imagen
         );
     }
@@ -71,6 +73,7 @@ public class PlatoController {
             @RequestParam Double precio,
             @RequestParam String tipo,
             @RequestParam Boolean disponible,
+            @RequestParam(required = false, defaultValue = "false") Boolean esNovedad,
             @RequestParam(name = "imagen", required = false) MultipartFile imagen
     ) throws Exception {
 
@@ -83,6 +86,7 @@ public class PlatoController {
                 precio,
                 tipo,
                 disponible,
+                esNovedad,
                 imagen
         );
     }

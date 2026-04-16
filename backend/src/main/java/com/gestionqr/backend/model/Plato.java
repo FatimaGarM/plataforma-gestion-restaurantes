@@ -1,6 +1,7 @@
 package com.gestionqr.backend.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 public class Plato {
@@ -32,6 +33,10 @@ public class Plato {
     private TipoPlato tipo;
 
     private Boolean disponible = true; // por defecto disponible
+
+    private Boolean esNovedad = false; // plato marcado como novedad para estadísticas
+
+    private LocalDate fechaCreacion;
 
     // CONSTRUCTOR VACÍO 
     public Plato() {}
@@ -108,6 +113,22 @@ public class Plato {
 
     public void setDisponible(Boolean disponible) {
         this.disponible = disponible;
+    }
+
+    public Boolean getEsNovedad() {
+        return esNovedad;
+    }
+
+    public void setEsNovedad(Boolean esNovedad) {
+        this.esNovedad = esNovedad;
+    }
+
+    public LocalDate getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDate fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 
     // TO STRING 

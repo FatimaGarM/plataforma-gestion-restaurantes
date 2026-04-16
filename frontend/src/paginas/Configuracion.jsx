@@ -72,6 +72,7 @@ function Configuracion() {
         setImagenFondo(null);
         setMensaje(t("config.guardado"));
         setGuardando(false);
+        window.dispatchEvent(new Event("configuracionActualizada"));
       })
       .catch(() => {
         setMensaje(t("config.error"));
@@ -141,7 +142,7 @@ function Configuracion() {
                   type="text"
                   value={nombreRestaurante}
                   onChange={e => setNombreRestaurante(e.target.value)}
-                  placeholder="Nombre..."
+                  placeholder={t("config.placeholderNombre")}
                   className="input"
                   required
                 />
@@ -155,7 +156,7 @@ function Configuracion() {
                   type="tel"
                   value={telefono}
                   onChange={e => setTelefono(e.target.value)}
-                  placeholder="Tfno..."
+                  placeholder={t("config.placeholderTelefono")}
                   className="input"
                 />
               </div>
@@ -168,7 +169,7 @@ function Configuracion() {
                   type="text"
                   value={direccion}
                   onChange={e => setDireccion(e.target.value)}
-                  placeholder="Dirección..."
+                  placeholder={t("config.placeholderDireccion")}
                   className="input"
                 />
               </div>
@@ -181,7 +182,7 @@ function Configuracion() {
                   type="email"
                   value={emailContacto}
                   onChange={e => setEmailContacto(e.target.value)}
-                  placeholder="Email..."
+                  placeholder={t("config.placeholderEmail")}
                   className="input"
                 />
               </div>
@@ -361,18 +362,18 @@ function Configuracion() {
 
           {/* Preview de colores */}
           <div className="mt-4 flex items-center gap-4">
-            <span className="text-sm text-gray-500">Vista previa:</span>
+            <span className="text-sm text-gray-500">{t("config.vistaPrevia")}</span>
             <div
               className="px-4 py-2 rounded-lg text-white text-sm font-medium"
               style={{ backgroundColor: colorPrimario }}
             >
-              Primario
+              {t("config.colorPrimarioLabel")}
             </div>
             <div
               className="px-4 py-2 rounded-lg text-white text-sm font-medium"
               style={{ backgroundColor: colorSecundario }}
             >
-              Secundario
+              {t("config.colorSecundarioLabel")}
             </div>
           </div>
         </div>
@@ -384,7 +385,7 @@ function Configuracion() {
             disabled={guardando}
             className="btn btn-success px-8"
           >
-            {guardando ? t("config.guardando") : t("guardar") + " Cambios"}
+            {guardando ? t("config.guardando") : t("config.guardarCambios")}
           </button>
           <button
             type="button"

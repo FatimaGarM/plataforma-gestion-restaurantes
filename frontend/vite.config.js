@@ -8,7 +8,10 @@ export default defineConfig({
     proxy: {
       '/empleados': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
       },
       '/platos': {
         target: 'http://localhost:8080',
@@ -16,11 +19,17 @@ export default defineConfig({
       },
       '/pedidos': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
       },
       '/estadisticas': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
       },
       '/uploads': {
         target: 'http://localhost:8080',
@@ -28,7 +37,10 @@ export default defineConfig({
       },
       '/configuracion': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
       },
       '/auth': {
         target: 'http://localhost:8080',
@@ -40,7 +52,10 @@ export default defineConfig({
       },
       '/cartas': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
       }
     }
   }

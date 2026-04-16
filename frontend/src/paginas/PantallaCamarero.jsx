@@ -68,7 +68,7 @@ function PantallaCamarero() {
                   <div key={pedido.id} className="card">
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium">{pedido.plato?.nombre}</p>
-                      <span className="badge bg-green-100 text-green-700">Listo</span>
+                      <span className="badge bg-green-100 text-green-700">{t("pedidos.estadoListo")}</span>
                     </div>
                     <button
                       className="btn btn-success mt-2 w-full text-xs"
@@ -87,11 +87,11 @@ function PantallaCamarero() {
       {/* EN COCINA */}
       <div>
         <h2 className="font-semibold text-gray-600 text-lg mb-4">
-          En cocina ({enCocina.length})
+          {t("camarero.enCocina")} ({enCocina.length})
         </h2>
 
         {enCocina.length === 0 && (
-          <div className="card text-sm text-gray-400">Sin pedidos en cocina</div>
+          <div className="card text-sm text-gray-400">{t("camarero.sinEnCocina")}</div>
         )}
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -108,7 +108,7 @@ function PantallaCamarero() {
                           ? "bg-yellow-100 text-yellow-700"
                           : "bg-blue-100 text-blue-700"
                       }`}>
-                        {pedido.estado === "EnProceso" ? "En proceso" : pedido.estado}
+                        {pedido.estado === "Pendiente" ? t("pedidos.estadoPendiente") : t("pedidos.enProceso")}
                       </span>
                     </div>
                   </div>

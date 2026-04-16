@@ -16,7 +16,8 @@ public class EstadisticaController {
     private EstadisticaService estadisticaService;
 
     @GetMapping
-    public Map<String, Object> obtenerEstadisticas() {
-        return estadisticaService.calcularEstadisticas();
+    public Map<String, Object> obtenerEstadisticas(
+            @RequestParam(required = false, defaultValue = "30d") String periodo) {
+        return estadisticaService.calcularEstadisticas(periodo);
     }
 }
