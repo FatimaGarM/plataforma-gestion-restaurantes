@@ -40,19 +40,25 @@ public class PlatoController {
     @PostMapping("/con-imagen")
     public Plato crearPlatoConImagen(
             @RequestParam String nombre,
+            @RequestParam(required = false) String nombreEn,
             @RequestParam String descripcion,
+            @RequestParam(required = false) String descripcionEn,
             @RequestParam Double precio,
             @RequestParam String tipo,
             @RequestParam(required = false, defaultValue = "true") Boolean disponible,
+            @RequestParam(required = false, defaultValue = "false") Boolean esNovedad,
             @RequestParam(name = "imagen", required = false) MultipartFile imagen
     ) throws Exception {
 
         return platoService.crearPlatoConImagen(
                 nombre,
+                nombreEn,
                 descripcion,
+                descripcionEn,
                 precio,
                 tipo,
                 disponible,
+                esNovedad,
                 imagen
         );
     }
@@ -61,20 +67,26 @@ public class PlatoController {
     public Plato actualizarPlato(
             @PathVariable Long id,
             @RequestParam String nombre,
+            @RequestParam(required = false) String nombreEn,
             @RequestParam String descripcion,
+            @RequestParam(required = false) String descripcionEn,
             @RequestParam Double precio,
             @RequestParam String tipo,
             @RequestParam Boolean disponible,
+            @RequestParam(required = false, defaultValue = "false") Boolean esNovedad,
             @RequestParam(name = "imagen", required = false) MultipartFile imagen
     ) throws Exception {
 
         return platoService.actualizarPlato(
                 id,
                 nombre,
+                nombreEn,
                 descripcion,
+                descripcionEn,
                 precio,
                 tipo,
                 disponible,
+                esNovedad,
                 imagen
         );
     }

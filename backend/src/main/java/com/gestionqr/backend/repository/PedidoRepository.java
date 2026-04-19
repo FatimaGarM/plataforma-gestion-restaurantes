@@ -2,7 +2,6 @@ package com.gestionqr.backend.repository;
 
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.gestionqr.backend.model.Pedido;
@@ -21,7 +20,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     /**
      * Obtener pedidos por varios estados (útil para cocina).
      */
-    List<Pedido> findByEstadoIn(List<EstadoPedido> estados, Sort sort);
+    List<Pedido> findByEstadoIn(List<EstadoPedido> estados);
 
     /**
      * Obtener pedidos de un servicio concreto (mesa).

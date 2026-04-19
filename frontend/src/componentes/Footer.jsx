@@ -1,4 +1,7 @@
+import { useIdioma } from "../context/IdiomaContext";
+
 function Footer() {
+  const { t } = useIdioma();
   return (
     <footer className="bg-white border-t border-gray-200 mt-10 py-6">
 
@@ -7,13 +10,13 @@ function Footer() {
         {/* LINKS */}
         <div className="flex gap-6">
           <a href="#" className="hover:text-gray-800 transition">
-            Aviso legal
+            {t("footer.avisoLegal")}
           </a>
           <a href="#" className="hover:text-gray-800 transition">
-            Política de privacidad
+            {t("footer.privacidad")}
           </a>
           <a href="#" className="hover:text-gray-800 transition">
-            Política de cookies
+            {t("footer.cookies")}
           </a>
         </div>
 

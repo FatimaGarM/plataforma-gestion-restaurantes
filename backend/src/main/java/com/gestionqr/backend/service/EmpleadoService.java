@@ -126,4 +126,21 @@ public class EmpleadoService {
 
         empleadoRepository.deleteById(id);
     }
+
+    /**
+     * Cambiar la contraseña de un empleado validando la actual.
+     */
+    public boolean cambiarContrasena(Long id, String contrasenaActual, String contrasenaNueva) {
+
+        Empleado empleado = empleadoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+
+        if (!passwordEncoder.matches(contrasenaActual, empleado.getContraseña())) {
+            return false;
+        }
+
+        empleado.setContraseña(passwordEncoder.encode(contrasenaNueva));
+        empleadoRepository.save(empleado);
+        return true;
+    }
 }

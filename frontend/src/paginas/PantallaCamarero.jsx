@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { authFetch } from "../utils/authFetch";
+import { useIdioma } from "../context/IdiomaContext";
 
 function PantallaCamarero() {
 
   const [pedidos, setPedidos] = useState([]);
+  const { t } = useIdioma();
 
   useEffect(() => {
     cargarPedidos();
@@ -11,17 +14,17 @@ function PantallaCamarero() {
   }, []);
 
   function cargarPedidos() {
-    fetch("/pedidos/activos")
+    authFetch("/pedidos/activos")
       .then(res => res.json())
       .then(data => setPedidos(data))
-      .catch(() => { });
+      .catch(() => {});
   }
 
   function servirPedido(id) {
-    fetch(`/pedidos/${id}/siguiente-estado`, { method: "PUT" })
+    authFetch(`/pedidos/${id}/siguiente-estado`, { method: "PUT" })
       .then(res => res.json())
       .then(() => cargarPedidos())
-      .catch(() => { });
+      .catch(() => {});
   }
 
   const listos = pedidos.filter(p => p.estado === "Listo");
@@ -44,16 +47,16 @@ function PantallaCamarero() {
   return (
     <div className="container-page">
 
-      <h1 className="title mb-6">Pedidos</h1>
+      <h1 className="title mb-6">{t("camarero.titulo")}</h1>
 
       {/* LISTOS PARA SERVIR */}
       <div className="mb-8">
         <h2 className="font-semibold text-green-700 text-lg mb-4">
-          Listos para servir ({listos.length})
+          {t("camarero.listosParaServir")} ({listos.length})
         </h2>
 
         {listos.length === 0 && (
-          <div className="card text-sm text-gray-400">No hay pedidos listos</div>
+          <div className="card text-sm text-gray-400">{t("camarero.sinListos")}</div>
         )}
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -65,16 +68,13 @@ function PantallaCamarero() {
                   <div key={pedido.id} className="card">
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium">{pedido.plato?.nombre}</p>
-                      <span className="badge bg-green-100 text-green-700">Listo</span>
-                      <span className="text-xs text-gray-500">{pedido?.fechaHoraListo
-                        ? pedido.fechaHoraListo.substring(11, 19)
-                        : "-"}</span>
+                      <span className="badge bg-green-100 text-green-700">{t("pedidos.estadoListo")}</span>
                     </div>
                     <button
                       className="btn btn-success mt-2 w-full text-xs"
                       onClick={() => servirPedido(pedido.id)}
                     >
-                      Marcar como servido
+                      {t("camarero.marcarServido")}
                     </button>
                   </div>
                 ))}
@@ -87,11 +87,11 @@ function PantallaCamarero() {
       {/* EN COCINA */}
       <div>
         <h2 className="font-semibold text-gray-600 text-lg mb-4">
-          En cocina ({enCocina.length})
+          {t("camarero.enCocina")} ({enCocina.length})
         </h2>
 
         {enCocina.length === 0 && (
-          <div className="card text-sm text-gray-400">Sin pedidos en cocina</div>
+          <div className="card text-sm text-gray-400">{t("camarero.sinEnCocina")}</div>
         )}
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -103,11 +103,12 @@ function PantallaCamarero() {
                   <div key={pedido.id} className="card">
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium">{pedido.plato?.nombre}</p>
-                      <span className={`badge ${pedido.estado === "Pendiente"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-blue-100 text-blue-700"
-                        }`}>
-                        {pedido.estado}
+                      <span className={`badge ${
+                        pedido.estado === "Pendiente"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-blue-100 text-blue-700"
+                      }`}>
+                        {pedido.estado === "Pendiente" ? t("pedidos.estadoPendiente") : t("pedidos.enProceso")}
                       </span>
                     </div>
                   </div>

@@ -14,3 +14,29 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+---
+
+# Instalación y ejecución del proyecto
+
+1. Instala las dependencias del frontend:
+
+   npm install
+
+2. Si ves la pantalla en blanco o necesitas los gráficos de la pestaña "Estadísticas", instala también la librería de gráficos:
+
+   npm install recharts
+
+3. Inicia el servidor de desarrollo:
+
+   npm run dev
+
+Esto instalará todas las dependencias necesarias, incluyendo:
+- react, react-dom
+- redux, redux-thunk
+- internmap
+- recharts (para los gráficos)
+
+> Ejecuta todos los comandos anteriores dentro de la carpeta `frontend`.
+
+Si tienes problemas, revisa que todas las dependencias estén correctamente instaladas y que estés en el directorio correcto.

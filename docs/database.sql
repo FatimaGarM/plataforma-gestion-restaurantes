@@ -1,15 +1,10 @@
 -- ============================================
--- BASE DE DATOS - GESTIÓN RESTAURANTE QR
+-- BASE DE DATOS - RESTAURANTE QR (OK DEFINITIVO)
 -- ============================================
 
-CREATE DATABASE IF NOT EXISTS restaurante_qr;
+DROP DATABASE IF EXISTS restaurante_qr;
+CREATE DATABASE restaurante_qr;
 USE restaurante_qr;
-
--- BORRADO ORDENADO (por claves foráneas)
-DROP TABLE IF EXISTS pedido;
-DROP TABLE IF EXISTS servicio;
-DROP TABLE IF EXISTS empleado;
-DROP TABLE IF EXISTS plato;
 
 -- ============================================
 -- TABLA EMPLEADO
@@ -21,8 +16,8 @@ CREATE TABLE empleado (
     email VARCHAR(255) UNIQUE,
     contraseña VARCHAR(255),
     imagen VARCHAR(255),
-    tipo_empleado VARCHAR(50),
-    estado VARCHAR(50)
+    tipo_empleado VARCHAR(50), -- GERENTE, COCINERO, CAMARERO
+    estado VARCHAR(50)         -- ACTIVO
 );
 
 -- ============================================
@@ -35,7 +30,7 @@ CREATE TABLE plato (
     descripcion TEXT,
     precio DOUBLE,
     imagen VARCHAR(255),
-    tipo VARCHAR(50),
+    tipo VARCHAR(50),     -- PRIMERO, SEGUNDO, POSTRE, BEBIDA
     disponible BOOLEAN
 );
 
@@ -45,18 +40,18 @@ CREATE TABLE plato (
 
 CREATE TABLE servicio (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    estado VARCHAR(50),
+    estado TINYINT,   -- 1 = ABIERTO, 0 = CERRADO
     mesa INT
 );
 
 -- ============================================
--- TABLA PEDIDO
+-- TABLA PEDIDO (CLAVE AQUÍ 👇)
 -- ============================================
 
 CREATE TABLE pedido (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     mesa INT,
-    estado VARCHAR(50),
+    estado VARCHAR(50), -- 👈 DEBE COINCIDIR EXACTAMENTE CON ENUM JAVA
     fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     plato_id BIGINT,
@@ -72,7 +67,7 @@ CREATE TABLE pedido (
 );
 
 -- ============================================
--- DATOS DE EMPLEADOS (ENUMS CORRECTOS)
+-- EMPLEADOS
 -- ============================================
 
 INSERT INTO empleado (nombre, email, contraseña, imagen, tipo_empleado, estado)
@@ -82,7 +77,7 @@ VALUES
 ('Camarero', 'camarero@test.com', '$2a$10$Dow1QyGJ0v7FpC18JNpDne6N9KuX3sX5Yucs5cjox96D65gis6pZe', '', 'CAMARERO', 'ACTIVO');
 
 -- ============================================
--- DATOS DE PLATOS
+-- PLATOS
 -- ============================================
 
 INSERT INTO plato (nombre, descripcion, precio, imagen, tipo, disponible)
@@ -94,27 +89,25 @@ VALUES
 ('Coca-Cola', 'Refresco', 2.50, 'cocacola.jpg', 'BEBIDA', true);
 
 -- ============================================
--- DATOS DE SERVICIO + PEDIDOS (PRUEBA)
+-- SERVICIO
 -- ============================================
 
--- Crear servicio abierto
-INSERT INTO servicio (estado, mesa) VALUES ('Abierto', 1);
+INSERT INTO servicio (estado, mesa) VALUES (1, 1);
 
--- Crear pedidos asociados al servicio 1
-INSERT INTO pedido (mesa, estado, plato_id, servicio_id, fecha_hora)
+-- ============================================
+-- PEDIDOS (⚠️ AQUÍ ESTÁ LA CLAVE)
+-- ============================================
+
+INSERT INTO pedido (mesa, estado, plato_id, servicio_id)
 VALUES
-(1, 'Pendiente', 1, 1, NOW()),
-(1, 'Pendiente', 2, 1, NOW());
+(1, 'Pendiente', 1, 1),
+(1, 'Pendiente', 2, 1);
 
 -- ============================================
--- NOTAS
+-- LOGIN
 -- ============================================
 
--- LOGIN:
--- gerente@test.com / 1234
--- cocinero@test.com / 1234
--- camarero@test.com / 1234
-
--- IMPORTANTE:
--- - ENUMS deben coincidir EXACTAMENTE con Java
--- - Imágenes en /uploads del backend
+-- contraseña: 1234
+-- gerente@test.com
+-- cocinero@test.com
+-- camarero@test.com
