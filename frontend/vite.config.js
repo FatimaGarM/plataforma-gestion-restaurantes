@@ -38,7 +38,10 @@ export default defineConfig({
       },
       '/configuracion': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
       },
       '/auth': {
         target: 'http://localhost:8080',
@@ -50,11 +53,17 @@ export default defineConfig({
       },
       '/cartas': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
       },
       '/menus': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
       }
     }
   }
