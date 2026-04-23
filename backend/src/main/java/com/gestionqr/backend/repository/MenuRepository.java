@@ -12,5 +12,5 @@ import com.gestionqr.backend.model.Pedido.EstadoPedido;
  * Repositorio para acceder a los pedidos en la base de datos.
  */
 public interface MenuRepository extends JpaRepository<Menu, Long> {
-    Optional<Menu> findByDia(Menu.DiaMenu dia);
+    List<Menu> findByDia(Menu.DiaMenu dia);
 }

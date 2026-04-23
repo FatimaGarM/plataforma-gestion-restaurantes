@@ -112,7 +112,7 @@ function MenuEditor() {
     }
 
     // Platos que no están ya en el menú seleccionado
-    function platosDisponiblesParaMenu(menuId) {
+    function platosDisponiblesParaMenu() {
         const ids = new Set((menu?.items || []).map(i => i.plato?.id));
         
         return platos.filter(p => !ids.has(p.id) && p.disponible);
@@ -553,7 +553,7 @@ function MenuEditor() {
                         />
                         <div className="overflow-y-auto flex-1">
                             <h3 className="font-semibold mb-2">{tipoLabel(modalAñadirTipoPlato)+"s"}</h3>
-                            {platosDisponiblesParaMenu(menu.id)
+                            {platosDisponiblesParaMenu()
                                 .filter(p => p.tipo === modalAñadirTipoPlato && normalize(p.nombre).includes(normalize(busquedaPlato)))
                                 .map(plato => (
                                     <button

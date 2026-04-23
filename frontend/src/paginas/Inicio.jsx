@@ -73,6 +73,10 @@ function Inicio() {
                             <p className="text-amber-600 font-semibold">{t("inicio.estadisticas")}</p>
                             <p className="text-xs text-gray-400">{t("inicio.verMetricas")}</p>
                         </Link>
+                        <Link to="/gestion-productos" className="card hover:shadow-md transition text-center">
+                            <p className="text-amber-600 font-semibold">{t("inicio.productos")}</p>
+                            <p className="text-xs text-gray-400">{t("inicio.gestionarProductos")}</p>
+                        </Link>
                         <Link to="/gestion-carta" className="card hover:shadow-md transition text-center">
                             <p className="text-amber-600 font-semibold">{t("inicio.carta")}</p>
                             <p className="text-xs text-gray-400">{t("inicio.gestionarPlatos")}</p>

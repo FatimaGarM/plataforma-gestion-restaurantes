@@ -64,6 +64,20 @@ export default defineConfig({
         bypass: (req) => {
           if (req.headers.accept?.includes('text/html')) return '/index.html';
         }
+        },
+      '/productos': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
+      },
+      '/proveedores': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
       }
     }
   }

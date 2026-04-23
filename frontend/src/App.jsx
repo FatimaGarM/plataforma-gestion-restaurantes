@@ -8,6 +8,7 @@ import Sidebar from "./componentes/Sidebar";
 import Footer from "./componentes/Footer";
 import PrivateRoute from "./componentes/PrivateRoute";
 import Inicio from "./paginas/Inicio";
+import GestionProductos from "./paginas/GestionProductos";
 import Estadisticas from "./paginas/Estadisticas";
 import GestionPedidos from "./paginas/GestionPedidos";
 import PantallaCocina from "./paginas/PantallaCocina";
@@ -64,6 +65,15 @@ function Layout() {
               element={
                 <PrivateRoute>
                   <Inicio />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/gestion-productos"
+              element={
+                <PrivateRoute>
+                  <GestionProductos />
                 </PrivateRoute>
               }
             />
