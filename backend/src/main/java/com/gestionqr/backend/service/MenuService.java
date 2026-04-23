@@ -14,8 +14,8 @@ import com.gestionqr.backend.model.Menu;
 import com.gestionqr.backend.model.Menu.DiaMenu;
 import com.gestionqr.backend.model.MenuPlato;
 import com.gestionqr.backend.model.Plato;
-import com.gestionqr.backend.repository.MenuRepository;
-import com.gestionqr.backend.repository.PlatoRepository;
+import com.gestionqr.backend.model.repository.MenuRepository;
+import com.gestionqr.backend.model.repository.PlatoRepository;
 
 @Service
 public class MenuService {

@@ -1,4 +1,4 @@
-package com.gestionqr.backend.repository;
+package com.gestionqr.backend.model.repository;
 
 import java.util.List;
 

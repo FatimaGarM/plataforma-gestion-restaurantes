@@ -56,6 +56,10 @@ public class ConfiguracionSeguridad {
                 .requestMatchers(HttpMethod.PUT, "/configuracion").hasRole("GERENTE")
                 .requestMatchers("/configuracion/**").hasRole("GERENTE")
 
+                // Menús del día — GET autenticado, modificaciones solo GERENTE
+                .requestMatchers(HttpMethod.GET, "/menus/**").authenticated()
+                .requestMatchers("/menus/**").hasRole("GERENTE")
+
                 // Estadísticas — solo GERENTE
                 .requestMatchers("/estadisticas/**").hasRole("GERENTE")
 

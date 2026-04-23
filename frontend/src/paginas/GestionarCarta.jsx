@@ -6,6 +6,7 @@ import DialogoModal from "../componentes/DialogoModal";
 import deleteIcon from "../assets/iconos/eliminar.png";
 import { useIdioma } from "../context/IdiomaContext";
 import CartaEditor from "../componentes/CartaEditor";
+import MenuEditor from "../componentes/MenuEditor";
 
 function GestionarCarta() {
 
@@ -389,12 +390,7 @@ function GestionarCarta() {
             {/* TAB: CARTAS */}
             {tabActiva === "cartas" && <CartaEditor />}
 
-            {/* TAB: MENÚS — placeholder */}
-            {tabActiva === "menus" && (
-                <div className="bg-white rounded-xl shadow-sm border p-12 text-center text-gray-400">
-                    {t("carta.proximamente")}
-                </div>
-            )}
+            {tabActiva === "menus" && <MenuEditor />}
 
             {/* TAB: CÓDIGOS QR — placeholder */}
             {tabActiva === "qrs" && (

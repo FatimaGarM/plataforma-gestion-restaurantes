@@ -66,7 +66,8 @@ function MenuEditor() {
     }
 
     async function crearMenu() {
-        if (!diaMenu || !precioMenu) return;
+        if (!precioMenu) { alert("Introduce el precio del menú."); return; }
+        if (!diaMenu) { alert("Selecciona el día del menú."); return; }
         const res = await authFetch("/menus", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
