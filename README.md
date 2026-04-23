@@ -7,7 +7,7 @@ realizar pedidos y efectuar pagos, mientras que el personal del restaurante
 ## Funcionalidades principales
 - Acceso a la carta mediante código QR por mesa
 - Realización de pedidos sin necesidad de login
-- Pago individual o total desde el móvil
+- Pago individual o total 
 - Visualización del estado del pedido
 - Panel de camarero y cocina para gestión de pedidos
 - Panel de gerente para gestión de carta, productos, empleados y estadísticas
@@ -64,9 +64,12 @@ La aplicación queda disponible en `http://localhost:5173` (o el siguiente puert
 ## Credenciales por defecto
 | Rol | Email | Contraseña |
 |---|---|---|
-| Gerente | gerente@test.com | 1234 |
-| Camarero | camarero@test.com | 1234 |
-| Cocinero | cocinero@test.com | 1234 |
+| Gerente | gerente@test.es | 1234 |
+| Gerente (admin) | admin@test.es | 1234 |
+| Camarero | camarero1@test.es | 1234 |
+| Camarero | camarero2@test.es | 1234 |
+| Cocinero | cocinero1@test.es | 1234 |
+| Cocinero | cocinero2@test.es | 1234 |
 
 > Las contraseñas se pueden cambiar desde el panel (icono de usuario → *Cambiar contraseña*).
 
