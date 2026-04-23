@@ -68,7 +68,7 @@ function Inicio() {
                         </div>
                     </div>
 
-                    <div className="grid md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                         <Link to="/estadisticas" className="card hover:shadow-md transition text-center">
                             <p className="text-amber-600 font-semibold">{t("inicio.estadisticas")}</p>
                             <p className="text-xs text-gray-400">{t("inicio.verMetricas")}</p>
