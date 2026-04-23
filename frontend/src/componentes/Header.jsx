@@ -54,7 +54,7 @@ function Header() {
             <div className="flex items-center gap-3">
                 {logoRestaurante && (
                     <img
-                        src={`http://localhost:8080/uploads/Configuracion/${logoRestaurante}`}
+                        src={`/uploads/Configuracion/${logoRestaurante}`}
                         alt="Logo"
                         className="w-9 h-9 rounded-lg object-cover"
                     />
@@ -93,7 +93,7 @@ function Header() {
 
                     {usuario?.imagen ? (
                         <img
-                            src={`http://localhost:8080/uploads/FotosEmpleados/${usuario.imagen}`}
+                            src={`/uploads/FotosEmpleados/${usuario.imagen}`}
                             alt="usuario"
                             className="w-10 h-10 rounded-full object-cover"
                         />

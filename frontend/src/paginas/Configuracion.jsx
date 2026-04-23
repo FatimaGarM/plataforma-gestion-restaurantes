@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { RotateCcw } from "lucide-react";
 import { authFetch } from "../utils/authFetch";
 import { useIdioma } from "../context/IdiomaContext";
 
@@ -9,6 +10,7 @@ function Configuracion() {
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
   const [emailContacto, setEmailContacto] = useState("");
+  const [urlClientePublica, setUrlClientePublica] = useState("");
   const [colorPrimario, setColorPrimario] = useState("#f59e0b");
   const [colorSecundario, setColorSecundario] = useState("#059669");
   const [idiomaEs, setIdiomaEs] = useState(true);
@@ -31,6 +33,7 @@ function Configuracion() {
         setTelefono(data.telefono || "");
         setDireccion(data.direccion || "");
         setEmailContacto(data.emailContacto || "");
+        setUrlClientePublica(data.urlClientePublica || "");
         setColorPrimario(data.colorPrimario || "#f59e0b");
         setColorSecundario(data.colorSecundario || "#059669");
         const idiomas2 = (data.idiomaCarta || "es").split(",");
@@ -52,6 +55,7 @@ function Configuracion() {
     formData.append("telefono", telefono);
     formData.append("direccion", direccion);
     formData.append("emailContacto", emailContacto);
+    formData.append("urlClientePublica", urlClientePublica.trim());
     formData.append("colorPrimario", colorPrimario);
     formData.append("colorSecundario", colorSecundario);
     const idiomasSeleccionados = [idiomaEs && "es", idiomaEn && "en"].filter(Boolean).join(",") || "es";
@@ -88,6 +92,7 @@ function Configuracion() {
         setTelefono(data.telefono || "");
         setDireccion(data.direccion || "");
         setEmailContacto(data.emailContacto || "");
+        setUrlClientePublica(data.urlClientePublica || "");
         setColorPrimario(data.colorPrimario || "#f59e0b");
         setColorSecundario(data.colorSecundario || "#059669");
         const idiomas2 = (data.idiomaCarta || "es").split(",");
@@ -187,6 +192,22 @@ function Configuracion() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Campo adicional para escanear el QR sin desplegar la aplicacion
+                </label>
+                <input
+                  type="url"
+                  value={urlClientePublica}
+                  onChange={e => setUrlClientePublica(e.target.value)}
+                  placeholder="http://192.168.1.50:5173"
+                  className="input"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Pega aqui la URL publica o local que deben abrir los moviles al escanear el QR. Ejemplo: `https://tu-tunel.ngrok-free.dev` o `http://192.168.X.X:5173`
+                </p>
+              </div>
+
             </div>
           </div>
 
@@ -211,7 +232,7 @@ function Configuracion() {
                     />
                   ) : logoActual ? (
                     <img
-                      src={`http://localhost:8080/uploads/Configuracion/${logoActual}`}
+                      src={`/uploads/Configuracion/${logoActual}`}
                       alt="Logo actual"
                       className="w-full h-full object-cover"
                     />
@@ -350,7 +371,7 @@ function Configuracion() {
                   />
                 ) : fondoActual ? (
                   <img
-                    src={`http://localhost:8080/uploads/Configuracion/${fondoActual}`}
+                    src={`/uploads/Configuracion/${fondoActual}`}
                     alt="Fondo actual"
                     className="w-full max-h-40 rounded-lg object-cover border"
                   />
@@ -361,7 +382,7 @@ function Configuracion() {
           </div>
 
           {/* Preview de colores */}
-          <div className="mt-4 flex items-center gap-4">
+          <div className="mt-4 flex items-center gap-4 flex-wrap">
             <span className="text-sm text-gray-500">{t("config.vistaPrevia")}</span>
             <div
               className="px-4 py-2 rounded-lg text-white text-sm font-medium"
@@ -375,6 +396,13 @@ function Configuracion() {
             >
               {t("config.colorSecundarioLabel")}
             </div>
+            <button
+              type="button"
+              onClick={() => { setColorPrimario("#f59e0b"); setColorSecundario("#059669"); }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm bg-gray-100 text-gray-600 hover:bg-gray-200 transition border border-gray-200"
+            >
+              <RotateCcw size={14} /> Diseño por defecto
+            </button>
           </div>
         </div>
 

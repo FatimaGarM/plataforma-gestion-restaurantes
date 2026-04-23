@@ -13,6 +13,7 @@ import GestionPedidos from "./paginas/GestionPedidos";
 import PantallaCocina from "./paginas/PantallaCocina";
 import PantallaCamarero from "./paginas/PantallaCamarero";
 import Configuracion from "./paginas/Configuracion";
+import CartaCliente from "./paginas/CartaCliente";
 
 function Layout() {
   const location = useLocation();
@@ -146,7 +147,12 @@ function Layout() {
 function App() {
   return (
     <BrowserRouter>
-      <Layout />
+      <Routes>
+        {/* Vista pública del cliente — sin Header ni Sidebar */}
+        <Route path="/cliente" element={<CartaCliente />} />
+        {/* Todo lo demás pasa por el Layout con autenticación */}
+        <Route path="*" element={<Layout />} />
+      </Routes>
     </BrowserRouter>
   );
 }

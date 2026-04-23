@@ -24,9 +24,12 @@ function PantallaCocina() {
 
   function avanzarEstado(id) {
     authFetch(`/pedidos/${id}/siguiente-estado`, { method: "PUT" })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) return res.text().then(msg => { throw new Error(msg); });
+        return res.json();
+      })
       .then(() => cargarPedidos())
-      .catch(() => {});
+      .catch(err => alert("Error al cambiar estado: " + err.message));
   }
 
   const pendientes = pedidos.filter(p => p.estado === "Pendiente");

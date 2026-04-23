@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Pencil } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { authFetch } from "../utils/authFetch";
 import { useIdioma } from "../context/IdiomaContext";
@@ -14,6 +15,7 @@ function CartaEditor() {
     const [carta, setCarta] = useState(null);
     const [platos, setPlatos] = useState([]);
     const [mesaQR, setMesaQR] = useState(1);
+    const [urlClientePublica, setUrlClientePublica] = useState("");
     const [seccionesAbiertas, setSeccionesAbiertas] = useState({});
     const [modalAñadir, setModalAñadir] = useState(null); // { seccionId }
     const [modalNuevaCarta, setModalNuevaCarta] = useState(false);
@@ -24,12 +26,17 @@ function CartaEditor() {
     const [busquedaCarta, setBusquedaCarta] = useState("");
     const [busquedaPlato, setBusquedaPlato] = useState("");
     const [confirmarEliminarCarta, setConfirmarEliminarCarta] = useState(false);
+    const [modalEditarSeccion, setModalEditarSeccion] = useState(null); // { id, nombre, nombreEn }
 
     const qrRef = useRef(null);
 
     useEffect(() => {
         cargarCartas();
         authFetch("/platos").then(r => r.json()).then(setPlatos);
+        authFetch("/configuracion")
+            .then(r => r.json())
+            .then(data => setUrlClientePublica(data?.urlClientePublica || ""))
+            .catch(() => {});
     }, []);
 
     useEffect(() => {
@@ -97,6 +104,17 @@ function CartaEditor() {
 
     async function eliminarSeccion(seccionId) {
         await authFetch(`/cartas/${cartaSeleccionadaId}/secciones/${seccionId}`, { method: "DELETE" });
+        cargarCarta(cartaSeleccionadaId);
+    }
+
+    async function guardarEdicionSeccion() {
+        if (!modalEditarSeccion || !modalEditarSeccion.nombre.trim()) return;
+        await authFetch(`/cartas/${cartaSeleccionadaId}/secciones/${modalEditarSeccion.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre: modalEditarSeccion.nombre.trim(), nombreEn: modalEditarSeccion.nombreEn.trim() })
+        });
+        setModalEditarSeccion(null);
         cargarCarta(cartaSeleccionadaId);
     }
 
@@ -171,7 +189,22 @@ function CartaEditor() {
         ventana.document.close();
     }
 
-    const qrUrl = `${window.location.origin}/carta?mesa=${mesaQR}${cartaSeleccionadaId ? `&cartaId=${cartaSeleccionadaId}` : ""}`;
+    function normalizarUrlBase(url) {
+        return (url || "").trim().replace(/\/+$/, "");
+    }
+
+    const qrBaseUrl = normalizarUrlBase(urlClientePublica) || normalizarUrlBase(window.location.origin);
+    const qrUrl = `${qrBaseUrl}/cliente?mesa=${mesaQR}`;
+
+    async function activarCarta() {
+        if (!cartaSeleccionadaId) return;
+        const res = await authFetch(`/cartas/${cartaSeleccionadaId}/activar`, { method: "PUT" });
+        if (res.ok) {
+            const updated = await res.json();
+            setCartas(prev => prev.map(c => ({ ...c, activa: c.id === cartaSeleccionadaId })));
+            setCarta(updated);
+        }
+    }
 
     // Platos que no están ya en la sección seleccionada
     function platosDisponiblesParaSeccion(seccionId) {
@@ -214,7 +247,7 @@ function CartaEditor() {
                                     {cartas
                                         .filter(c => c.nombre.toLowerCase().includes(busquedaCarta.toLowerCase()))
                                         .map(c => (
-                                            <option key={c.id} value={c.id}>{c.nombre}</option>
+                                            <option key={c.id} value={c.id}>{c.activa ? "✓ " : ""}{c.nombre}</option>
                                         ))}
                                 </select>
                                 <span className="pointer-events-none absolute right-2 top-2.5 text-gray-400 text-xs">▼</span>
@@ -267,6 +300,13 @@ function CartaEditor() {
                                     {idioma === "en" && seccion.nombreEn ? seccion.nombreEn : seccion.nombre}
                                 </button>
                                 <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setModalEditarSeccion({ id: seccion.id, nombre: seccion.nombre, nombreEn: seccion.nombreEn || "" })}
+                                        className="text-gray-400 hover:text-amber-600 border border-gray-200 hover:border-amber-300 px-2 py-1 rounded-lg text-xs transition flex items-center"
+                                        title={t("editar")}
+                                    >
+                                        <Pencil size={13} />
+                                    </button>
                                     <button
                                         onClick={() => { setModalAñadir({ seccionId: seccion.id }); setBusquedaPlato(""); }}
                                         className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-lg text-xs"
@@ -374,6 +414,13 @@ function CartaEditor() {
                         <QRCodeSVG value={qrUrl} size={140} />
                     </div>
 
+                    {!normalizarUrlBase(urlClientePublica) && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && (
+                        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5 mb-2 leading-snug">
+                            ⚠️ Abre esta página desde la IP del ordenador para que el QR funcione en el móvil.<br />
+                            Ej: <strong>http://192.168.X.X:5173</strong>
+                        </p>
+                    )}
+
                     <button
                         onClick={descargarQR}
                         className="w-full bg-emerald-600 text-white py-2 rounded-lg text-sm hover:bg-emerald-700 transition mb-2 flex items-center justify-center gap-2"
@@ -388,9 +435,22 @@ function CartaEditor() {
                         🖨 {t("carta.imprimirCarta")}
                     </button>
 
-                    <p className="text-xs text-gray-500 text-center leading-relaxed">
-                        {t("carta.textoQR")}
-                    </p>
+                    <div className="border-t border-gray-200 pt-3 mt-1">
+                        <button
+                            onClick={activarCarta}
+                            disabled={!cartaSeleccionadaId || carta?.activa}
+                            className={`w-full py-2 rounded-lg text-sm transition mb-2 ${
+                                carta?.activa
+                                    ? "bg-teal-100 text-teal-700 font-semibold cursor-default"
+                                    : "bg-amber-500 text-white hover:bg-amber-600"
+                            }`}
+                        >
+                            {carta?.activa ? "✓ Carta activa en QR" : "Usar esta carta en el QR"}
+                        </button>
+                        <p className="text-xs text-gray-500 text-center leading-relaxed">
+                            {t("carta.textoQR")}
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -448,6 +508,41 @@ function CartaEditor() {
                                 {t("cancelar")}
                             </button>
                             <button onClick={añadirSeccion} className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-emerald-700">
+                                {t("guardar")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL: EDITAR SECCIÓN */}
+            {modalEditarSeccion && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setModalEditarSeccion(null)}>
+                    <div className="bg-white rounded-xl p-6 w-80 shadow-xl" onClick={e => e.stopPropagation()}>
+                        <h3 className="font-semibold mb-4">{t("editar")} {t("carta.nombreSeccion")}</h3>
+                        <label className="block text-xs text-gray-500 mb-1">{t("config.español")}</label>
+                        <input
+                            autoFocus
+                            type="text"
+                            value={modalEditarSeccion.nombre}
+                            onChange={e => setModalEditarSeccion(prev => ({ ...prev, nombre: e.target.value }))}
+                            placeholder={t("carta.nombreSeccion")}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 outline-none focus:border-amber-400"
+                        />
+                        <label className="block text-xs text-gray-500 mb-1">{t("config.ingles")}</label>
+                        <input
+                            type="text"
+                            value={modalEditarSeccion.nombreEn}
+                            onChange={e => setModalEditarSeccion(prev => ({ ...prev, nombreEn: e.target.value }))}
+                            onKeyDown={e => e.key === "Enter" && guardarEdicionSeccion()}
+                            placeholder={t("carta.nombreSeccionEn")}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-4 outline-none focus:border-amber-400"
+                        />
+                        <div className="flex gap-2 justify-end">
+                            <button onClick={() => setModalEditarSeccion(null)} className="text-sm text-gray-500 hover:text-gray-700 px-3 py-1.5">
+                                {t("cancelar")}
+                            </button>
+                            <button onClick={guardarEdicionSeccion} className="bg-amber-500 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-amber-600">
                                 {t("guardar")}
                             </button>
                         </div>

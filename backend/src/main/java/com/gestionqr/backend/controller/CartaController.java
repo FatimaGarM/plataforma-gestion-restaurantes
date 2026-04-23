@@ -4,10 +4,9 @@ import com.gestionqr.backend.model.Carta;
 import com.gestionqr.backend.model.ItemSeccion;
 import com.gestionqr.backend.model.Plato;
 import com.gestionqr.backend.model.SeccionCarta;
-import com.gestionqr.backend.repository.CartaRepository;
-import com.gestionqr.backend.repository.ItemSeccionRepository;
-import com.gestionqr.backend.repository.PlatoRepository;
-import com.gestionqr.backend.repository.SeccionCartaRepository;
+import com.gestionqr.backend.model.repository.CartaRepository;
+import com.gestionqr.backend.model.repository.PlatoRepository;
+import com.gestionqr.backend.model.repository.SeccionCartaRepository;
 import com.gestionqr.backend.service.ArchivoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +28,6 @@ public class CartaController {
 
     @Autowired
     private SeccionCartaRepository seccionCartaRepository;
-
-    @Autowired
-    private ItemSeccionRepository itemSeccionRepository;
 
     @Autowired
     private PlatoRepository platoRepository;
@@ -158,7 +154,7 @@ public class CartaController {
 
         return cartaRepository.findById(cartaId)
                 .map(c -> ResponseEntity.ok(c))
-                .orElse(ResponseEntity.<Carta>notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{cartaId}/secciones/{seccionId}/items/{itemId}")
@@ -166,7 +162,7 @@ public class CartaController {
                                                @PathVariable Long seccionId,
                                                @PathVariable Long itemId) {
         Optional<SeccionCarta> seccionOpt = seccionCartaRepository.findById(seccionId);
-        if (seccionOpt.isEmpty()) return ResponseEntity.<Carta>notFound().build();
+        if (seccionOpt.isEmpty()) return ResponseEntity.notFound().build();
 
         SeccionCarta seccion = seccionOpt.get();
         seccion.getItems().removeIf(item -> item.getId().equals(itemId));
@@ -177,7 +173,7 @@ public class CartaController {
 
         return cartaRepository.findById(cartaId)
                 .map(c -> ResponseEntity.ok(c))
-                .orElse(ResponseEntity.<Carta>notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{cartaId}/secciones/{seccionId}/items/{itemId}/orden")
@@ -186,7 +182,7 @@ public class CartaController {
                                             @PathVariable Long itemId,
                                             @RequestBody Map<String, String> body) {
         Optional<SeccionCarta> seccionOpt = seccionCartaRepository.findById(seccionId);
-        if (seccionOpt.isEmpty()) return ResponseEntity.<Carta>notFound().build();
+        if (seccionOpt.isEmpty()) return ResponseEntity.notFound().build();
 
         SeccionCarta seccion = seccionOpt.get();
         List<ItemSeccion> items = seccion.getItems();
@@ -194,7 +190,7 @@ public class CartaController {
         for (int i = 0; i < items.size(); i++) {
             if (items.get(i).getId().equals(itemId)) { idx = i; break; }
         }
-        if (idx == -1) return ResponseEntity.<Carta>notFound().build();
+        if (idx == -1) return ResponseEntity.notFound().build();
 
         String direccion = body.get("direccion");
         if ("subir".equals(direccion) && idx > 0) {
@@ -212,6 +208,21 @@ public class CartaController {
 
         return cartaRepository.findById(cartaId)
                 .map(c -> ResponseEntity.ok(c))
-                .orElse(ResponseEntity.<Carta>notFound().build());
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // ── ACTIVAR CARTA ──────────────────────────────────────────────────────────
+
+    @PutMapping("/{id}/activar")
+    public ResponseEntity<Carta> activarCarta(@PathVariable Long id) {
+        return cartaRepository.findById(id).map(carta -> {
+            cartaRepository.findAll().forEach(c -> {
+                c.setActiva(false);
+                cartaRepository.save(c);
+            });
+            carta.setActiva(true);
+            return ResponseEntity.ok(cartaRepository.save(carta));
+        }).orElse(ResponseEntity.notFound().build());
     }
 }
+

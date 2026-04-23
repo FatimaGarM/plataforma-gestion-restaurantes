@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import com.gestionqr.backend.model.Pedido;
 import com.gestionqr.backend.model.Pedido.EstadoPedido;
 import com.gestionqr.backend.model.Plato;
-import com.gestionqr.backend.repository.PedidoRepository;
-import com.gestionqr.backend.repository.PlatoRepository;
+import com.gestionqr.backend.model.repository.PedidoRepository;
+import com.gestionqr.backend.model.repository.PlatoRepository;
 
 @Service
 public class EstadisticaService {
@@ -166,3 +166,4 @@ public class EstadisticaService {
                 .count();
     }
 }
+

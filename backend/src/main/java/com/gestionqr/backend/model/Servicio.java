@@ -1,21 +1,12 @@
 package com.gestionqr.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-
-/**
- * Entidad que representa un servicio (mesa activa).
- * Un servicio contiene varios pedidos.
- */
 @Entity
 public class Servicio {
 
@@ -23,21 +14,40 @@ public class Servicio {
         Abierto, Cerrado, Finalizado
     }
 
+    public enum MetodoPagoSolicitado {
+        METALICO, TARJETA, BIZUM
+    }
+
+    public enum EstadoCobro {
+        SIN_SOLICITUD, PENDIENTE_COBRO, COBRANDO, COBRADO_PARCIAL, COBRADO_TOTAL
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.ORDINAL)
     private EstadoServicio estado;
 
     private int mesa;
 
-    /**
-     * Relación 1:N con Pedido
-     * Un servicio puede tener muchos pedidos
-     */
+    @Enumerated(EnumType.STRING)
+    private MetodoPagoSolicitado metodoPagoSolicitado;
+
+    @Enumerated(EnumType.STRING)
+    private EstadoCobro estadoCobro = EstadoCobro.SIN_SOLICITUD;
+
+    private LocalDateTime fechaSolicitudCobro;
+
+    private LocalDateTime ultimaActividad = LocalDateTime.now();
+
     @OneToMany(mappedBy = "servicio", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private List<Pedido> pedidos;
+    @JsonManagedReference("servicio-pedidos")
+    private List<Pedido> pedidos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "servicio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference("servicio-cobros")
+    private List<CobroPersona> cobrosPersona = new ArrayList<>();
 
     public Servicio() {
     }
@@ -61,8 +71,28 @@ public class Servicio {
         return mesa;
     }
 
+    public MetodoPagoSolicitado getMetodoPagoSolicitado() {
+        return metodoPagoSolicitado;
+    }
+
+    public EstadoCobro getEstadoCobro() {
+        return estadoCobro;
+    }
+
+    public LocalDateTime getFechaSolicitudCobro() {
+        return fechaSolicitudCobro;
+    }
+
+    public LocalDateTime getUltimaActividad() {
+        return ultimaActividad;
+    }
+
     public List<Pedido> getPedidos() {
         return pedidos;
+    }
+
+    public List<CobroPersona> getCobrosPersona() {
+        return cobrosPersona;
     }
 
     public void setId(Long id) {
@@ -77,8 +107,28 @@ public class Servicio {
         this.mesa = mesa;
     }
 
+    public void setMetodoPagoSolicitado(MetodoPagoSolicitado metodoPagoSolicitado) {
+        this.metodoPagoSolicitado = metodoPagoSolicitado;
+    }
+
+    public void setEstadoCobro(EstadoCobro estadoCobro) {
+        this.estadoCobro = estadoCobro;
+    }
+
+    public void setFechaSolicitudCobro(LocalDateTime fechaSolicitudCobro) {
+        this.fechaSolicitudCobro = fechaSolicitudCobro;
+    }
+
+    public void setUltimaActividad(LocalDateTime ultimaActividad) {
+        this.ultimaActividad = ultimaActividad;
+    }
+
     public void setPedidos(List<Pedido> pedidos) {
         this.pedidos = pedidos;
+    }
+
+    public void setCobrosPersona(List<CobroPersona> cobrosPersona) {
+        this.cobrosPersona = cobrosPersona;
     }
 
     @Override
@@ -86,6 +136,8 @@ public class Servicio {
         return "Servicio [id=" + id +
                 ", estado=" + estado +
                 ", mesa=" + mesa +
+                ", metodoPagoSolicitado=" + metodoPagoSolicitado +
+                ", estadoCobro=" + estadoCobro +
                 ", pedidos=" + pedidos + "]";
     }
 }

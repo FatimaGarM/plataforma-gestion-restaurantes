@@ -166,7 +166,7 @@ function Sidebar() {
           {/* FOTO O INICIAL */}
           {usuario?.imagen ? (
             <img
-              src={`http://localhost:8080/uploads/FotosEmpleados/${usuario.imagen}`}
+              src={`/uploads/FotosEmpleados/${usuario.imagen}`}
               alt="usuario"
               className="w-10 h-10 rounded-full object-cover"
             />

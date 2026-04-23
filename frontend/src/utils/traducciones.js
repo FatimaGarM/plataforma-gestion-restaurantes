@@ -190,6 +190,11 @@ export const traducciones = {
     "camarero.marcarServido": "Marcar como servido",
     "camarero.mesa": "Mesa",
     "camarero.sinEnCocina": "Sin pedidos en cocina",
+    "camarero.mesasParaCerrar": "Mesas para cerrar",
+    "camarero.sinMesasParaCerrar": "No hay mesas pendientes de cierre",
+    "camarero.cerrarMesa": "Cerrar mesa",
+    "camarero.cerrarMesaTitle": "Cerrar mesa y liberar sesión QR",
+    "camarero.pedidosServidos": "pedidos servidos",
     // Configuración
     "config.titulo": "Configuración",
     "config.infoRestaurante": "Información del restaurante",
@@ -430,6 +435,11 @@ export const traducciones = {
     "camarero.marcarServido": "Mark as served",
     "camarero.mesa": "Table",
     "camarero.sinEnCocina": "No orders in kitchen",
+    "camarero.mesasParaCerrar": "Tables to close",
+    "camarero.sinMesasParaCerrar": "No tables pending closure",
+    "camarero.cerrarMesa": "Close table",
+    "camarero.cerrarMesaTitle": "Close table and release QR session",
+    "camarero.pedidosServidos": "served orders",
     // Settings
     "config.titulo": "Settings",
     "config.infoRestaurante": "Restaurant information",

@@ -1,7 +1,7 @@
 package com.gestionqr.backend.service;
 
 import com.gestionqr.backend.model.ConfiguracionRestaurante;
-import com.gestionqr.backend.repository.ConfiguracionRestauranteRepository;
+import com.gestionqr.backend.model.repository.ConfiguracionRestauranteRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +40,7 @@ public class ConfiguracionRestauranteService {
             String telefono,
             String direccion,
             String emailContacto,
+            String urlClientePublica,
             String colorPrimario,
             String colorSecundario,
             String idiomaCarta,
@@ -53,6 +54,7 @@ public class ConfiguracionRestauranteService {
         config.setTelefono(telefono);
         config.setDireccion(direccion);
         config.setEmailContacto(emailContacto);
+        config.setUrlClientePublica(urlClientePublica != null ? urlClientePublica.trim() : null);
         config.setColorPrimario(colorPrimario);
         config.setColorSecundario(colorSecundario);
         config.setIdiomaCarta(idiomaCarta);
@@ -72,3 +74,4 @@ public class ConfiguracionRestauranteService {
         return configuracionRepository.save(config);
     }
 }
+

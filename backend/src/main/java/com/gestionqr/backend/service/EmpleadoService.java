@@ -1,7 +1,7 @@
 package com.gestionqr.backend.service;
 
 import com.gestionqr.backend.model.Empleado;
-import com.gestionqr.backend.repository.EmpleadoRepository;
+import com.gestionqr.backend.model.repository.EmpleadoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;

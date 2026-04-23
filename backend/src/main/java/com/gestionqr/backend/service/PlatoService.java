@@ -1,7 +1,7 @@
 package com.gestionqr.backend.service;
 
 import com.gestionqr.backend.model.Plato;
-import com.gestionqr.backend.repository.PlatoRepository;
+import com.gestionqr.backend.model.repository.PlatoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

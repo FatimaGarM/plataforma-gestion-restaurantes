@@ -32,7 +32,7 @@ function FormularioPlato({
     // cargar imagen existente
     useEffect(() => {
         if (editar && imagenActual) {
-            setPreview(`http://localhost:8080/uploads/FotoPlatos/${imagenActual}`);
+            setPreview(`/uploads/FotoPlatos/${imagenActual}`);
         }
     }, [editar, imagenActual]);
 

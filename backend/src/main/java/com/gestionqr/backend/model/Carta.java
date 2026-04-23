@@ -15,6 +15,8 @@ public class Carta {
 
     private String imagenBanner;
 
+    private boolean activa = false;
+
     @OneToMany(mappedBy = "carta", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orden ASC")
     private List<SeccionCarta> secciones = new ArrayList<>();
@@ -32,4 +34,7 @@ public class Carta {
 
     public List<SeccionCarta> getSecciones() { return secciones; }
     public void setSecciones(List<SeccionCarta> secciones) { this.secciones = secciones; }
+
+    public boolean isActiva() { return activa; }
+    public void setActiva(boolean activa) { this.activa = activa; }
 }

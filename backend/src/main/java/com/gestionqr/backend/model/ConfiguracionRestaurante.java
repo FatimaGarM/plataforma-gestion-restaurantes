@@ -17,6 +17,8 @@ public class ConfiguracionRestaurante {
 
     private String emailContacto;
 
+    private String urlClientePublica;
+
     private String logo;
 
     private String colorPrimario;
@@ -68,6 +70,14 @@ public class ConfiguracionRestaurante {
 
     public void setEmailContacto(String emailContacto) {
         this.emailContacto = emailContacto;
+    }
+
+    public String getUrlClientePublica() {
+        return urlClientePublica;
+    }
+
+    public void setUrlClientePublica(String urlClientePublica) {
+        this.urlClientePublica = urlClientePublica;
     }
 
     public String getLogo() {

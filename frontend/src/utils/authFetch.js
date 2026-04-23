@@ -12,9 +12,8 @@ export function authFetch(url, options = {}) {
             ...(auth ? { "Authorization": auth } : {})
         }
     }).then(res => {
-        if (res.status === 401) {
-            // Solo cerrar sesión si la respuesta es JSON de error del backend,
-            // no si es HTML (que indicaría un fallo de proxy/navegación)
+        if (res.status === 401 || res.status === 403) {
+            // Cerrar sesión si el servidor rechaza las credenciales
             const contentType = res.headers.get("content-type") || "";
             if (contentType.includes("application/json")) {
                 localStorage.removeItem("auth");

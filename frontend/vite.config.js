@@ -5,6 +5,14 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true,
+    allowedHosts: [
+      'unsuited-relenting-remorse.ngrok-free.dev',
+      '.ngrok-free.dev',
+      '.devtunnels.ms',
+      'localhost',
+      '127.0.0.1'
+    ],
     proxy: {
       '/empleados': {
         target: 'http://localhost:8080',
@@ -56,6 +64,10 @@ export default defineConfig({
         bypass: (req) => {
           if (req.headers.accept?.includes('text/html')) return '/index.html';
         }
+      },
+      '/publica': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
       }
     }
   }

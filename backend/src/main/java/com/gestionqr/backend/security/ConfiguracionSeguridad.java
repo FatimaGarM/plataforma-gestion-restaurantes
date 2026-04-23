@@ -31,6 +31,9 @@ public class ConfiguracionSeguridad {
                 // Imágenes y recursos estáticos — públicos (para la carta QR del cliente)
                 .requestMatchers("/uploads/**").permitAll()
 
+                // Endpoints públicos del cliente (carta QR, sin autenticación)
+                .requestMatchers("/publica/**").permitAll()
+
                 // Endpoint de autenticación — cualquier empleado autenticado puede usarlo
                 .requestMatchers("/auth/me").authenticated()
 
@@ -50,6 +53,7 @@ public class ConfiguracionSeguridad {
 
                 // Configuración del restaurante — GET autenticado, modificaciones solo GERENTE
                 .requestMatchers(HttpMethod.GET, "/configuracion").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/configuracion").hasRole("GERENTE")
                 .requestMatchers("/configuracion/**").hasRole("GERENTE")
 
                 // Estadísticas — solo GERENTE
@@ -77,7 +81,7 @@ public class ConfiguracionSeguridad {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:*"));
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

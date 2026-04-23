@@ -188,7 +188,7 @@ function Estadisticas() {
                   {stats.rankingPlatos.slice(0, 5).map((p, i) => (
                     <div key={i} className="flex items-center gap-3">
                       {p.imagen
-                        ? <img src={`http://localhost:8080/uploads/FotoPlatos/${p.imagen}`} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                        ? <img src={`/uploads/FotoPlatos/${p.imagen}`} className="w-12 h-12 rounded-xl object-cover shrink-0" />
                         : <div className="w-12 h-12 rounded-xl bg-gray-100 shrink-0" />
                       }
                       <div className="flex-1 min-w-0">
@@ -212,7 +212,7 @@ function Estadisticas() {
                   {stats.rankingNovedosos.slice(0, 5).map((p, i) => (
                     <div key={i} className="flex items-center gap-3">
                       {p.imagen
-                        ? <img src={`http://localhost:8080/uploads/FotoPlatos/${p.imagen}`} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                        ? <img src={`/uploads/FotoPlatos/${p.imagen}`} className="w-12 h-12 rounded-xl object-cover shrink-0" />
                         : <div className="w-12 h-12 rounded-xl bg-gray-100 shrink-0" />
                       }
                       <div className="flex-1 min-w-0">

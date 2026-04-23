@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/configuracion")
 public class ConfiguracionRestauranteController {
@@ -32,6 +32,7 @@ public class ConfiguracionRestauranteController {
             @RequestParam(required = false) String telefono,
             @RequestParam(required = false) String direccion,
             @RequestParam(required = false) String emailContacto,
+            @RequestParam(required = false) String urlClientePublica,
             @RequestParam String colorPrimario,
             @RequestParam String colorSecundario,
             @RequestParam(defaultValue = "es") String idiomaCarta,
@@ -44,6 +45,7 @@ public class ConfiguracionRestauranteController {
                 telefono,
                 direccion,
                 emailContacto,
+                urlClientePublica,
                 colorPrimario,
                 colorSecundario,
                 idiomaCarta,
