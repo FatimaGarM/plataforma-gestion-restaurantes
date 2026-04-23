@@ -245,16 +245,16 @@ export default GestionPedidos;
 function ColumnaPedidos({ titulo, pedidos, color, onAccion, siguienteEstado, colorEstado, t }) {
 
   const estadoBadge = {
-    "Pendiente":  t("pedidos.estadoPendiente"),
+    "Pendiente": t("pedidos.estadoPendiente"),
     "En proceso": t("pedidos.enProceso"),
-    "Listo":      t("pedidos.estadoListo"),
-    "Servido":    t("pedidos.servido"),
+    "Listo": t("pedidos.estadoListo"),
+    "Servido": t("pedidos.servido"),
   };
 
   function accionLabel(estado) {
-    if (estado === "Pendiente")  return t("pedidos.iniciarPreparacion");
+    if (estado === "Pendiente") return t("pedidos.iniciarPreparacion");
     if (estado === "En proceso") return t("pedidos.marcarListo");
-    if (estado === "Listo")      return t("pedidos.marcarServido");
+    if (estado === "Listo") return t("pedidos.marcarServido");
     return "";
   }
 

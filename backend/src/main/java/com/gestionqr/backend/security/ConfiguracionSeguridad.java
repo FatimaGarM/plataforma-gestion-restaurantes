@@ -60,6 +60,10 @@ public class ConfiguracionSeguridad {
                 .requestMatchers(HttpMethod.GET, "/menus/**").authenticated()
                 .requestMatchers("/menus/**").hasRole("GERENTE")
 
+                // Productos y proveedores — solo GERENTE
+                .requestMatchers("/productos/**").hasRole("GERENTE")
+                .requestMatchers("/proveedores/**").hasRole("GERENTE")
+
                 // Estadísticas — solo GERENTE
                 .requestMatchers("/estadisticas/**").hasRole("GERENTE")
 
