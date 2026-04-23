@@ -68,6 +68,13 @@ export default defineConfig({
       '/publica': {
         target: 'http://localhost:8080',
         changeOrigin: true
+      },
+      '/menus': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers.accept?.includes('text/html')) return '/index.html';
+        }
       }
     }
   }

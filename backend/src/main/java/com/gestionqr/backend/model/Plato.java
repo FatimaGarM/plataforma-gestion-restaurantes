@@ -10,7 +10,6 @@ public class Plato {
     public enum TipoPlato {
         PRIMERO,
         SEGUNDO,
-        TERCERO,
         POSTRE,
         BEBIDA
     }
