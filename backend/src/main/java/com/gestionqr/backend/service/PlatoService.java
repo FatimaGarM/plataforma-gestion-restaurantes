@@ -1,12 +1,13 @@
 package com.gestionqr.backend.service;
 
 import com.gestionqr.backend.model.Plato;
-import com.gestionqr.backend.repository.PlatoRepository;
+import com.gestionqr.backend.model.repository.PlatoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,10 +37,13 @@ public class PlatoService {
 
     public Plato crearPlatoConImagen(
             String nombre,
+            String nombreEn,
             String descripcion,
+            String descripcionEn,
             Double precio,
             String tipo,
             Boolean disponible,
+            Boolean esNovedad,
             MultipartFile imagen
     ) throws Exception {
 
@@ -47,10 +51,14 @@ public class PlatoService {
 
         Plato plato = new Plato();
         plato.setNombre(nombre);
+        plato.setNombreEn(nombreEn);
         plato.setDescripcion(descripcion);
+        plato.setDescripcionEn(descripcionEn);
         plato.setPrecio(precio);
         plato.setTipo(Plato.TipoPlato.valueOf(tipo));
         plato.setDisponible(disponible);
+        plato.setEsNovedad(esNovedad != null && esNovedad);
+        plato.setFechaCreacion(LocalDate.now());
         plato.setImagen(nombreArchivo);
 
         return platoRepository.save(plato);
@@ -59,10 +67,13 @@ public class PlatoService {
     public Plato actualizarPlato(
             Long id,
             String nombre,
+            String nombreEn,
             String descripcion,
+            String descripcionEn,
             Double precio,
             String tipo,
             Boolean disponible,
+            Boolean esNovedad,
             MultipartFile imagen
     ) throws Exception {
 
@@ -70,10 +81,14 @@ public class PlatoService {
                 .orElseThrow(() -> new RuntimeException("Plato no encontrado"));
 
         plato.setNombre(nombre);
+        plato.setNombreEn(nombreEn);
         plato.setDescripcion(descripcion);
+        plato.setDescripcionEn(descripcionEn);
         plato.setPrecio(precio);
         plato.setTipo(Plato.TipoPlato.valueOf(tipo));
         plato.setDisponible(disponible);
+        plato.setEsNovedad(esNovedad != null && esNovedad);
+        if (plato.getFechaCreacion() == null) plato.setFechaCreacion(LocalDate.now());
 
         if (imagen != null && !imagen.isEmpty()) {
 

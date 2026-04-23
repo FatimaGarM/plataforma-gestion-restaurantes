@@ -8,10 +8,13 @@ import Sidebar from "./componentes/Sidebar";
 import Footer from "./componentes/Footer";
 import PrivateRoute from "./componentes/PrivateRoute";
 import Inicio from "./paginas/Inicio";
+import GestionProductos from "./paginas/GestionProductos";
 import Estadisticas from "./paginas/Estadisticas";
 import GestionPedidos from "./paginas/GestionPedidos";
 import PantallaCocina from "./paginas/PantallaCocina";
 import PantallaCamarero from "./paginas/PantallaCamarero";
+import Configuracion from "./paginas/Configuracion";
+import CartaCliente from "./paginas/CartaCliente";
 
 function Layout() {
   const location = useLocation();
@@ -63,6 +66,15 @@ function Layout() {
               element={
                 <PrivateRoute>
                   <Inicio />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/gestion-productos"
+              element={
+                <PrivateRoute>
+                  <GestionProductos />
                 </PrivateRoute>
               }
             />
@@ -121,6 +133,15 @@ function Layout() {
               }
             />
 
+            <Route
+              path="/configuracion"
+              element={
+                <PrivateRoute>
+                  <Configuracion />
+                </PrivateRoute>
+              }
+            />
+
             {/* cualquier ruta rara → inicio */}
             <Route path="*" element={<Navigate to="/" />} />
 
@@ -136,7 +157,12 @@ function Layout() {
 function App() {
   return (
     <BrowserRouter>
-      <Layout />
+      <Routes>
+        {/* Vista pública del cliente — sin Header ni Sidebar */}
+        <Route path="/cliente" element={<CartaCliente />} />
+        {/* Todo lo demás pasa por el Layout con autenticación */}
+        <Route path="*" element={<Layout />} />
+      </Routes>
     </BrowserRouter>
   );
 }

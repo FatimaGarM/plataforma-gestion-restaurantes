@@ -14,8 +14,4 @@ dist-ssr/
 # Archivos generados por Java / Maven
 target/
 
-# Imágenes subidas por usuarios
-backend/uploads/FotoPlatos/*
-backend/uploads/FotosEmpleados/*
-!backend/uploads/FotoPlatos/.gitkeep
-!backend/uploads/FotosEmpleados/.gitkeep
+# Las imágenes de uploads están incluidas en el repo como datos preestablecidos

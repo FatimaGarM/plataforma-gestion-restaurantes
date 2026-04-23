@@ -1,6 +1,7 @@
 package com.gestionqr.backend.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 public class Plato {
@@ -9,7 +10,6 @@ public class Plato {
     public enum TipoPlato {
         PRIMERO,
         SEGUNDO,
-        TERCERO,
         POSTRE,
         BEBIDA
     }
@@ -21,7 +21,9 @@ public class Plato {
 
     // Variables que definimos en figma y en la documentación
     private String nombre;
+    private String nombreEn;
     private String descripcion;
+    private String descripcionEn;
     private Double precio;
     private String imagen;
 
@@ -30,6 +32,10 @@ public class Plato {
     private TipoPlato tipo;
 
     private Boolean disponible = true; // por defecto disponible
+
+    private Boolean esNovedad = false; // plato marcado como novedad para estadísticas
+
+    private LocalDate fechaCreacion;
 
     // CONSTRUCTOR VACÍO 
     public Plato() {}
@@ -52,12 +58,28 @@ public class Plato {
         this.nombre = nombre;
     }
 
+    public String getNombreEn() {
+        return nombreEn;
+    }
+
+    public void setNombreEn(String nombreEn) {
+        this.nombreEn = nombreEn;
+    }
+
     public String getDescripcion() {
         return descripcion;
     }
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public String getDescripcionEn() {
+        return descripcionEn;
+    }
+
+    public void setDescripcionEn(String descripcionEn) {
+        this.descripcionEn = descripcionEn;
     }
 
     public Double getPrecio() {
@@ -90,6 +112,22 @@ public class Plato {
 
     public void setDisponible(Boolean disponible) {
         this.disponible = disponible;
+    }
+
+    public Boolean getEsNovedad() {
+        return esNovedad;
+    }
+
+    public void setEsNovedad(Boolean esNovedad) {
+        this.esNovedad = esNovedad;
+    }
+
+    public LocalDate getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDate fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 
     // TO STRING 

@@ -1,7 +1,7 @@
 package com.gestionqr.backend.service;
 
 import com.gestionqr.backend.model.Empleado;
-import com.gestionqr.backend.repository.EmpleadoRepository;
+import com.gestionqr.backend.model.repository.EmpleadoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -125,5 +125,22 @@ public class EmpleadoService {
         archivoService.eliminarImagenEmpleado(empleado.getImagen());
 
         empleadoRepository.deleteById(id);
+    }
+
+    /**
+     * Cambiar la contraseña de un empleado validando la actual.
+     */
+    public boolean cambiarContrasena(Long id, String contrasenaActual, String contrasenaNueva) {
+
+        Empleado empleado = empleadoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+
+        if (!passwordEncoder.matches(contrasenaActual, empleado.getContraseña())) {
+            return false;
+        }
+
+        empleado.setContraseña(passwordEncoder.encode(contrasenaNueva));
+        empleadoRepository.save(empleado);
+        return true;
     }
 }

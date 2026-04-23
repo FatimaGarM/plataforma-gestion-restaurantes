@@ -54,8 +54,10 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "servicio_id")
-    @JsonBackReference
+    @JsonBackReference("servicio-pedidos")
     private Servicio servicio;
+
+    private Integer persona;
 
     public Pedido() {}
 
@@ -91,11 +93,15 @@ public class Pedido {
 
     public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
 
+    public Integer getPersona() { return persona; }
+    public void setPersona(Integer persona) { this.persona = persona; }
+
     @Override
     public String toString() {
         return "Pedido [id=" + id +
                 ", plato=" + plato +
                 ", mesa=" + mesa +
+                ", persona=" + persona +
                 ", estado=" + estado + "]";
     }
 }

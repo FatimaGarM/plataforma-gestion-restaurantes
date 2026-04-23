@@ -11,7 +11,7 @@ function Login() {
 
         const auth = "Basic " + btoa(email + ":" + password);
 
-        fetch("/empleados", {
+        fetch("/auth/me", {
             method: "GET",
             headers: {
                 "Authorization": auth
@@ -21,18 +21,10 @@ function Login() {
                 if (!res.ok) throw new Error();
                 return res.json();
             })
-            .then(data => {
+            .then(usuario => {
 
                 //  guardamos auth
                 localStorage.setItem("auth", auth);
-
-                //  buscamos el usuario logueado
-                const usuario = data.find(emp => emp.email === email);
-
-                if (!usuario) {
-                    setError("Usuario no encontrado");
-                    return;
-                }
 
                 //  guardamos datos del usuario
                 localStorage.setItem("usuario", JSON.stringify(usuario));

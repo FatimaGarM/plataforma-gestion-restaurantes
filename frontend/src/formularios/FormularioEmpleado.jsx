@@ -23,7 +23,7 @@ function FormularioEmpleado({
     // cargar imagen existente al editar
     useEffect(() => {
         if (editar && imagenActual) {
-            setPreview(`http://localhost:8080/uploads/FotosEmpleados/${imagenActual}`);
+            setPreview(`/uploads/FotosEmpleados/${imagenActual}`);
         }
     }, [editar, imagenActual]);
 
