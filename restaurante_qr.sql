@@ -39,7 +39,7 @@ CREATE TABLE `carta` (
 --
 
 INSERT INTO `carta` (`id`, `nombre`, `imagen_banner`, `activa`) VALUES
-(1, 'Carta Bar La Alameda', '1776960209185_¿Dónde cenar un domingo o un lunes en Sevilla_.jfif', 1);
+(1, 'Carta Bar La Alameda', '1776960209185_¿Dónde cenar un domingo o un lunes en Sevilla_.png', 1);
 
 -- --------------------------------------------------------
 
@@ -81,7 +81,7 @@ CREATE TABLE `configuracion_restaurante` (
 --
 
 INSERT INTO `configuracion_restaurante` (`id`, `color_primario`, `color_secundario`, `imagen_fondo`, `logo`, `nombre_restaurante`, `direccion`, `email_contacto`, `idioma_carta`, `telefono`, `url_cliente_publica`) VALUES
-(1, '#b45309', '#065f46', '1776960149249_Oasis urbanos secretos_ Guía de las mejores terrazas españolas.png', '1776969974163_descarga (5).png', 'Bar La Alameda', 'Calle Jazmín 18, Sevilla', 'info@barlaalameda.es', 'es,en', '77 777 777', 'https://cpnltdrs-5173.uks1.devtunnels.ms/');
+(1, '#b45309', '#065f46', '1776960149249_Oasis urbanos secretos_ Guía de las mejores terrazas españolas.png', '1776969974163_descarga (5).png', 'Bar La Alameda', 'Calle Jazmín 18, Sevilla', 'info@barlaalameda.es', 'es,en', '77 777 777', NULL);
 
 -- --------------------------------------------------------
 
@@ -611,6 +611,135 @@ ALTER TABLE `servicio`
 ALTER TABLE `sesion_mesa`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
 
+-- --------------------------------------------------------
+--
+-- Estructura de tabla para la tabla `proveedor`
+--
+
+CREATE TABLE `proveedor` (
+  `id` bigint(20) NOT NULL,
+  `nombre` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `telefono` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `proveedor` (`id`, `nombre`, `email`, `telefono`) VALUES
+(1, 'Ibéricos del Sur', 'pedidos@ibericossur.es', '954 112 233'),
+(2, 'Mariscos y Pescados Huelva', 'info@mariscoushuelva.es', '959 445 667'),
+(3, 'Bebidas La Giralda', 'ventas@bebidasgiralda.es', '955 778 990');
+
+ALTER TABLE `proveedor`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `proveedor`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+-- --------------------------------------------------------
+--
+-- Estructura de tabla para la tabla `producto`
+--
+
+CREATE TABLE `producto` (
+  `id` bigint(20) NOT NULL,
+  `nombre` varchar(255) DEFAULT NULL,
+  `descripcion` varchar(255) DEFAULT NULL,
+  `precio` double NOT NULL,
+  `stock` int(11) NOT NULL,
+  `proveedor_id` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `producto` (`id`, `nombre`, `descripcion`, `precio`, `stock`, `proveedor_id`) VALUES
+(1, 'Jamón ibérico de bellota', 'Pieza entera curada 24 meses', 45.00, 5, 1),
+(2, 'Lomo ibérico', 'Pieza de lomo ibérico al vacío 500g', 18.50, 20, 1),
+(3, 'Secreto ibérico', 'Bandeja 1kg refrigerada', 12.80, 12, 1),
+(4, 'Bacalao salado', 'Lomo de bacalao en salazón 1kg', 22.00, 8, 2),
+(5, 'Chocos frescos', 'Choco de Huelva fresco 1kg', 9.50, 10, 2),
+(6, 'Gambas blancas', 'Gamba blanca fresca 500g', 35.00, 6, 2),
+(7, 'Cerveza Cruzcampo barril 50L', 'Barril 50 litros presurizado', 85.00, 4, 3),
+(8, 'Vino tinto Ribera barrica', 'Botella 75cl crianza', 8.50, 24, 3),
+(9, 'Agua mineral 24 unidades', 'Pack 24 botellas 50cl', 4.80, 30, 3),
+(10, 'Patatas', 'Saco 25kg', 1.20, 50, 1);
+
+ALTER TABLE `producto`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FKid8vjxky5juk3fnuc1sb9qarf` (`proveedor_id`);
+
+ALTER TABLE `producto`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+-- --------------------------------------------------------
+--
+-- Estructura de tabla para la tabla `menu`
+--
+
+CREATE TABLE `menu` (
+  `id` bigint(20) NOT NULL,
+  `dia` varchar(255) DEFAULT NULL,
+  `precio` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `menu` (`id`, `dia`, `precio`) VALUES
+(1, 'Lunes',     12.50),
+(2, 'Martes',    13.00),
+(3, 'Miercoles', 13.50),
+(4, 'Jueves',    12.00),
+(5, 'Viernes',   14.00);
+
+ALTER TABLE `menu`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `UK_dia` (`dia`);
+
+ALTER TABLE `menu`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+-- --------------------------------------------------------
+--
+-- Estructura de tabla para la tabla `menu_plato`
+--
+
+CREATE TABLE `menu_plato` (
+  `id` bigint(20) NOT NULL,
+  `tipo_plato` varchar(255) DEFAULT NULL,
+  `orden` int(11) NOT NULL,
+  `menu_id` bigint(20) DEFAULT NULL,
+  `plato_id` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Lunes: Ensaladilla (1) + Secreto ibérico (5) + Flan (21) + Agua (24)
+INSERT INTO `menu_plato` (`id`, `tipo_plato`, `orden`, `menu_id`, `plato_id`) VALUES
+(1,  'PRIMERO', 1, 1, 1),
+(2,  'SEGUNDO', 2, 1, 5),
+(3,  'POSTRE',  3, 1, 21),
+(4,  'BEBIDA',  4, 1, 24),
+-- Martes: Salmorejo (2) + Solomillo al whisky (6) + Tocino de cielo (20) + Cerveza (22)
+(5,  'PRIMERO', 1, 2, 2),
+(6,  'SEGUNDO', 2, 2, 6),
+(7,  'POSTRE',  3, 2, 20),
+(8,  'BEBIDA',  4, 2, 22),
+-- Miércoles: Croquetas (3) + Carrillada al vino (7) + Tarta de queso (19) + Tinto de verano (23)
+(9,  'PRIMERO', 1, 3, 3),
+(10, 'SEGUNDO', 2, 3, 7),
+(11, 'POSTRE',  3, 3, 19),
+(12, 'BEBIDA',  4, 3, 23),
+-- Jueves: Chocos fritos (9) + Presa ibérica (8) + Flan (21) + Agua (24)
+(13, 'PRIMERO', 1, 4, 9),
+(14, 'SEGUNDO', 2, 4, 8),
+(15, 'POSTRE',  3, 4, 21),
+(16, 'BEBIDA',  4, 4, 24),
+-- Viernes: Boquerones fritos (10) + Bacalao confitado (11) + Tarta de queso (19) + Cerveza (22)
+(17, 'PRIMERO', 1, 5, 10),
+(18, 'SEGUNDO', 2, 5, 11),
+(19, 'POSTRE',  3, 5, 19),
+(20, 'BEBIDA',  4, 5, 22);
+
+ALTER TABLE `menu_plato`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_menu_plato_menu` (`menu_id`),
+  ADD KEY `FK_menu_plato_plato` (`plato_id`);
+
+ALTER TABLE `menu_plato`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
 --
 -- Restricciones para tablas volcadas
 --
@@ -640,6 +769,20 @@ ALTER TABLE `pedido`
 --
 ALTER TABLE `seccion_carta`
   ADD CONSTRAINT `fk_seccion_carta` FOREIGN KEY (`carta_id`) REFERENCES `carta` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `producto`
+--
+ALTER TABLE `producto`
+  ADD CONSTRAINT `FKid8vjxky5juk3fnuc1sb9qarf` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedor` (`id`);
+
+--
+-- Filtros para la tabla `menu_plato`
+--
+ALTER TABLE `menu_plato`
+  ADD CONSTRAINT `FK_menu_plato_menu` FOREIGN KEY (`menu_id`) REFERENCES `menu` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `FK_menu_plato_plato` FOREIGN KEY (`plato_id`) REFERENCES `plato` (`id`) ON DELETE SET NULL;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

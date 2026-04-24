@@ -4,6 +4,21 @@ import deleteIcon from "../assets/iconos/eliminar.png";
 import { useIdioma } from "../context/IdiomaContext";
 import ConfirmacionEliminar from "../componentes/ConfirmacionEliminar";
 
+const COLORES_AVATAR = ["bg-amber-500","bg-emerald-500","bg-blue-500","bg-purple-500","bg-rose-500","bg-teal-500","bg-orange-500","bg-indigo-500"];
+function colorAvatar(nombre) { return COLORES_AVATAR[(nombre?.charCodeAt(0) || 0) % COLORES_AVATAR.length]; }
+
+function AvatarEmpleado({ imagen, nombre }) {
+  const [error, setError] = useState(false);
+  if (imagen && !error) {
+    return <img src={`/uploads/FotosEmpleados/${imagen}`} onError={() => setError(true)} className="w-10 h-10 rounded-full object-cover" />;
+  }
+  return (
+    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${colorAvatar(nombre)}`}>
+      {nombre?.charAt(0)?.toUpperCase()}
+    </div>
+  );
+}
+
 function GestionarEmpleados() {
 
   const [empleados, setEmpleados] = useState([]);
@@ -221,8 +236,7 @@ function GestionarEmpleados() {
                 <tr key={emp.id} className="border-t hover:bg-gray-50">
                   <td className="p-3">
                     <div className="flex items-center gap-3">
-                      <img src={emp.imagen ? `/uploads/FotosEmpleados/${emp.imagen}` : "/default-user.png"}
-                        className="w-10 h-10 rounded-full object-cover" />
+                      <AvatarEmpleado imagen={emp.imagen} nombre={emp.nombre} />
                       <div>
                         <p className="font-medium">{emp.nombre}</p>
                         <p className="text-xs text-gray-400">{emp.email}</p>

@@ -6,13 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-    allowedHosts: [
-      'unsuited-relenting-remorse.ngrok-free.dev',
-      '.ngrok-free.dev',
-      '.devtunnels.ms',
-      'localhost',
-      '127.0.0.1'
-    ],
+    allowedHosts: true,
     proxy: {
       '/empleados': {
         target: 'http://localhost:8080',
