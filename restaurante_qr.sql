@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-04-2026 a las 16:21:16
+-- Tiempo de generación: 24-04-2026 a las 16:28:59
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -106,7 +106,7 @@ CREATE TABLE `empleado` (
 
 INSERT INTO `empleado` (`id`, `nombre`, `email`, `contraseña`, `imagen`, `tipo_empleado`, `estado`) VALUES
 (1, 'Gerente ', 'gerente@test.es', '$2a$10$E9dK8r3HaEa9X4OtnNL7BOnjIOCkOjfp9BITUcdAM24BaFdudMKv.', '1777037682860_1777015206662_Surveyor free icons designed by Freepik.png', 'GERENTE', 'ACTIVO'),
-(2, 'Raúl Fernandez', 'camarero1@test.es', '$2a$10$E9dK8r3HaEa9X4OtnNL7BOnjIOCkOjfp9BITUcdAM24BaFdudMKv.', '1777037709849_1777014985384_🥗 Lunch w Sphinxie_ Codziennie od poniedziałku do piątku w godzinach 12_00–15_00! 😋_Smacznie, szybko i w miłej atmosferze – idealny przystanek w środku dnia_ 🌞.png', 'CAMARERO', 'ACTIVO'),
+(2, 'Raúl Fernandez', 'camarero1@test.es', '$2a$10$E9dK8r3HaEa9X4OtnNL7BOnjIOCkOjfp9BITUcdAM24BaFdudMKv.', '1777040931576_camarero.png', 'CAMARERO', 'ACTIVO'),
 (3, 'Alba Romero', 'camarero2@test.es', '$2a$10$E9dK8r3HaEa9X4OtnNL7BOnjIOCkOjfp9BITUcdAM24BaFdudMKv.', '1777037658224_1777014790255_Bouquet de Grenelle restaurant--our cute & enthusiastic waitress_.png', 'CAMARERO', 'ACTIVO'),
 (4, 'Jose Manuel Vega', 'cocinero1@test.es', '$2a$10$E9dK8r3HaEa9X4OtnNL7BOnjIOCkOjfp9BITUcdAM24BaFdudMKv.', '1777037694790_1777014943596_Cocina creativa en proceso – Marc Hernández Vallés.png', 'COCINERO', 'ACTIVO'),
 (5, 'Carmen Ruiz', 'cocinero2@test.es', '$2a$10$E9dK8r3HaEa9X4OtnNL7BOnjIOCkOjfp9BITUcdAM24BaFdudMKv.', '1777037667899_1777014835976_Chef Cocinando.png', 'COCINERO', 'ACTIVO'),
