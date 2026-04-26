@@ -52,17 +52,11 @@ function MenuEditor() {
             .then(r => r.json())
             .then(data => {
                 setMenu(data);
-                const abiertos = {};
-                abiertos["primeros"] = true;
-                abiertos["segundos"] = true;
-                abiertos["postres"] = true;
-                abiertos["bebidas"] = true;
-                setCategoriassAbiertas(abiertos);
             });
     }
 
     function toggleCategoria(platosCategoria) {
-        setCategoriassAbiertas(prev => ({ ...prev, [platosCategoria]: !prev[platosCategoria] }));
+        setCategoriassAbiertas(prev => ({ prev, [platosCategoria]: !prev[platosCategoria]}));
     }
 
     async function crearMenu() {
