@@ -177,7 +177,7 @@ function GestionarCarta() {
                     )
                 );
             })
-            .catch(err => console.error(err));
+            .catch(() => {});
     }
 
 

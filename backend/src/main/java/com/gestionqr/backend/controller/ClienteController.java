@@ -1,18 +1,29 @@
 package com.gestionqr.backend.controller;
 
 import com.gestionqr.backend.model.Carta;
+import com.gestionqr.backend.model.Comensal;
 import com.gestionqr.backend.model.ConfiguracionRestaurante;
+import com.gestionqr.backend.model.LlamadaCamarero;
+import com.gestionqr.backend.model.Menu;
 import com.gestionqr.backend.model.Pedido;
 import com.gestionqr.backend.model.Pedido.EstadoPedido;
 import com.gestionqr.backend.model.Servicio;
 import com.gestionqr.backend.model.Servicio.EstadoServicio;
 import com.gestionqr.backend.model.SesionMesa;
 import com.gestionqr.backend.model.repository.CartaRepository;
+import com.gestionqr.backend.model.repository.ComensalRepository;
+import com.gestionqr.backend.model.repository.MenuRepository;
+import com.gestionqr.backend.model.repository.PedidoRepository;
 import com.gestionqr.backend.model.repository.PlatoRepository;
 import com.gestionqr.backend.model.repository.ServicioRepository;
 import com.gestionqr.backend.service.ConfiguracionRestauranteService;
+import com.gestionqr.backend.service.LlamadaCamareraService;
 import com.gestionqr.backend.service.SesionMesaService;
 import com.gestionqr.backend.service.ServicioService;
+import jakarta.transaction.Transactional;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +41,10 @@ public class ClienteController {
     private final ServicioRepository servicioRepository;
     private final PlatoRepository platoRepository;
     private final ServicioService servicioService;
+    private final MenuRepository menuRepository;
+    private final ComensalRepository comensalRepository;
+    private final LlamadaCamareraService llamadaService;
+    private final PedidoRepository pedidoRepository;
 
     public ClienteController(
             SesionMesaService sesionMesaService,
@@ -37,7 +52,11 @@ public class ClienteController {
             ConfiguracionRestauranteService configuracionService,
             ServicioRepository servicioRepository,
             PlatoRepository platoRepository,
-            ServicioService servicioService
+            ServicioService servicioService,
+            MenuRepository menuRepository,
+            ComensalRepository comensalRepository,
+            LlamadaCamareraService llamadaService,
+            PedidoRepository pedidoRepository
     ) {
         this.sesionMesaService = sesionMesaService;
         this.cartaRepository = cartaRepository;
@@ -45,6 +64,10 @@ public class ClienteController {
         this.servicioRepository = servicioRepository;
         this.platoRepository = platoRepository;
         this.servicioService = servicioService;
+        this.menuRepository = menuRepository;
+        this.comensalRepository = comensalRepository;
+        this.llamadaService = llamadaService;
+        this.pedidoRepository = pedidoRepository;
     }
 
     @GetMapping("/sesion")
@@ -123,6 +146,77 @@ public class ClienteController {
         }
     }
 
+    @PostMapping("/comensales")
+    @Transactional
+    public ResponseEntity<?> registrarComensal(@RequestBody Map<String, Object> body) {
+        String token = (String) body.get("token");
+        Optional<SesionMesa> sesionOpt = sesionMesaService.validarToken(token);
+        if (sesionOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Sesion invalida"));
+        }
+
+        SesionMesa sesion = sesionOpt.get();
+        Integer numero = extraerInteger(body.get("numero"));
+
+        if (numero != null) {
+            Optional<Comensal> existente = comensalRepository.findBySesionMesaAndNumero(sesion, numero);
+            if (existente.isPresent()) {
+                Comensal c = existente.get();
+                return ResponseEntity.ok(Map.of("id", c.getId(), "numero", c.getNumero(), "nombre", c.getNombre() != null ? c.getNombre() : ""));
+            }
+        }
+
+        Comensal comensal = new Comensal();
+        comensal.setSesionMesa(sesion);
+        comensal.setNumero(numero != null ? numero : comensalRepository.countBySesionMesa(sesion) + 1);
+        String nombre = (String) body.get("nombre");
+        if (nombre != null && !nombre.isBlank()) {
+            comensal.setNombre(nombre.trim());
+        }
+        Comensal guardado = comensalRepository.save(comensal);
+        return ResponseEntity.ok(Map.of("id", guardado.getId(), "numero", guardado.getNumero(), "nombre", guardado.getNombre() != null ? guardado.getNombre() : ""));
+    }
+
+    @PostMapping("/llamada")
+    @Transactional
+    public ResponseEntity<?> solicitarLlamada(@RequestBody Map<String, String> body) {
+        String token = body.get("token");
+        Optional<SesionMesa> sesionOpt = sesionMesaService.validarToken(token);
+        if (sesionOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Sesion invalida"));
+        }
+
+        SesionMesa sesion = sesionOpt.get();
+        int mesa = sesion.getMesa();
+
+        Servicio servicio = servicioRepository
+                .findFirstByMesaAndEstado(mesa, Servicio.EstadoServicio.Abierto)
+                .orElseGet(() -> {
+                    Servicio nuevo = new Servicio();
+                    nuevo.setEstado(Servicio.EstadoServicio.Abierto);
+                    nuevo.setMesa(mesa);
+                    nuevo.setPedidos(new ArrayList<>());
+                    return servicioRepository.save(nuevo);
+                });
+
+        String tipoStr = body.get("tipo");
+        LlamadaCamarero.TipoLlamada tipo;
+        try {
+            tipo = LlamadaCamarero.TipoLlamada.valueOf(tipoStr);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Tipo de llamada invalido"));
+        }
+
+        LlamadaCamarero llamada = llamadaService.solicitar(servicio, sesion, tipo, body.get("metodoPago"));
+        sesionMesaService.marcarActividadPorMesa(mesa);
+        return ResponseEntity.ok(Map.of(
+                "id", llamada.getId(),
+                "tipo", llamada.getTipo(),
+                "estado", llamada.getEstado(),
+                "metodoPago", llamada.getMetodoPago() != null ? llamada.getMetodoPago() : ""
+        ));
+    }
+
     @GetMapping("/carta")
     public ResponseEntity<Carta> obtenerCartaActiva() {
         return cartaRepository.findByActivaTrue()
@@ -135,7 +229,25 @@ public class ClienteController {
         return configuracionService.obtenerConfiguracion();
     }
 
+    @GetMapping("/menu-hoy")
+    public ResponseEntity<?> menuHoy() {
+        DayOfWeek dow = LocalDate.now().getDayOfWeek();
+        Menu.DiaMenu dia = switch (dow) {
+            case MONDAY    -> Menu.DiaMenu.Lunes;
+            case TUESDAY   -> Menu.DiaMenu.Martes;
+            case WEDNESDAY -> Menu.DiaMenu.Miercoles;
+            case THURSDAY  -> Menu.DiaMenu.Jueves;
+            case FRIDAY    -> Menu.DiaMenu.Viernes;
+            case SATURDAY  -> Menu.DiaMenu.Sabado;
+            case SUNDAY    -> Menu.DiaMenu.Domingo;
+        };
+        List<Menu> menus = menuRepository.findByDia(dia);
+        if (menus.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(menus.get(0));
+    }
+
     @PostMapping("/pedidos")
+    @Transactional
     public ResponseEntity<?> crearPedido(@RequestBody Map<String, Object> body) {
         String token = (String) body.get("token");
         if (token == null || token.isBlank()) {
@@ -152,7 +264,8 @@ public class ClienteController {
             return ResponseEntity.badRequest().body(Map.of("error", "Sin platos en el pedido"));
         }
 
-        int mesa = sesionOpt.get().getMesa();
+        SesionMesa sesion = sesionOpt.get();
+        int mesa = sesion.getMesa();
         Servicio servicio = servicioRepository
                 .findFirstByMesaAndEstado(mesa, EstadoServicio.Abierto)
                 .orElseGet(() -> {
@@ -162,6 +275,10 @@ public class ClienteController {
                     nuevo.setPedidos(new ArrayList<>());
                     return servicioRepository.save(nuevo);
                 });
+
+        List<Pedido.EstadoPedido> estadosActivos = List.of(
+                EstadoPedido.Pendiente, EstadoPedido.EnProceso, EstadoPedido.Listo, EstadoPedido.Servido
+        );
 
         List<Pedido> nuevos = new ArrayList<>();
         for (Map<String, Object> item : items) {
@@ -176,16 +293,44 @@ public class ClienteController {
                 return ResponseEntity.badRequest().body(Map.of("error", "No existe el plato con id " + platoId));
             }
 
+            boolean esMenu = item.get("esMenu") instanceof Boolean b && b;
+
+            Comensal comensal = null;
+            Long comensalId = extraerLong(item.get("comensalId"));
+            if (comensalId != null) {
+                Optional<Comensal> comensalOpt = comensalRepository.findByIdWithLock(comensalId);
+                if (comensalOpt.isEmpty()) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Comensal no encontrado"));
+                }
+                comensal = comensalOpt.get();
+
+                if (esMenu && pedidoRepository.existsByComensalAndEsMenuTrueAndEstadoIn(comensal, estadosActivos)) {
+                    return ResponseEntity.status(409).body(Map.of(
+                            "error", "MENU_YA_PEDIDO",
+                            "comensalId", comensalId
+                    ));
+                }
+            }
+
             Pedido pedido = new Pedido();
             pedido.setMesa(mesa);
             pedido.setPlato(platoOpt.get());
             pedido.setEstado(EstadoPedido.Pendiente);
             pedido.setServicio(servicio);
+            pedido.setEsMenu(esMenu);
 
-            Integer persona = extraerInteger(item.get("persona"));
-            if (persona != null) {
-                pedido.setPersona(persona);
+            if (comensal != null) {
+                pedido.setComensal(comensal);
+                pedido.setPersona(comensal.getNumero());
+            } else {
+                Integer persona = extraerInteger(item.get("persona"));
+                if (persona != null) {
+                    pedido.setPersona(persona);
+                }
             }
+
+            Double precio = extraerDouble(item.get("precio"));
+            pedido.setPrecioUnitario(precio != null && precio > 0 ? precio : pedido.getPlato().getPrecio());
 
             nuevos.add(pedido);
         }
@@ -341,6 +486,20 @@ public class ClienteController {
         if (raw instanceof String texto && !texto.isBlank()) {
             try {
                 return Long.parseLong(texto.trim());
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private Double extraerDouble(Object raw) {
+        if (raw instanceof Number numero) {
+            return numero.doubleValue();
+        }
+        if (raw instanceof String texto && !texto.isBlank()) {
+            try {
+                return Double.parseDouble(texto.trim());
             } catch (NumberFormatException ignored) {
                 return null;
             }

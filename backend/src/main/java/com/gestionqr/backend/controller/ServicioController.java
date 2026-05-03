@@ -2,6 +2,7 @@ package com.gestionqr.backend.controller;
 
 import com.gestionqr.backend.model.Servicio;
 import com.gestionqr.backend.request.CrearServicioRequest;
+import com.gestionqr.backend.service.LlamadaCamareraService;
 import com.gestionqr.backend.service.SesionMesaService;
 import com.gestionqr.backend.service.ServicioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class ServicioController {
     @Autowired
     private SesionMesaService sesionMesaService;
 
+    @Autowired
+    private LlamadaCamareraService llamadaService;
+
     @PostMapping
     public Servicio crearServicio(@RequestBody CrearServicioRequest request) {
         return servicioService.crearServicio(request.getPlatosIds(), request.getMesa());
@@ -35,11 +39,6 @@ public class ServicioController {
     @GetMapping("/cobros-pendientes")
     public List<Map<String, Object>> obtenerCobrosPendientes() {
         return servicioService.obtenerSolicitudesCobroPendientes();
-    }
-
-    @PostMapping("/limpieza-activos-prueba")
-    public ResponseEntity<?> limpiarActivosPrueba() {
-        return ResponseEntity.ok(servicioService.limpiarDatosActivosPrueba());
     }
 
     @PutMapping("/{mesa}/cobro/atender")
@@ -90,6 +89,20 @@ public class ServicioController {
             servicioService.cerrarServicioPorMesa(mesa);
             sesionMesaService.cerrarMesa(mesa);
             return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/llamadas-pendientes")
+    public List<Map<String, Object>> obtenerLlamadasPendientes() {
+        return llamadaService.obtenerPendientes();
+    }
+
+    @PutMapping("/llamadas/{id}/atender")
+    public ResponseEntity<?> atenderLlamada(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(llamadaService.atender(id));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

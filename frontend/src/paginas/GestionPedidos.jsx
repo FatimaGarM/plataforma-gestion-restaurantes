@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Bell } from "lucide-react";
 import { authFetch } from "../utils/authFetch";
 import { useIdioma } from "../context/IdiomaContext";
 
@@ -16,17 +17,18 @@ function GestionPedidos() {
   }, []);
 
   function cargarTodo() {
+    const safe = (promise, fallback) =>
+      promise.then(res => res.ok ? res.json() : fallback).catch(() => fallback);
+
     Promise.all([
-      authFetch("/pedidos/activos").then(res => res.json()),
-      authFetch("/servicios/mesas-con-sesion").then(res => res.json()),
-      authFetch("/servicios/cobros-pendientes").then(res => res.json()),
-    ])
-      .then(([activos, mesas, cobros]) => {
-        setPedidos(Array.isArray(activos) ? activos : []);
-        setMesasConSesion(Array.isArray(mesas) ? mesas : []);
-        setCobrosPendientes(Array.isArray(cobros) ? cobros : []);
-      })
-      .catch(() => {});
+      safe(authFetch("/pedidos/activos"), []),
+      safe(authFetch("/servicios/mesas-con-sesion"), []),
+      safe(authFetch("/servicios/cobros-pendientes"), []),
+    ]).then(([activos, mesas, cobros]) => {
+      setPedidos(Array.isArray(activos) ? activos : []);
+      setMesasConSesion(Array.isArray(mesas) ? mesas : []);
+      setCobrosPendientes(Array.isArray(cobros) ? cobros : []);
+    });
   }
 
   function cambiarEstado(id) {
@@ -39,7 +41,7 @@ function GestionPedidos() {
     if (!window.confirm(`¿Cerrar mesa ${mesa}?`)) return;
     authFetch(`/servicios/${mesa}/cerrar`, { method: "PUT" })
       .then(() => cargarTodo())
-      .catch(() => {});
+      .catch(() => alert("No se pudo cerrar la mesa. Inténtalo de nuevo."));
   }
 
   function atenderCobro(mesa) {
@@ -96,9 +98,15 @@ function GestionPedidos() {
 
       {/* SOLICITUDES DE COBRO */}
       <div className="mb-8">
-        <h2 className="font-semibold text-amber-700 text-lg mb-4">
-          Solicitudes de cobro ({cobrosPendientes.length})
-        </h2>
+        <div className={`flex items-center gap-3 mb-4 px-4 py-3 rounded-xl border-2 transition-all ${cobrosPendientes.length > 0 ? 'bg-amber-50 border-amber-400 shadow-md' : 'bg-white border-gray-200'}`}>
+          <Bell size={22} className={`shrink-0 ${cobrosPendientes.length > 0 ? 'text-amber-600 animate-bounce' : 'text-gray-400'}`} />
+          <h2 className={`font-bold text-lg ${cobrosPendientes.length > 0 ? 'text-amber-700' : 'text-gray-500'}`}>
+            Solicitudes de cobro
+            <span className={`ml-2 px-2 py-0.5 rounded-full text-sm font-bold ${cobrosPendientes.length > 0 ? 'bg-amber-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+              {cobrosPendientes.length}
+            </span>
+          </h2>
+        </div>
 
         {cobrosPendientes.length === 0 && (
           <div className="card text-sm text-gray-400">No hay mesas esperando cobro.</div>
@@ -106,7 +114,7 @@ function GestionPedidos() {
 
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {cobrosPendientes.map((cobro) => (
-            <div key={cobro.servicioId} className="bg-amber-50 rounded-xl border p-4">
+            <div key={cobro.servicioId} className="bg-amber-50 rounded-xl border-2 border-amber-300 p-4 shadow-sm">
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h3 className="font-semibold">Mesa {cobro.mesa}</h3>

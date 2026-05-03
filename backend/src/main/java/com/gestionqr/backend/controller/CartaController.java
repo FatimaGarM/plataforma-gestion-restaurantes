@@ -216,10 +216,7 @@ public class CartaController {
     @PutMapping("/{id}/activar")
     public ResponseEntity<Carta> activarCarta(@PathVariable Long id) {
         return cartaRepository.findById(id).map(carta -> {
-            cartaRepository.findAll().forEach(c -> {
-                c.setActiva(false);
-                cartaRepository.save(c);
-            });
+            cartaRepository.desactivarTodas();
             carta.setActiva(true);
             return ResponseEntity.ok(cartaRepository.save(carta));
         }).orElse(ResponseEntity.notFound().build());

@@ -6,7 +6,6 @@ import java.time.LocalDate;
 @Entity
 public class Plato {
 
-    // ENUM PARA EL TIPO DE PLATO (hemos usado enum para evitar errores de tipografía en los tipos)
     public enum TipoPlato {
         PRIMERO,
         SEGUNDO,
@@ -14,12 +13,10 @@ public class Plato {
         BEBIDA
     }
 
-    // ID
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Variables que definimos en figma y en la documentación
     private String nombre;
     private String nombreEn;
     private String descripcion;
@@ -37,10 +34,8 @@ public class Plato {
 
     private LocalDate fechaCreacion;
 
-    // CONSTRUCTOR VACÍO 
     public Plato() {}
 
-    // GETTERS Y SETTERS
 
     public Long getId() {
         return id;
@@ -130,7 +125,6 @@ public class Plato {
         this.fechaCreacion = fechaCreacion;
     }
 
-    // TO STRING 
     @Override
     public String toString() {
         return "Plato [id=" + id +

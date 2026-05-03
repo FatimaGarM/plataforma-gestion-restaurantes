@@ -43,7 +43,6 @@ public class MenuController {
 
     @PostMapping
     public Menu crear(@RequestBody Map<String, String> body) {
-        System.out.println("ENTRA EN BACKEND");
         try {
             String diaStr = body.get("dia");
             String precioStr = body.get("precio");

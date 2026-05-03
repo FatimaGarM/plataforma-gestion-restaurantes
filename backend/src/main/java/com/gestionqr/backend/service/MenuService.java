@@ -1,15 +1,12 @@
 package com.gestionqr.backend.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import com.gestionqr.backend.model.Carta;
 import com.gestionqr.backend.model.Menu;
 import com.gestionqr.backend.model.Menu.DiaMenu;
 import com.gestionqr.backend.model.MenuPlato;
@@ -28,7 +25,7 @@ public class MenuService {
     @Autowired
     private MenuRepository menuRepository;
 
-    MenuService(ArchivoService archivoService) {
+    public MenuService(ArchivoService archivoService) {
         this.archivoService = archivoService;
     }
 
@@ -102,13 +99,12 @@ public class MenuService {
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new RuntimeException("Menu no encontrado"));
 
-        // 🔹 Encontrar el item actual
         MenuPlato actual = menu.getItems().stream()
                 .filter(mp -> mp.getId().equals(menuPlatoId))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Item no encontrado"));
 
-        // 🔹 Filtrar por misma categoría
+        // Filtrar por misma categoría
         List<MenuPlato> items = menu.getItems().stream()
                 .filter(mp -> mp.getTipoPlato().equals(actual.getTipoPlato()))
                 .sorted((a, b) -> Integer.compare(a.getOrden(), b.getOrden()))

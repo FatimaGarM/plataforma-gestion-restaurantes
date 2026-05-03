@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-04-2026 a las 16:28:59
+-- Tiempo de generación: 03-05-2026 a las 19:26:47
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -56,6 +56,63 @@ CREATE TABLE `cobro_persona` (
   `persona` int(11) DEFAULT NULL,
   `servicio_id` bigint(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `cobro_persona`
+--
+
+INSERT INTO `cobro_persona` (`id`, `cobrado`, `fecha_cobro`, `importe`, `persona`, `servicio_id`) VALUES
+(39, b'1', '2026-05-03 12:24:06.000000', 20.7, 1, 43),
+(40, b'1', '2026-05-03 12:24:16.000000', 7.2, 2, 43),
+(41, b'1', '2026-05-03 12:24:18.000000', 15.6, 3, 43),
+(42, b'1', '2026-05-03 12:30:50.000000', 36, 1, 44),
+(43, b'1', '2026-05-03 12:31:24.000000', 38.8, 2, 44),
+(44, b'1', '2026-05-03 12:31:46.000000', 15.6, 3, 44),
+(45, b'1', '2026-05-03 12:31:50.000000', 15.6, 4, 44),
+(46, b'1', '2026-05-03 12:39:53.000000', 13, 1, 46),
+(47, b'1', '2026-05-03 12:40:10.000000', 13, 1, 47),
+(48, b'1', '2026-05-03 18:27:34.000000', 11.6, 1, 48),
+(49, b'1', '2026-05-03 18:27:35.000000', 13, 2, 48),
+(50, b'1', '2026-05-03 18:29:28.000000', 13, 1, 49),
+(51, b'1', '2026-05-03 18:29:30.000000', 15.6, 2, 49),
+(52, b'1', '2026-05-03 19:13:42.000000', 7.3, 1, 50),
+(53, b'1', '2026-05-03 19:13:42.000000', 5.8, 2, 50);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `comensal`
+--
+
+CREATE TABLE `comensal` (
+  `id` bigint(20) NOT NULL,
+  `nombre` varchar(255) DEFAULT NULL,
+  `numero` int(11) DEFAULT NULL,
+  `sesion_mesa_id` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `comensal`
+--
+
+INSERT INTO `comensal` (`id`, `nombre`, `numero`, `sesion_mesa_id`) VALUES
+(8, NULL, 1, 121),
+(9, NULL, 2, 121),
+(10, NULL, 3, 121),
+(11, NULL, 1, 122),
+(12, NULL, 2, 122),
+(13, NULL, 3, 122),
+(14, NULL, 4, 122),
+(15, NULL, 1, 123),
+(16, NULL, 1, 124),
+(17, NULL, 2, 124),
+(18, NULL, 1, 127),
+(19, NULL, 2, 127),
+(20, NULL, 1, 128),
+(21, NULL, 2, 128),
+(22, NULL, 3, 128),
+(23, NULL, 2, 130),
+(24, NULL, 1, 130);
 
 -- --------------------------------------------------------
 
@@ -158,6 +215,23 @@ INSERT INTO `item_seccion` (`id`, `orden`, `seccion_id`, `plato_id`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `llamada_camarero`
+--
+
+CREATE TABLE `llamada_camarero` (
+  `id` bigint(20) NOT NULL,
+  `estado` enum('ATENDIDA','CANCELADA','PENDIENTE') DEFAULT NULL,
+  `fecha_atencion` datetime(6) DEFAULT NULL,
+  `fecha_creacion` datetime(6) DEFAULT NULL,
+  `metodo_pago` varchar(255) DEFAULT NULL,
+  `tipo` enum('LLAMAR_CAMARERO','PEDIR_CUENTA') DEFAULT NULL,
+  `servicio_id` bigint(20) NOT NULL,
+  `sesion_mesa_id` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `menu`
 --
 
@@ -176,7 +250,9 @@ INSERT INTO `menu` (`id`, `dia`, `precio`) VALUES
 (3, 'Miercoles', 13.5),
 (4, 'Jueves', 12),
 (5, 'Viernes', 14),
-(6, 'Lunes', 8);
+(6, 'Lunes', 8),
+(7, 'Sabado', 12.5),
+(9, 'Domingo', 15.6);
 
 -- --------------------------------------------------------
 
@@ -197,24 +273,87 @@ CREATE TABLE `menu_plato` (
 --
 
 INSERT INTO `menu_plato` (`id`, `tipo_plato`, `orden`, `menu_id`, `plato_id`) VALUES
-(5, 'PRIMERO', 1, 2, 2),
-(6, 'SEGUNDO', 2, 2, 6),
-(7, 'POSTRE', 3, 2, 20),
-(8, 'BEBIDA', 4, 2, 22),
-(9, 'PRIMERO', 1, 3, 3),
-(10, 'SEGUNDO', 2, 3, 7),
-(11, 'POSTRE', 3, 3, 19),
-(12, 'BEBIDA', 4, 3, 23),
-(13, 'PRIMERO', 1, 4, 9),
-(14, 'SEGUNDO', 2, 4, 8),
-(15, 'POSTRE', 3, 4, 21),
-(16, 'BEBIDA', 4, 4, 24),
-(17, 'PRIMERO', 1, 5, 10),
-(18, 'SEGUNDO', 2, 5, 11),
-(19, 'POSTRE', 3, 5, 19),
-(20, 'BEBIDA', 4, 5, 22),
-(21, 'PRIMERO', 1, 6, 2),
-(22, 'PRIMERO', 0, 6, 3);
+(67, 'PRIMERO', 1, 6, 2),
+(68, 'PRIMERO', 2, 6, 3),
+(69, 'PRIMERO', 3, 6, 9),
+(70, 'SEGUNDO', 1, 6, 5),
+(71, 'SEGUNDO', 2, 6, 6),
+(72, 'SEGUNDO', 3, 6, 7),
+(73, 'POSTRE', 1, 6, 19),
+(74, 'POSTRE', 2, 6, 20),
+(75, 'POSTRE', 3, 6, 21),
+(76, 'BEBIDA', 1, 6, 22),
+(77, 'BEBIDA', 2, 6, 23),
+(78, 'BEBIDA', 3, 6, 24),
+(79, 'PRIMERO', 1, 2, 2),
+(80, 'PRIMERO', 2, 2, 10),
+(81, 'PRIMERO', 3, 2, 17),
+(82, 'SEGUNDO', 1, 2, 5),
+(83, 'SEGUNDO', 2, 2, 8),
+(84, 'SEGUNDO', 3, 2, 13),
+(85, 'POSTRE', 1, 2, 19),
+(86, 'POSTRE', 2, 2, 20),
+(87, 'POSTRE', 3, 2, 21),
+(88, 'BEBIDA', 1, 2, 22),
+(89, 'BEBIDA', 2, 2, 23),
+(90, 'BEBIDA', 3, 2, 24),
+(91, 'PRIMERO', 1, 3, 3),
+(92, 'PRIMERO', 2, 3, 11),
+(93, 'PRIMERO', 3, 3, 18),
+(94, 'SEGUNDO', 1, 3, 6),
+(95, 'SEGUNDO', 2, 3, 7),
+(96, 'SEGUNDO', 3, 3, 14),
+(97, 'POSTRE', 1, 3, 19),
+(98, 'POSTRE', 2, 3, 20),
+(99, 'POSTRE', 3, 3, 21),
+(100, 'BEBIDA', 1, 3, 22),
+(101, 'BEBIDA', 2, 3, 23),
+(102, 'BEBIDA', 3, 3, 24),
+(103, 'PRIMERO', 1, 4, 2),
+(104, 'PRIMERO', 2, 4, 4),
+(105, 'PRIMERO', 3, 4, 12),
+(106, 'SEGUNDO', 1, 4, 5),
+(107, 'SEGUNDO', 2, 4, 7),
+(108, 'SEGUNDO', 3, 4, 15),
+(109, 'POSTRE', 1, 4, 19),
+(110, 'POSTRE', 2, 4, 20),
+(111, 'POSTRE', 3, 4, 21),
+(112, 'BEBIDA', 1, 4, 22),
+(113, 'BEBIDA', 2, 4, 23),
+(114, 'BEBIDA', 3, 4, 24),
+(115, 'PRIMERO', 1, 5, 9),
+(116, 'PRIMERO', 2, 5, 10),
+(117, 'PRIMERO', 3, 5, 17),
+(118, 'SEGUNDO', 1, 5, 6),
+(119, 'SEGUNDO', 2, 5, 8),
+(120, 'SEGUNDO', 3, 5, 16),
+(121, 'POSTRE', 1, 5, 19),
+(122, 'POSTRE', 2, 5, 20),
+(123, 'POSTRE', 3, 5, 21),
+(124, 'BEBIDA', 1, 5, 22),
+(125, 'BEBIDA', 2, 5, 23),
+(126, 'BEBIDA', 3, 5, 24),
+(127, 'PRIMERO', 1, 7, 2),
+(128, 'PRIMERO', 2, 7, 3),
+(129, 'PRIMERO', 3, 7, 10),
+(130, 'SEGUNDO', 1, 7, 5),
+(131, 'SEGUNDO', 2, 7, 6),
+(132, 'SEGUNDO', 3, 7, 8),
+(133, 'POSTRE', 1, 7, 19),
+(134, 'POSTRE', 2, 7, 20),
+(135, 'POSTRE', 3, 7, 21),
+(136, 'BEBIDA', 1, 7, 22),
+(137, 'BEBIDA', 2, 7, 23),
+(138, 'BEBIDA', 3, 7, 24),
+(139, 'PRIMERO', 0, 9, 2),
+(140, 'PRIMERO', 1, 9, 3),
+(141, 'SEGUNDO', 0, 9, 8),
+(142, 'SEGUNDO', 1, 9, 5),
+(143, 'POSTRE', 0, 9, 19),
+(144, 'POSTRE', 1, 9, 21),
+(145, 'BEBIDA', 0, 9, 23),
+(146, 'BEBIDA', 1, 9, 22),
+(147, 'BEBIDA', 2, 9, 24);
 
 -- --------------------------------------------------------
 
@@ -229,87 +368,120 @@ CREATE TABLE `pedido` (
   `fecha_hora` datetime DEFAULT current_timestamp(),
   `plato_id` bigint(20) DEFAULT NULL,
   `servicio_id` bigint(20) DEFAULT NULL,
-  `persona` int(11) DEFAULT NULL
+  `persona` int(11) DEFAULT NULL,
+  `es_menu` bit(1) DEFAULT NULL,
+  `precio_unitario` double DEFAULT NULL,
+  `comensal_id` bigint(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `pedido`
 --
 
-INSERT INTO `pedido` (`id`, `mesa`, `estado`, `fecha_hora`, `plato_id`, `servicio_id`, `persona`) VALUES
-(1, 1, 'Servido', '2026-04-19 13:10:00', 1, 1, NULL),
-(2, 1, 'Servido', '2026-04-19 13:12:00', 3, 1, NULL),
-(3, 2, 'Servido', '2026-04-19 13:25:00', 5, 2, NULL),
-(4, 2, 'Servido', '2026-04-19 13:30:00', 22, 2, NULL),
-(5, 3, 'Servido', '2026-04-19 14:05:00', 9, 3, NULL),
-(6, 4, 'Servido', '2026-04-19 14:15:00', 19, 4, NULL),
-(7, 1, 'Servido', '2026-04-17 12:50:00', 2, 5, NULL),
-(8, 1, 'Servido', '2026-04-17 13:00:00', 13, 5, NULL),
-(9, 2, 'Servido', '2026-04-17 13:20:00', 6, 6, NULL),
-(10, 5, 'Servido', '2026-04-17 13:35:00', 24, 7, NULL),
-(11, 3, 'Servido', '2026-04-14 13:05:00', 17, 8, NULL),
-(12, 6, 'Servido', '2026-04-14 13:20:00', 10, 9, NULL),
-(13, 2, 'Servido', '2026-04-14 14:00:00', 20, 10, NULL),
-(14, 4, 'Servido', '2026-04-10 21:10:00', 7, 11, NULL),
-(15, 7, 'Servido', '2026-04-10 21:20:00', 23, 12, NULL),
-(16, 1, 'Servido', '2026-04-09 13:00:00', 4, 13, NULL),
-(17, 3, 'Servido', '2026-04-09 13:10:00', 8, 14, NULL),
-(18, 2, 'Servido', '2026-03-29 13:10:00', 1, 15, NULL),
-(19, 2, 'Servido', '2026-03-29 13:15:00', 11, 15, NULL),
-(20, 5, 'Servido', '2026-03-29 13:45:00', 19, 16, NULL),
-(21, 1, 'Servido', '2026-03-24 12:40:00', 3, 1, NULL),
-(22, 1, 'Servido', '2026-03-24 12:45:00', 22, 1, NULL),
-(23, 3, 'Servido', '2026-03-24 13:05:00', 12, 2, NULL),
-(24, 3, 'Servido', '2026-03-24 13:10:00', 21, 2, NULL),
-(25, 4, 'Servido', '2026-03-18 14:00:00', 6, 3, NULL),
-(26, 4, 'Servido', '2026-03-18 14:10:00', 23, 3, NULL),
-(27, 6, 'Servido', '2026-03-18 21:00:00', 14, 4, NULL),
-(28, 1, 'Servido', '2026-02-26 13:00:00', 5, 5, NULL),
-(29, 1, 'Servido', '2026-02-26 13:15:00', 24, 5, NULL),
-(30, 2, 'Servido', '2026-02-26 13:30:00', 9, 6, NULL),
-(31, 3, 'Servido', '2026-02-21 14:05:00', 17, 7, NULL),
-(32, 3, 'Servido', '2026-02-21 14:10:00', 10, 7, NULL),
-(33, 5, 'Servido', '2026-02-21 21:30:00', 20, 8, NULL),
-(34, 2, 'Servido', '2026-02-18 13:05:00', 2, 9, NULL),
-(35, 2, 'Servido', '2026-02-18 13:15:00', 13, 9, NULL),
-(36, 4, 'Servido', '2026-02-18 13:30:00', 7, 10, NULL),
-(37, 4, 'Servido', '2026-02-18 13:35:00', 22, 10, NULL),
-(38, 7, 'Servido', '2026-02-12 20:50:00', 11, 11, NULL),
-(39, 7, 'Servido', '2026-02-12 21:00:00', 23, 11, NULL),
-(40, 6, 'Servido', '2026-02-08 13:25:00', 18, 12, NULL),
-(41, 1, 'Servido', '2026-04-20 18:11:02', 1, 17, NULL),
-(42, 1, 'Servido', '2026-04-20 18:11:02', 1, 17, NULL),
-(43, 1, 'Servido', '2026-04-20 18:11:02', 2, 17, NULL),
-(44, 1, 'Servido', '2026-04-20 18:11:02', 3, 17, NULL),
-(45, 1, 'Servido', '2026-04-20 18:11:02', 4, 17, NULL),
-(46, 1, 'Servido', '2026-04-20 18:11:02', 6, 17, NULL),
-(47, 1, 'Servido', '2026-04-20 18:11:02', 20, 17, NULL),
-(48, 1, 'Servido', '2026-04-20 19:09:45', 1, 18, NULL),
-(49, 1, 'Servido', '2026-04-20 19:09:45', 1, 18, NULL),
-(50, 1, 'EnProceso', '2026-04-20 19:09:45', 2, 18, NULL),
-(51, 1, 'EnProceso', '2026-04-20 19:09:45', 2, 18, NULL),
-(61, 1, 'Servido', '2026-04-21 23:47:55', 1, 21, 1),
-(62, 1, 'Servido', '2026-04-21 23:49:22', 1, 21, 1),
-(83, 1, 'Servido', '2026-04-23 20:37:02', 1, 27, 1),
-(84, 1, 'Servido', '2026-04-23 20:37:03', 2, 27, 1),
-(85, 1, 'Servido', '2026-04-23 20:37:42', 1, 28, 1),
-(86, 1, 'Servido', '2026-04-23 20:37:42', 2, 28, 1),
-(87, 10, 'Servido', '2026-04-23 20:57:54', 1, 29, 2),
-(88, 10, 'Servido', '2026-04-23 20:57:54', 2, 29, 2),
-(89, 10, 'Servido', '2026-04-23 20:57:54', 6, 29, 2),
-(90, 10, 'Servido', '2026-04-23 20:57:55', 1, 29, 1),
-(91, 10, 'Servido', '2026-04-23 20:57:55', 2, 29, 1),
-(92, 3, 'Servido', '2026-04-23 21:02:48', 1, 30, 1),
-(93, 3, 'Servido', '2026-04-23 21:02:48', 5, 30, 1),
-(94, 3, 'Servido', '2026-04-23 21:02:48', 10, 30, 1),
-(95, 3, 'Servido', '2026-04-23 21:02:48', 13, 30, 1),
-(96, 3, 'Servido', '2026-04-23 21:02:48', 18, 30, 1),
-(97, 6, 'Servido', '2026-04-23 21:14:08', 5, 31, 1),
-(98, 1, 'Servido', '2026-04-24 11:33:40', 1, 32, 1),
-(99, 1, 'EnProceso', '2026-04-24 11:33:40', 4, 32, 1),
-(100, 1, 'Servido', '2026-04-24 12:12:01', 2, 33, 1),
-(101, 4, 'Pendiente', '2026-04-24 13:52:28', 2, 34, 2),
-(102, 4, 'Pendiente', '2026-04-24 13:52:28', 3, 34, 1);
+INSERT INTO `pedido` (`id`, `mesa`, `estado`, `fecha_hora`, `plato_id`, `servicio_id`, `persona`, `es_menu`, `precio_unitario`, `comensal_id`) VALUES
+(1, 1, 'Servido', '2026-04-19 13:10:00', 1, 1, NULL, b'0', 0, NULL),
+(2, 1, 'Servido', '2026-04-19 13:12:00', 3, 1, NULL, b'0', 0, NULL),
+(3, 2, 'Servido', '2026-04-19 13:25:00', 5, 2, NULL, b'0', 0, NULL),
+(4, 2, 'Servido', '2026-04-19 13:30:00', 22, 2, NULL, b'0', 0, NULL),
+(5, 3, 'Servido', '2026-04-19 14:05:00', 9, 3, NULL, b'0', 0, NULL),
+(6, 4, 'Servido', '2026-04-19 14:15:00', 19, 4, NULL, b'0', 0, NULL),
+(7, 1, 'Servido', '2026-04-17 12:50:00', 2, 5, NULL, b'0', 0, NULL),
+(8, 1, 'Servido', '2026-04-17 13:00:00', 13, 5, NULL, b'0', 0, NULL),
+(9, 2, 'Servido', '2026-04-17 13:20:00', 6, 6, NULL, b'0', 0, NULL),
+(10, 5, 'Servido', '2026-04-17 13:35:00', 24, 7, NULL, b'0', 0, NULL),
+(11, 3, 'Servido', '2026-04-14 13:05:00', 17, 8, NULL, b'0', 0, NULL),
+(12, 6, 'Servido', '2026-04-14 13:20:00', 10, 9, NULL, b'0', 0, NULL),
+(13, 2, 'Servido', '2026-04-14 14:00:00', 20, 10, NULL, b'0', 0, NULL),
+(14, 4, 'Servido', '2026-04-10 21:10:00', 7, 11, NULL, b'0', 0, NULL),
+(15, 7, 'Servido', '2026-04-10 21:20:00', 23, 12, NULL, b'0', 0, NULL),
+(16, 1, 'Servido', '2026-04-09 13:00:00', 4, 13, NULL, b'0', 0, NULL),
+(17, 3, 'Servido', '2026-04-09 13:10:00', 8, 14, NULL, b'0', 0, NULL),
+(18, 2, 'Servido', '2026-03-29 13:10:00', 1, 15, NULL, b'0', 0, NULL),
+(19, 2, 'Servido', '2026-03-29 13:15:00', 11, 15, NULL, b'0', 0, NULL),
+(20, 5, 'Servido', '2026-03-29 13:45:00', 19, 16, NULL, b'0', 0, NULL),
+(21, 1, 'Servido', '2026-03-24 12:40:00', 3, 1, NULL, b'0', 0, NULL),
+(22, 1, 'Servido', '2026-03-24 12:45:00', 22, 1, NULL, b'0', 0, NULL),
+(23, 3, 'Servido', '2026-03-24 13:05:00', 12, 2, NULL, b'0', 0, NULL),
+(24, 3, 'Servido', '2026-03-24 13:10:00', 21, 2, NULL, b'0', 0, NULL),
+(25, 4, 'Servido', '2026-03-18 14:00:00', 6, 3, NULL, b'0', 0, NULL),
+(26, 4, 'Servido', '2026-03-18 14:10:00', 23, 3, NULL, b'0', 0, NULL),
+(27, 6, 'Servido', '2026-03-18 21:00:00', 14, 4, NULL, b'0', 0, NULL),
+(28, 1, 'Servido', '2026-02-26 13:00:00', 5, 5, NULL, b'0', 0, NULL),
+(29, 1, 'Servido', '2026-02-26 13:15:00', 24, 5, NULL, b'0', 0, NULL),
+(30, 2, 'Servido', '2026-02-26 13:30:00', 9, 6, NULL, b'0', 0, NULL),
+(31, 3, 'Servido', '2026-02-21 14:05:00', 17, 7, NULL, b'0', 0, NULL),
+(32, 3, 'Servido', '2026-02-21 14:10:00', 10, 7, NULL, b'0', 0, NULL),
+(33, 5, 'Servido', '2026-02-21 21:30:00', 20, 8, NULL, b'0', 0, NULL),
+(34, 2, 'Servido', '2026-02-18 13:05:00', 2, 9, NULL, b'0', 0, NULL),
+(35, 2, 'Servido', '2026-02-18 13:15:00', 13, 9, NULL, b'0', 0, NULL),
+(36, 4, 'Servido', '2026-02-18 13:30:00', 7, 10, NULL, b'0', 0, NULL),
+(37, 4, 'Servido', '2026-02-18 13:35:00', 22, 10, NULL, b'0', 0, NULL),
+(38, 7, 'Servido', '2026-02-12 20:50:00', 11, 11, NULL, b'0', 0, NULL),
+(39, 7, 'Servido', '2026-02-12 21:00:00', 23, 11, NULL, b'0', 0, NULL),
+(40, 6, 'Servido', '2026-02-08 13:25:00', 18, 12, NULL, b'0', 0, NULL),
+(41, 1, 'Servido', '2026-04-20 18:11:02', 1, 17, NULL, b'0', 0, NULL),
+(42, 1, 'Servido', '2026-04-20 18:11:02', 1, 17, NULL, b'0', 0, NULL),
+(43, 1, 'Servido', '2026-04-20 18:11:02', 2, 17, NULL, b'0', 0, NULL),
+(44, 1, 'Servido', '2026-04-20 18:11:02', 3, 17, NULL, b'0', 0, NULL),
+(45, 1, 'Servido', '2026-04-20 18:11:02', 4, 17, NULL, b'0', 0, NULL),
+(46, 1, 'Servido', '2026-04-20 18:11:02', 6, 17, NULL, b'0', 0, NULL),
+(47, 1, 'Servido', '2026-04-20 18:11:02', 20, 17, NULL, b'0', 0, NULL),
+(48, 1, 'Servido', '2026-04-20 19:09:45', 1, 18, NULL, b'0', 0, NULL),
+(49, 1, 'Servido', '2026-04-20 19:09:45', 1, 18, NULL, b'0', 0, NULL),
+(50, 1, 'EnProceso', '2026-04-20 19:09:45', 2, 18, NULL, b'0', 0, NULL),
+(51, 1, 'EnProceso', '2026-04-20 19:09:45', 2, 18, NULL, b'0', 0, NULL),
+(61, 1, 'Servido', '2026-04-21 23:47:55', 1, 21, 1, b'0', 0, NULL),
+(62, 1, 'Servido', '2026-04-21 23:49:22', 1, 21, 1, b'0', 0, NULL),
+(152, 2, 'Servido', '2026-05-03 12:10:27', 2, 43, 1, b'0', 5.8, 8),
+(153, 2, 'Servido', '2026-05-03 12:10:27', 3, 43, 2, b'0', 7.2, 9),
+(154, 2, 'Servido', '2026-05-03 12:10:27', 5, 43, 1, b'0', 14.9, 8),
+(155, 2, 'Servido', '2026-05-03 12:22:16', 2, 43, 3, b'1', 3.9, 10),
+(156, 2, 'Servido', '2026-05-03 12:22:16', 8, 43, 3, b'1', 3.9, 10),
+(157, 2, 'Servido', '2026-05-03 12:22:16', 19, 43, 3, b'1', 3.9, 10),
+(158, 2, 'Servido', '2026-05-03 12:22:16', 23, 43, 3, b'1', 3.9, 10),
+(159, 2, 'Servido', '2026-05-03 12:25:44', 2, 44, 1, b'0', 5.8, 11),
+(160, 2, 'Servido', '2026-05-03 12:25:44', 3, 44, 1, b'0', 7.2, 11),
+(161, 2, 'Servido', '2026-05-03 12:25:44', 4, 44, 1, b'0', 9.5, 11),
+(162, 2, 'Servido', '2026-05-03 12:25:44', 6, 44, 1, b'0', 13.5, 11),
+(163, 2, 'Servido', '2026-05-03 12:26:37', 2, 44, 2, b'0', 5.8, 12),
+(164, 2, 'Servido', '2026-05-03 12:26:37', 3, 44, 2, b'0', 7.2, 12),
+(165, 2, 'Servido', '2026-05-03 12:26:37', 4, 44, 2, b'0', 9.5, 12),
+(166, 2, 'Servido', '2026-05-03 12:26:37', 4, 44, 2, b'0', 9.5, 12),
+(167, 2, 'Servido', '2026-05-03 12:26:37', 16, 44, 2, b'0', 6.8, 12),
+(168, 2, 'Servido', '2026-05-03 12:27:43', 2, 44, 3, b'1', 3.9, 13),
+(169, 2, 'Servido', '2026-05-03 12:27:43', 19, 44, 3, b'1', 3.9, 13),
+(170, 2, 'Servido', '2026-05-03 12:27:43', 5, 44, 3, b'1', 3.9, 13),
+(171, 2, 'Servido', '2026-05-03 12:27:43', 22, 44, 3, b'1', 3.9, 13),
+(172, 2, 'Servido', '2026-05-03 12:28:47', 2, 44, 4, b'1', 3.9, 14),
+(173, 2, 'Servido', '2026-05-03 12:28:47', 8, 44, 4, b'1', 3.9, 14),
+(174, 2, 'Servido', '2026-05-03 12:28:47', 21, 44, 4, b'1', 3.9, 14),
+(175, 2, 'Servido', '2026-05-03 12:28:47', 22, 44, 4, b'1', 3.9, 14),
+(176, 2, 'Pendiente', '2026-05-03 12:35:30', 2, 45, 2, b'0', 5.8, 12),
+(177, 2, 'Pendiente', '2026-05-03 12:35:31', 3, 45, 2, b'0', 7.2, 12),
+(178, 6, 'Pendiente', '2026-05-03 12:38:59', 2, 46, 1, b'0', 5.8, 15),
+(179, 6, 'Pendiente', '2026-05-03 12:38:59', 3, 46, 1, b'0', 7.2, 15),
+(180, 5, 'Pendiente', '2026-05-03 12:39:46', 2, 47, 1, b'0', 5.8, 16),
+(181, 5, 'Pendiente', '2026-05-03 12:39:46', 3, 47, 1, b'0', 7.2, 16),
+(182, 5, 'Pendiente', '2026-05-03 13:34:20', 2, 47, 2, b'0', 5.8, 17),
+(183, 5, 'Pendiente', '2026-05-03 13:34:21', 3, 47, 2, b'0', 7.2, 17),
+(184, 5, 'Servido', '2026-05-03 18:26:53', 2, 48, 1, b'0', 5.8, 18),
+(185, 5, 'Servido', '2026-05-03 18:26:53', 2, 48, 1, b'0', 5.8, 18),
+(186, 5, 'Servido', '2026-05-03 18:27:27', 2, 48, 2, b'0', 5.8, 19),
+(187, 5, 'Servido', '2026-05-03 18:27:27', 3, 48, 2, b'0', 7.2, 19),
+(188, 2, 'Servido', '2026-05-03 18:28:13', 2, 49, 1, b'0', 5.8, 20),
+(189, 2, 'Servido', '2026-05-03 18:28:13', 3, 49, 1, b'0', 7.2, 20),
+(190, 2, 'Servido', '2026-05-03 18:29:10', 2, 49, 2, b'1', 3.9, 21),
+(191, 2, 'Servido', '2026-05-03 18:29:10', 8, 49, 2, b'1', 3.9, 21),
+(192, 2, 'Servido', '2026-05-03 18:29:10', 23, 49, 2, b'1', 3.9, 21),
+(193, 2, 'Servido', '2026-05-03 18:29:10', 19, 49, 2, b'1', 3.9, 21),
+(194, 2, 'Servido', '2026-05-03 18:31:54', 2, 49, 3, b'0', 5.8, 22),
+(195, 2, 'Servido', '2026-05-03 18:31:54', 5, 49, 3, b'0', 14.9, 22),
+(196, 2, 'Servido', '2026-05-03 18:31:54', 9, 49, 3, b'0', 10.9, 22),
+(197, 2, 'Servido', '2026-05-03 18:31:54', 13, 49, 3, b'0', 7, 22),
+(198, 2, 'Servido', '2026-05-03 18:31:54', 17, 49, 3, b'0', 14.5, 22),
+(199, 2, 'Servido', '2026-05-03 19:12:48', 2, 50, 2, b'0', 5.8, 23),
+(200, 2, 'Servido', '2026-05-03 19:12:48', 1, 50, 1, b'0', 5.5, 24),
+(201, 2, 'Servido', '2026-05-03 19:12:48', 24, 50, 1, b'0', 1.8, 24);
 
 -- --------------------------------------------------------
 
@@ -336,7 +508,7 @@ CREATE TABLE `plato` (
 --
 
 INSERT INTO `plato` (`id`, `nombre`, `nombre_en`, `descripcion`, `descripcion_en`, `precio`, `imagen`, `tipo`, `disponible`, `es_novedad`, `fecha_creacion`) VALUES
-(1, 'Ensaladilla rusa', 'Russian salad', 'Patata, atun, huevo y mahonesa casera', 'Potato, tuna, egg and homemade mayo', 5.5, '1776960428382_7 tips para preparar la ensalada rusa perfecta y deliciosa.png', 'PRIMERO', 0, 0, '2026-03-01'),
+(1, 'Ensaladilla rusa', 'Russian salad', 'Patata, atun, huevo y mahonesa casera', 'Potato, tuna, egg and homemade mayo', 5.5, '1776960428382_7 tips para preparar la ensalada rusa perfecta y deliciosa.png', 'PRIMERO', 1, 0, '2026-03-01'),
 (2, 'Salmorejo cordobes', 'Cordoban salmorejo', 'Crema fria de tomate con jamon y huevo', 'Cold tomato cream with ham and egg', 5.8, '1776960466531_🍅🥖 Salmorejo Cordobés_ Cremoso y Refrescante 🇪🇸.png', 'PRIMERO', 1, 0, '2026-03-01'),
 (3, 'Croquetas de jamon', 'Iberian ham croquettes', 'Croquetas caseras crujientes', 'Homemade crispy croquettes', 7.2, '1776960503574_Croquetas de Jamón CRUJIENTES que te sorprenderán hoy_ - recetasdeluisa.png', 'PRIMERO', 1, 1, '2026-03-05'),
 (4, 'Flamenquin', 'Flamenquin', 'Lomo enrollado con jamon serrano', 'Pork loin roll with serrano ham', 9.5, '1776960544623_Cómo se hacen los flamenquines cordobeses.png', 'PRIMERO', 1, 0, '2026-03-06'),
@@ -390,9 +562,7 @@ INSERT INTO `producto` (`id`, `nombre`, `descripcion`, `precio`, `stock`, `prove
 (7, 'Cerveza Cruzcampo barril 50L', 'Barril 50 litros presurizado', 85, 4, 3),
 (8, 'Vino tinto Ribera barrica', 'Botella 75cl crianza', 8.5, 24, 3),
 (9, 'Agua mineral 24 unidades', 'Pack 24 botellas 50cl', 4.8, 30, 3),
-(10, 'Patatas', 'Saco 25kg', 1.2, 50, 1),
-(11, 'sss', 'ssss', 1, 2, 4),
-(13, 'a', 'a', 1, 0, 5);
+(10, 'Patatas', 'Saco 25kg', 1.2, 50, 1);
 
 -- --------------------------------------------------------
 
@@ -414,9 +584,7 @@ CREATE TABLE `proveedor` (
 INSERT INTO `proveedor` (`id`, `nombre`, `email`, `telefono`) VALUES
 (1, 'Ibéricos del Sur', 'pedidos@ibericossur.es', '954 112 233'),
 (2, 'Mariscos y Pescados Huelva', 'info@mariscoushuelva.es', '959 445 667'),
-(3, 'Bebidas La Giralda', 'ventas@bebidasgiralda.es', '955 778 990'),
-(4, 'Pedro', 'prueba@test.es', '77 777 777'),
-(5, 'SS', 'sss@sss', 'ss');
+(3, 'Bebidas La Giralda', 'ventas@bebidasgiralda.es', '955 778 990');
 
 -- --------------------------------------------------------
 
@@ -489,14 +657,14 @@ INSERT INTO `servicio` (`id`, `estado`, `mesa`, `estado_cobro`, `fecha_solicitud
 (21, 1, 1, NULL, NULL, NULL, NULL),
 (24, 1, 1, 'SIN_SOLICITUD', NULL, NULL, NULL),
 (25, 1, 1, 'SIN_SOLICITUD', NULL, NULL, NULL),
-(27, 1, 1, 'SIN_SOLICITUD', NULL, NULL, '2026-04-23 20:37:17.000000'),
-(28, 1, 1, 'SIN_SOLICITUD', NULL, NULL, '2026-04-23 20:38:33.000000'),
-(29, 1, 10, 'SIN_SOLICITUD', NULL, NULL, '2026-04-23 21:06:31.000000'),
-(30, 1, 3, 'SIN_SOLICITUD', NULL, NULL, '2026-04-23 21:09:50.000000'),
-(31, 1, 6, 'SIN_SOLICITUD', NULL, NULL, '2026-04-23 21:16:55.000000'),
-(32, 1, 1, 'SIN_SOLICITUD', NULL, NULL, '2026-04-24 11:34:25.000000'),
-(33, 1, 1, 'SIN_SOLICITUD', NULL, NULL, '2026-04-24 12:12:49.000000'),
-(34, 1, 4, 'SIN_SOLICITUD', NULL, NULL, '2026-04-24 13:52:28.000000');
+(43, 1, 2, 'COBRADO_TOTAL', '2026-05-03 12:23:58.000000', 'TARJETA', '2026-05-03 12:24:18.000000'),
+(44, 1, 2, 'COBRADO_TOTAL', '2026-05-03 12:30:05.000000', 'METALICO', '2026-05-03 12:32:35.000000'),
+(45, 1, 2, 'SIN_SOLICITUD', NULL, NULL, '2026-05-03 12:35:34.000000'),
+(46, 1, 6, 'COBRADO_TOTAL', '2026-05-03 12:39:05.000000', 'TARJETA', '2026-05-03 12:39:53.000000'),
+(47, 1, 5, 'COBRADO_TOTAL', '2026-05-03 12:40:05.000000', 'TARJETA', '2026-05-03 13:34:21.000000'),
+(48, 1, 5, 'COBRADO_TOTAL', '2026-05-03 18:27:31.000000', 'TARJETA', '2026-05-03 19:07:19.000000'),
+(49, 1, 2, 'COBRADO_TOTAL', '2026-05-03 18:29:23.000000', 'TARJETA', '2026-05-03 19:07:32.000000'),
+(50, 1, 2, 'COBRADO_TOTAL', '2026-05-03 19:13:30.000000', 'TARJETA', '2026-05-03 19:13:42.000000');
 
 -- --------------------------------------------------------
 
@@ -521,94 +689,32 @@ CREATE TABLE `sesion_mesa` (
 --
 
 INSERT INTO `sesion_mesa` (`id`, `activa`, `creado_en`, `mesa`, `token`, `codigo_acceso`, `contador_personas`, `modo`, `ultima_actividad`) VALUES
-(1, b'0', '2026-04-20 18:09:26.000000', 1, '21a4226a-09fa-4d50-b53c-f6d55cbdf2aa', '', 0, '', NULL),
-(2, b'0', '2026-04-20 19:04:35.000000', 1, '7dbe1e42-bd01-43a5-abd4-966848899329', '', 0, '', NULL),
-(3, b'0', '2026-04-20 19:13:48.000000', 1, '03c8b6f5-3c43-4add-8d06-9eaec9245f7a', 'HY3C5L2H', 0, '', NULL),
-(4, b'0', '2026-04-20 22:58:23.000000', 2, '93163259-3777-4486-a02c-eb334a897f67', 'DMZRTCDE', 0, '', NULL),
-(5, b'0', '2026-04-20 23:09:33.000000', 1, '3e8e8f34-3e78-497c-8a09-fbe80f043a32', 'WVLSJ7W5', 0, '', NULL),
-(6, b'0', '2026-04-20 23:10:21.000000', 4, 'befab650-aca6-4815-b7ce-bcb875af3612', '5GAD8L7F', 0, '', NULL),
-(7, b'0', '2026-04-20 23:11:35.000000', 4, '87f9c559-6bb9-4aa1-86ac-6b325f87d462', '99SJHFRM', 0, '', NULL),
-(8, b'0', '2026-04-20 23:11:54.000000', 1, '43695048-212c-4977-90fd-68cb754c1466', 'HG2RJ9ST', 0, '', NULL),
-(9, b'0', '2026-04-20 23:17:58.000000', 2, '9813b462-f077-4305-b775-ff16e0a949a1', 'A2RQHZHE', 0, '', NULL),
-(10, b'0', '2026-04-20 23:26:53.000000', 6, '60f6a3c3-6aa6-4ed0-978d-69c933c1d2b2', 'EKT3PW78', 0, '', NULL),
-(11, b'0', '2026-04-20 23:30:13.000000', 3, '646a0cda-8920-4901-91db-1dbd03277181', '4SWPXD76', 0, '', NULL),
-(12, b'0', '2026-04-20 23:30:14.000000', 3, '19057b07-a30d-4c23-a44d-9bfc779386bb', '9YY5Q3BA', 0, '', NULL),
-(13, b'0', '2026-04-20 23:30:15.000000', 3, '85b27e3d-5f5b-4ccc-8c64-d6cb3989759f', 'Z57UHLSV', 0, '', NULL),
-(14, b'0', '2026-04-20 23:32:18.000000', 2, '4ab575c9-02bb-4e56-9ff8-5da9f2ffe10a', 'LWKVWS7Z', 0, '', NULL),
-(15, b'0', '2026-04-20 23:32:18.000000', 2, '4b529fa0-ca6c-4ef3-844b-8211b4b32666', 'YLLBRDQ2', 0, '', NULL),
-(16, b'0', '2026-04-20 23:32:19.000000', 2, '9c503915-5936-4419-bd8c-7e7afefe2c68', 'U9X2B9T4', 0, '', NULL),
-(17, b'0', '2026-04-20 23:32:19.000000', 2, 'e992af65-e3d0-4908-878c-dd6d0f9d1a7a', '5PPCJB9N', 0, '', NULL),
-(18, b'0', '2026-04-20 23:32:19.000000', 2, '49c1b178-1eb3-402f-b447-eef60ad2d597', 'ELGL6794', 0, '', NULL),
-(19, b'0', '2026-04-20 23:32:20.000000', 2, 'f4743bad-91db-4eb2-af69-ddae4ee24ce5', '53847PUU', 0, '', NULL),
-(20, b'0', '2026-04-21 09:40:00.000000', 1, '50ef081e-46c9-47fd-9bb8-d5c8a3acddf4', 'CHT3UU9L', 0, '', NULL),
-(21, b'0', '2026-04-21 09:40:00.000000', 1, '14d842c5-a42b-48f9-8202-9583c7e55246', 'R9FKQ75J', 0, '', NULL),
-(22, b'0', '2026-04-21 09:40:00.000000', 1, '9078c454-5e7d-453f-a216-26df4f7a98f8', 'VZ76K9GG', 0, '', NULL),
-(23, b'0', '2026-04-21 09:46:33.000000', 1, '18227d60-e6d3-4903-ba2b-fc10dc6bdf3a', 'GXD8RVXW', 0, '', NULL),
-(24, b'0', '2026-04-21 09:46:33.000000', 1, '9797b9ec-ab8e-4f1c-abad-2d51ef478f21', '7YYL7E3H', 0, '', NULL),
-(25, b'0', '2026-04-21 09:46:41.000000', 1, '72d1bfe0-ed8b-49b3-819e-27f99e914b5b', 'JVLR2BRA', 0, '', NULL),
-(26, b'0', '2026-04-21 09:46:41.000000', 1, 'f97aaeb5-e0b2-4697-9002-65249d8b3464', 'QJYUPCMR', 0, '', NULL),
-(27, b'0', '2026-04-21 09:46:41.000000', 1, '982cc4a7-aa32-4489-8bb1-5e908e250a52', 'NNZUC73Z', 0, '', NULL),
-(28, b'0', '2026-04-21 09:46:46.000000', 1, '27073ccf-25f8-448b-b623-e9d8cd280240', 'A8RPMUH7', 0, '', NULL),
-(29, b'0', '2026-04-21 09:46:46.000000', 1, 'e09d06c8-a4d7-4f96-8f42-796c59d073d5', '9S26UJ9E', 0, '', NULL),
-(30, b'0', '2026-04-21 09:46:47.000000', 1, 'eb312c38-1efb-46e3-9536-b86522590498', 'GHFVC44F', 0, '', NULL),
-(31, b'0', '2026-04-21 09:46:50.000000', 1, '513c3599-a561-4d46-9864-9d8407061809', 'UZC2KEG3', 0, '', NULL),
-(32, b'0', '2026-04-21 09:46:52.000000', 1, '2a2a1bf5-9216-4ccb-9cc1-c4a3770bab87', 'XSV7YESZ', 0, '', NULL),
-(33, b'0', '2026-04-21 09:46:58.000000', 1, '2759248f-7fea-4a27-aff4-1eb1248425e2', 'U7YS6WYA', 0, '', NULL),
-(34, b'0', '2026-04-21 09:46:58.000000', 1, 'a8bb85d1-437f-4bd0-9700-906d98050751', 'PRYF4XYB', 0, '', NULL),
-(35, b'0', '2026-04-21 09:46:58.000000', 1, 'e237ae38-34ad-456b-bf7a-2ff7be9757cf', 'PQ3NNAFV', 0, '', NULL),
-(36, b'0', '2026-04-21 09:46:58.000000', 1, '1e140fa5-fd71-48da-9dc6-0dab8e8fecc0', 'GRHWY5TS', 0, '', NULL),
-(37, b'0', '2026-04-21 09:46:58.000000', 1, '8503bdf9-0570-4614-ad76-221b9cd30e57', 'BP3E7VKT', 0, '', NULL),
-(38, b'0', '2026-04-21 09:48:13.000000', 1, '5d15ff29-7586-4088-91a6-1b8dd4169a79', '8EZNZ2UZ', 0, '', NULL),
-(39, b'0', '2026-04-21 09:48:14.000000', 1, '19013f59-d39a-4dc5-9c77-675851b4cc83', 'XT7RH4KP', 0, '', NULL),
-(40, b'0', '2026-04-21 09:48:14.000000', 1, '04b6441b-c924-44c0-96b0-4c2f9945eedc', 'Y74MB7V6', 0, '', NULL),
-(41, b'0', '2026-04-21 09:48:14.000000', 1, '653f4497-110d-40d4-bc63-c3a138cafa4b', 'W3GVNTD5', 0, '', NULL),
-(42, b'0', '2026-04-21 09:48:14.000000', 1, 'ee1db0b6-ef6b-465e-a6a8-0d9fbfa534c7', '6SE7ZZ3G', 0, '', NULL),
-(43, b'0', '2026-04-21 09:48:14.000000', 1, '4239322f-d64c-48c7-ba4f-1a07faf95562', '3VAPW3PC', 0, '', NULL),
-(44, b'0', '2026-04-21 09:48:19.000000', 1, '22d68196-8e7d-442c-b85b-d282563267b0', 'VWVWRA4G', 0, '', NULL),
-(45, b'0', '2026-04-21 09:48:19.000000', 1, '3a739338-cfce-4419-b719-c8f01600ad0d', 'XEMH622K', 0, '', NULL),
-(46, b'0', '2026-04-21 09:48:19.000000', 1, '44ab1437-2c89-486c-b9d4-1352f36d4bd9', 'CZSGSFHU', 0, '', NULL),
-(47, b'0', '2026-04-21 09:48:19.000000', 1, '30751878-24ca-4e58-b527-c56a61fc334b', 'F6G73LRW', 0, '', NULL),
-(48, b'0', '2026-04-21 14:57:58.000000', 10, '896f42ec-59ea-44ec-8ccf-514e61025bb2', 'HV4PW7M3', 1, 'PENDIENTE', NULL),
-(49, b'0', '2026-04-21 15:03:21.000000', 9, 'ccc48053-1713-44db-b249-f06e398a0691', 'J36QQNA7', 1, 'PENDIENTE', NULL),
-(50, b'0', '2026-04-21 23:46:52.000000', 1, 'd8b69533-2579-4dd6-b9de-f560761969f0', 'XZQHGYKC', 1, 'INDIVIDUAL', NULL),
-(51, b'0', '2026-04-21 23:53:05.000000', 2, '4286836c-ee58-44ef-b645-b74e7b0c196e', '7HGEZJSM', 1, 'PENDIENTE', NULL),
-(52, b'0', '2026-04-21 23:53:25.000000', 3, '75de1301-1f6b-4a19-bcfc-4bbd7bd2f9b8', 'HZRAB4M8', 2, 'GRUPO', NULL),
-(53, b'0', '2026-04-22 00:16:17.000000', 3, 'cbd74690-2e23-41ab-aab1-fb707cf86bff', 'B9E4NNR5', 1, 'PENDIENTE', NULL),
-(54, b'0', '2026-04-22 00:42:03.000000', 3, '40c401ef-2d36-49fc-a4ca-03e83c8203a0', 'FSL4QT9G', 1, 'PENDIENTE', NULL),
-(55, b'0', '2026-04-22 00:42:23.000000', 1, '4671fdfa-9aa7-4a84-85f0-e2bd251a38e4', 'MRUU75B8', 1, 'PENDIENTE', NULL),
-(56, b'0', '2026-04-22 00:43:17.000000', 2, '3b7d8d7c-ac9c-428d-988c-54a60babac40', 'RRTJVBAX', 1, 'PENDIENTE', NULL),
-(57, b'0', '2026-04-22 00:43:41.000000', 2, 'fc169ca2-5722-4b40-8f09-18733bac0e02', 'ZTUYYVP8', 1, 'PENDIENTE', NULL),
-(58, b'0', '2026-04-22 00:44:24.000000', 2, '1e41129b-4ae9-44ca-a946-1b559ec07e5d', 'HYJ5M7QK', 1, 'PENDIENTE', NULL),
-(59, b'0', '2026-04-22 00:44:50.000000', 4, '7c8c2eb9-1525-4236-af51-7f793f1eb014', 'VJ8A8NZ3', 1, 'PENDIENTE', NULL),
-(60, b'0', '2026-04-22 00:45:50.000000', 6, 'd2316259-266b-407f-8654-15d39c0e916c', 'UA8CSFU9', 1, 'PENDIENTE', NULL),
-(61, b'0', '2026-04-22 09:46:13.000000', 1, '939ff8b0-2361-4105-8e14-a3688ce3d2d6', 'XYEXTUDK', 1, 'INDIVIDUAL', NULL),
-(62, b'0', '2026-04-22 11:43:17.000000', 1, '5057cdfd-df23-453b-a88b-e8c25f30ec37', 'QN5HL35T', 2, 'GRUPO', NULL),
-(63, b'0', '2026-04-22 11:46:41.000000', 1, '556fba73-61c0-4c43-bbad-b896f564dfc4', 'GTDS6WDT', 1, 'PENDIENTE', NULL),
-(64, b'0', '2026-04-22 11:46:50.000000', 1, 'd0c62990-0d18-4f73-82ad-0dbebcdb03ca', 'B9M5WH2Z', 1, 'INDIVIDUAL', NULL),
-(65, b'0', '2026-04-22 13:51:03.000000', 1, '02a47f90-f540-49ac-befd-1b454e6d89fc', '7CD3X4SB', 1, 'INDIVIDUAL', NULL),
-(66, b'0', '2026-04-22 14:47:41.000000', 2, '93b85141-97dc-4a2e-9e1b-525ba9992b80', '3R2T6Q9N', 1, 'INDIVIDUAL', NULL),
-(67, b'0', '2026-04-22 14:49:11.000000', 3, 'f866addf-02a4-47ef-a052-2efa779f56af', 'L8MHX6AE', 1, 'INDIVIDUAL', NULL),
-(68, b'0', '2026-04-22 15:19:18.000000', 5, '4f98dbdd-6175-403f-965a-3ca0abdd8f44', '9ZS3F7Q9', 1, 'PENDIENTE', NULL),
-(69, b'0', '2026-04-23 18:33:28.000000', 1, 'b41e8a88-0434-4686-806b-32b936a096f3', '3QUAM6GS', 1, 'INDIVIDUAL', '2026-04-23 18:33:53.000000'),
-(70, b'0', '2026-04-23 20:36:53.000000', 1, '83098bda-0040-4015-861b-2a8dd2f045d6', '2ESTJV2D', 1, 'INDIVIDUAL', '2026-04-23 20:37:17.000000'),
-(71, b'0', '2026-04-23 20:37:23.000000', 1, 'a56d8c41-91f0-40e2-9dd3-06a00222c85a', '89EKUG4N', 1, 'INDIVIDUAL', '2026-04-23 20:38:33.000000'),
-(72, b'0', '2026-04-23 20:38:52.000000', 1, '493be397-d156-422f-97cb-57cc8f04180d', 'CGB2EQNJ', 1, 'INDIVIDUAL', '2026-04-23 20:50:55.000000'),
-(73, b'0', '2026-04-23 20:52:42.000000', 2, 'ea1b73ac-5f91-47a9-9659-e440d50d7bc4', '2N8ZSY5V', 1, 'INDIVIDUAL', '2026-04-23 20:52:44.000000'),
-(74, b'0', '2026-04-23 20:55:56.000000', 10, 'c95d9fa4-bc55-4e0f-b089-818332a8aed4', '5U5W8Q7T', 2, 'GRUPO', '2026-04-23 21:06:31.000000'),
-(75, b'0', '2026-04-23 20:56:54.000000', 4, '277b777d-d2a2-4794-9b5c-b2fcdba7c49b', 'QUG69N2F', 1, 'INDIVIDUAL', '2026-04-23 21:14:34.000000'),
-(76, b'0', '2026-04-23 21:01:52.000000', 3, '057c5eac-8b89-49e0-8333-a3fd8dd8ca6e', 'WNZPNJE6', 1, 'PENDIENTE', '2026-04-23 21:09:50.000000'),
-(77, b'0', '2026-04-23 21:01:52.000000', 3, 'f0065075-aea5-4efb-96c6-471532d743a9', 'NDC7MXJW', 1, 'GRUPO', '2026-04-23 21:09:50.000000'),
-(78, b'0', '2026-04-23 21:12:23.000000', 6, 'c4d19109-eb97-4f23-a33f-4137cc81d640', '48FK8YRP', 1, 'INDIVIDUAL', '2026-04-23 21:16:55.000000'),
-(79, b'0', '2026-04-23 21:24:05.000000', 10, '1c47b727-cc5e-4a7b-8495-c84d8987d31a', '5LWTHAW6', 1, 'PENDIENTE', '2026-04-23 21:24:05.000000'),
-(80, b'0', '2026-04-23 21:26:40.000000', 10, '37cb52e8-da6a-4580-95cd-f42303a197eb', 'XCQ23Y43', 1, 'PENDIENTE', '2026-04-23 21:26:40.000000'),
-(81, b'0', '2026-04-24 10:08:36.000000', 1, '957d1d1f-96e4-430d-b87a-5ee766880a8a', '8PGWXGBS', 1, 'PENDIENTE', '2026-04-24 10:08:36.000000'),
-(82, b'0', '2026-04-24 10:10:58.000000', 2, '0fa4b78b-ff15-437c-a7e4-a3bb4791d673', 'ZM6VPTZL', 1, 'PENDIENTE', '2026-04-24 10:10:58.000000'),
-(83, b'0', '2026-04-24 11:33:08.000000', 1, '0ecbac01-d040-4715-bbf5-b1b8e9277a95', 'Y794UWX4', 1, 'INDIVIDUAL', '2026-04-24 11:34:25.000000'),
-(84, b'0', '2026-04-24 11:54:47.000000', 2, '77b74de9-7f30-4f44-9f69-cf2d6506f795', 'CWJMJTZG', 1, 'PENDIENTE', '2026-04-24 11:54:48.000000'),
-(85, b'0', '2026-04-24 12:10:10.000000', 1, '54ee3588-c4ba-4f8f-aa6a-8e08dad664b1', '2D8YW64Q', 1, 'INDIVIDUAL', '2026-04-24 12:12:49.000000'),
-(86, b'0', '2026-04-24 12:10:18.000000', 2, 'f4603695-fb98-49ce-ad5f-f882c6c23d8e', '3PSCHXCS', 1, 'GRUPO', '2026-04-24 12:14:58.000000'),
-(87, b'0', '2026-04-24 12:13:27.000000', 1, 'ed49113d-6396-4d19-8ec8-2de5bd156444', 'RW66EDGH', 1, 'GRUPO', '2026-04-24 12:14:06.000000'),
-(88, b'0', '2026-04-24 13:51:50.000000', 4, '22ff30c1-95f7-40e9-802b-77e22273aea0', 'CKN2WE3P', 1, 'INDIVIDUAL', '2026-04-24 13:52:28.000000');
+(106, b'0', '2026-05-03 11:10:15.000000', 2, '46a55fba-9665-44fa-9ab9-b7683d139e92', 'EGH2H5GF', 1, 'PENDIENTE', '2026-05-03 11:10:15.000000'),
+(107, b'0', '2026-05-03 11:10:45.000000', 1, 'a7d280bb-ee6b-4505-8ad8-210bfe6f5af4', 'MESK3UUS', 1, 'PENDIENTE', '2026-05-03 11:10:53.000000'),
+(108, b'0', '2026-05-03 11:11:39.000000', 2, 'd3345b74-5855-432c-b4c1-db9dbb100ff0', 'GL4LHA78', 1, 'PENDIENTE', '2026-05-03 11:11:39.000000'),
+(109, b'0', '2026-05-03 11:16:25.000000', 2, 'e493ce20-d808-4e07-be2a-57c9b1be7fd7', 'ZQ72VFLG', 1, 'PENDIENTE', '2026-05-03 11:16:26.000000'),
+(110, b'0', '2026-05-03 11:20:52.000000', 10, '718c5087-d7ca-4d16-bc69-3748ff8c3a09', 'N7VFCWYJ', 1, 'PENDIENTE', '2026-05-03 11:20:53.000000'),
+(111, b'0', '2026-05-03 11:22:14.000000', 2, '9cdd7f20-47c4-4c4d-9593-b2c9c0709932', 'MKAC2839', 1, 'PENDIENTE', '2026-05-03 11:22:38.000000'),
+(112, b'0', '2026-05-03 11:22:47.000000', 3, 'a9087235-c8e0-4d7d-aafb-3b843bb59e12', '2KK98VBL', 1, 'PENDIENTE', '2026-05-03 11:22:48.000000'),
+(113, b'0', '2026-05-03 11:33:30.000000', 3, 'e1a72f24-c6f2-4dbc-9d3d-054aa083e08a', 'XBRX43XB', 1, 'PENDIENTE', '2026-05-03 11:33:30.000000'),
+(114, b'0', '2026-05-03 11:33:59.000000', 5, '47f7c106-5fb9-4106-9764-f2603f7da91b', 'LMDYP3V8', 1, 'PENDIENTE', '2026-05-03 11:34:00.000000'),
+(115, b'0', '2026-05-03 11:39:30.000000', 6, 'e7657448-4e87-4be4-b934-3c68674ce471', '9R5NNB3P', 1, 'PENDIENTE', '2026-05-03 11:39:31.000000'),
+(116, b'0', '2026-05-03 11:40:10.000000', 10, 'dca1ed66-c044-42d8-8232-062e74447c39', 'EU6JS6D7', 1, 'PENDIENTE', '2026-05-03 11:40:10.000000'),
+(117, b'0', '2026-05-03 11:42:08.000000', 5, '3015840f-3efd-44c4-85a3-de5657cb37cd', 'M9SBAN7V', 1, 'PENDIENTE', '2026-05-03 11:42:08.000000'),
+(118, b'0', '2026-05-03 11:42:45.000000', 7, '0b8e497b-7b80-42ea-a5fc-7512c4b9a208', 'JMN3H9EQ', 1, 'INDIVIDUAL', '2026-05-03 11:44:01.000000'),
+(119, b'0', '2026-05-03 11:47:47.000000', 7, 'fc2e3fe0-3d47-480e-ae1e-5c4ba1650a0f', 'ADWVVRKC', 1, 'PENDIENTE', '2026-05-03 11:47:47.000000'),
+(120, b'0', '2026-05-03 12:00:43.000000', 7, '7a6577b0-2957-4d76-abfc-8221a60e0ef7', 'T8NCF9F7', 1, 'PENDIENTE', '2026-05-03 12:00:43.000000'),
+(121, b'0', '2026-05-03 12:09:19.000000', 2, '2e6636e1-c2f0-451a-b4a3-a4b7ed047059', 'V6SP7ZU3', 1, 'INDIVIDUAL', '2026-05-03 12:24:18.000000'),
+(122, b'0', '2026-05-03 12:25:24.000000', 2, 'b94a8000-60b4-4fbe-a8da-f01dc80959bc', 'YXVJVFFK', 4, 'GRUPO', '2026-05-03 12:35:34.000000'),
+(123, b'0', '2026-05-03 12:38:46.000000', 6, '5dd6fbc0-fca0-45c3-8a95-685733ea4d3e', 'JGJV33KD', 1, 'INDIVIDUAL', '2026-05-03 12:39:53.000000'),
+(124, b'0', '2026-05-03 12:39:29.000000', 5, '957fc144-4a22-4cc5-a33e-0ab2a1e4f4a0', '73YVYCN9', 1, 'INDIVIDUAL', '2026-05-03 13:34:21.000000'),
+(125, b'0', '2026-05-03 13:33:46.000000', 2, '10a3487b-328e-4def-8cb5-a6f50ef32e76', 'ZV8SGRKD', 1, 'PENDIENTE', '2026-05-03 13:33:46.000000'),
+(126, b'0', '2026-05-03 18:26:28.000000', 5, 'f57fe18e-79d1-4367-bb4b-a74e3c3c635e', 'FJR43UNR', 1, 'PENDIENTE', '2026-05-03 18:26:28.000000'),
+(127, b'0', '2026-05-03 18:26:42.000000', 5, '292ad9ee-c35a-440a-8069-2099f59957d7', 'F4UT7C3N', 1, 'INDIVIDUAL', '2026-05-03 19:07:19.000000'),
+(128, b'0', '2026-05-03 18:28:01.000000', 2, 'ed880617-821b-4b6c-b1b3-f4be65b37eec', 'DHQWU6QP', 3, 'GRUPO', '2026-05-03 19:07:32.000000'),
+(129, b'0', '2026-05-03 18:28:32.000000', 6, '7fc08594-8d9d-4400-93fd-73877b97df32', 'NZ329J3W', 1, 'PENDIENTE', '2026-05-03 18:28:32.000000'),
+(130, b'0', '2026-05-03 19:07:57.000000', 2, 'cb9fd0b7-4110-4c07-a034-8373d9429be6', 'WM82MVXN', 1, 'INDIVIDUAL', '2026-05-03 19:13:42.000000'),
+(131, b'1', '2026-05-03 19:13:58.000000', 2, 'a11ac97b-9b02-4a40-a1c5-f676f91fed46', 'DDKACTRW', 1, 'PENDIENTE', '2026-05-03 19:21:50.000000');
 
 --
 -- Índices para tablas volcadas
@@ -626,6 +732,13 @@ ALTER TABLE `carta`
 ALTER TABLE `cobro_persona`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK97xtv7c62x5fcgy2jsijpgtk0` (`servicio_id`);
+
+--
+-- Indices de la tabla `comensal`
+--
+ALTER TABLE `comensal`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK8q4o710p2gd91pwdcqj4xsaq7` (`sesion_mesa_id`);
 
 --
 -- Indices de la tabla `configuracion_restaurante`
@@ -649,6 +762,14 @@ ALTER TABLE `item_seccion`
   ADD KEY `fk_item_plato` (`plato_id`);
 
 --
+-- Indices de la tabla `llamada_camarero`
+--
+ALTER TABLE `llamada_camarero`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FKhfu6vutg50gardss5lkvfei6a` (`servicio_id`),
+  ADD KEY `FKpue4yh4aubjgcd20iqbn9yh4m` (`sesion_mesa_id`);
+
+--
 -- Indices de la tabla `menu`
 --
 ALTER TABLE `menu`
@@ -669,7 +790,8 @@ ALTER TABLE `menu_plato`
 ALTER TABLE `pedido`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_pedido_plato` (`plato_id`),
-  ADD KEY `fk_pedido_servicio` (`servicio_id`);
+  ADD KEY `fk_pedido_servicio` (`servicio_id`),
+  ADD KEY `FKoni5hawlh0vbpvhl7hsyyhs9x` (`comensal_id`);
 
 --
 -- Indices de la tabla `plato`
@@ -724,7 +846,13 @@ ALTER TABLE `carta`
 -- AUTO_INCREMENT de la tabla `cobro_persona`
 --
 ALTER TABLE `cobro_persona`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+
+--
+-- AUTO_INCREMENT de la tabla `comensal`
+--
+ALTER TABLE `comensal`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `configuracion_restaurante`
@@ -736,7 +864,7 @@ ALTER TABLE `configuracion_restaurante`
 -- AUTO_INCREMENT de la tabla `empleado`
 --
 ALTER TABLE `empleado`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `item_seccion`
@@ -745,22 +873,28 @@ ALTER TABLE `item_seccion`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
+-- AUTO_INCREMENT de la tabla `llamada_camarero`
+--
+ALTER TABLE `llamada_camarero`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `menu`
 --
 ALTER TABLE `menu`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `menu_plato`
 --
 ALTER TABLE `menu_plato`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=148;
 
 --
 -- AUTO_INCREMENT de la tabla `pedido`
 --
 ALTER TABLE `pedido`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=202;
 
 --
 -- AUTO_INCREMENT de la tabla `plato`
@@ -772,13 +906,13 @@ ALTER TABLE `plato`
 -- AUTO_INCREMENT de la tabla `producto`
 --
 ALTER TABLE `producto`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedor`
 --
 ALTER TABLE `proveedor`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `seccion_carta`
@@ -790,13 +924,13 @@ ALTER TABLE `seccion_carta`
 -- AUTO_INCREMENT de la tabla `servicio`
 --
 ALTER TABLE `servicio`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT de la tabla `sesion_mesa`
 --
 ALTER TABLE `sesion_mesa`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=132;
 
 --
 -- Restricciones para tablas volcadas
@@ -809,11 +943,24 @@ ALTER TABLE `cobro_persona`
   ADD CONSTRAINT `FK97xtv7c62x5fcgy2jsijpgtk0` FOREIGN KEY (`servicio_id`) REFERENCES `servicio` (`id`);
 
 --
+-- Filtros para la tabla `comensal`
+--
+ALTER TABLE `comensal`
+  ADD CONSTRAINT `FK8q4o710p2gd91pwdcqj4xsaq7` FOREIGN KEY (`sesion_mesa_id`) REFERENCES `sesion_mesa` (`id`);
+
+--
 -- Filtros para la tabla `item_seccion`
 --
 ALTER TABLE `item_seccion`
   ADD CONSTRAINT `fk_item_plato` FOREIGN KEY (`plato_id`) REFERENCES `plato` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_item_seccion` FOREIGN KEY (`seccion_id`) REFERENCES `seccion_carta` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `llamada_camarero`
+--
+ALTER TABLE `llamada_camarero`
+  ADD CONSTRAINT `FKhfu6vutg50gardss5lkvfei6a` FOREIGN KEY (`servicio_id`) REFERENCES `servicio` (`id`),
+  ADD CONSTRAINT `FKpue4yh4aubjgcd20iqbn9yh4m` FOREIGN KEY (`sesion_mesa_id`) REFERENCES `sesion_mesa` (`id`);
 
 --
 -- Filtros para la tabla `menu_plato`
@@ -826,6 +973,7 @@ ALTER TABLE `menu_plato`
 -- Filtros para la tabla `pedido`
 --
 ALTER TABLE `pedido`
+  ADD CONSTRAINT `FKoni5hawlh0vbpvhl7hsyyhs9x` FOREIGN KEY (`comensal_id`) REFERENCES `comensal` (`id`),
   ADD CONSTRAINT `fk_pedido_plato` FOREIGN KEY (`plato_id`) REFERENCES `plato` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_pedido_servicio` FOREIGN KEY (`servicio_id`) REFERENCES `servicio` (`id`) ON DELETE CASCADE;
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.gestionqr.backend.model.Pedido;
 import com.gestionqr.backend.model.Pedido.EstadoPedido;
@@ -12,8 +13,6 @@ import com.gestionqr.backend.model.Servicio.EstadoCobro;
 import com.gestionqr.backend.model.Servicio.EstadoServicio;
 import com.gestionqr.backend.model.repository.PedidoRepository;
 import com.gestionqr.backend.model.repository.ServicioRepository;
-import com.gestionqr.backend.service.SesionMesaService;
-import com.gestionqr.backend.service.ServicioService;
 
 @Service
 public class PedidoService {
@@ -38,6 +37,7 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
+    @Transactional
     public Pedido siguienteEstado(Long id) {
 
         Pedido pedido = pedidoRepository.findById(id)
