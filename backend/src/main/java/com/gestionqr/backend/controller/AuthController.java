@@ -1,37 +1,24 @@
 package com.gestionqr.backend.controller;
 
-import com.gestionqr.backend.model.Empleado;
-import com.gestionqr.backend.model.repository.EmpleadoRepository;
-
+import com.gestionqr.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
-    private EmpleadoRepository empleadoRepository;
+    private AuthService authService;
 
-    /**
-     * Devuelve los datos del empleado autenticado.
-     * Accesible por cualquier rol (GERENTE, CAMARERO, COCINERO).
-     */
     @GetMapping("/me")
     public ResponseEntity<?> me(Authentication authentication) {
-        String email = authentication.getName();
-        Optional<Empleado> emp = empleadoRepository.findByEmail(email);
-        if (emp.isEmpty()) {
+        try {
+            return ResponseEntity.ok(authService.obtenerEmpleadoAutenticado(authentication.getName()));
+        } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
-        Empleado e = emp.get();
-        // Nunca devolver la contraseña hasheada al frontend
-        e.setContraseña(null);
-        return ResponseEntity.ok(e);
     }
 }
-
