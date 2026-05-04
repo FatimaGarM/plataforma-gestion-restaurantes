@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect } from "react";
+import { jsPDF } from "jspdf";
 import {
     Smartphone, UtensilsCrossed, ClipboardList, Clock, ChefHat,
     CheckCircle2, ConciergeBell, Users, CreditCard, Banknote,
@@ -85,6 +86,12 @@ export default function CartaCliente() {
     const [solicitandoCobro, setSolicitandoCobro] = useState(false);
     const [descargandoTicket, setDescargandoTicket] = useState(false);
 
+    /* menu del dia */
+    const [menuHoy, setMenuHoy] = useState(null);
+
+    /* menu del dia - seleccion por categoria */
+    const [seleccionMenu, setSeleccionMenu] = useState({});
+
     /* idioma carta */
     const [idioma, setIdioma] = useState("es");
 
@@ -96,6 +103,7 @@ export default function CartaCliente() {
     const [codigoMesaActual, setCodigoMesaActual] = useState("");
     const [modoMesa, setModoMesa] = useState(null);
     const [personaId, setPersonaId] = useState(null);
+    const [comensalesMap, setComensalesMap] = useState({});
     const keySesion = `sesion_mesa_${mesa}`;
     const keyCodigo = `codigo_mesa_${mesa}`;
     const keyPersona = `persona_mesa_${mesa}`;
@@ -121,6 +129,7 @@ export default function CartaCliente() {
         localStorage.removeItem(keyPersona);
         setCodigoMesaActual("");
         setPersonaId(null);
+        setComensalesMap({});
     }
 
     async function solicitarNuevaPersona(tokenSesion) {
@@ -132,6 +141,19 @@ export default function CartaCliente() {
         if (!pr.ok) return null;
         const pd = await pr.json().catch(() => ({}));
         return pd?.personaId ? String(pd.personaId) : null;
+    }
+
+    async function obtenerOCrearComensal(tokenSesion, numero) {
+        try {
+            const res = await fetch("/publica/comensales", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: tokenSesion, numero })
+            });
+            if (!res.ok) return null;
+            const d = await res.json();
+            return d.id || null;
+        } catch { return null; }
     }
 
     async function cargarResumen(tokenSesion, personaActual = personaId) {
@@ -162,7 +184,7 @@ export default function CartaCliente() {
             });
             if (!res.ok) {
                 const d = await res.json().catch(() => ({}));
-                throw new Error(d.error || "No se pudo solicitar el cobro.");
+                throw new Error(d.error || `Error ${res.status}`);
             }
             await cargarResumen(token, personaId);
             mostrarToast(idioma === "en" ? "Payment requested." : "Cobro solicitado al camarero.", "ok");
@@ -178,19 +200,84 @@ export default function CartaCliente() {
         setDescargandoTicket(true);
         try {
             const qsPersona = personaId ? `&persona=${encodeURIComponent(personaId)}` : "";
-            const res = await fetch(`/publica/ticket?token=${encodeURIComponent(token)}${qsPersona}`);
-            if (!res.ok) {
-                const texto = await res.text();
-                throw new Error(texto || "No se pudo generar el ticket.");
+            const res = await fetch(`/publica/resumen?token=${encodeURIComponent(token)}${qsPersona}`);
+            if (!res.ok) throw new Error("No se pudo obtener los datos del ticket.");
+            const datos = await res.json();
+
+            const nombre = config?.nombreRestaurante || "Restaurante";
+            const metodo = datos.metodoPagoSolicitado || "Sin solicitar";
+            const ahora = new Date();
+            const fecha = ahora.toLocaleDateString("es-ES") + "  " + ahora.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+
+            const doc = new jsPDF({ unit: "mm", format: "a5", orientation: "portrait" });
+            const PW = 148, M = 14, CW = PW - 2 * M;
+            let y = 16;
+
+            const linea = (yy, dashed = false) => {
+                doc.setLineWidth(dashed ? 0.2 : 0.4);
+                if (dashed) doc.setLineDashPattern([1.5, 1], 0);
+                doc.line(M, yy, PW - M, yy);
+                if (dashed) doc.setLineDashPattern([], 0);
+            };
+
+            // Cabecera
+            doc.setFont("helvetica", "bold"); doc.setFontSize(18);
+            doc.text(nombre, PW / 2, y, { align: "center" }); y += 6;
+            doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(90);
+            doc.text(`Mesa ${mesa}   |   ${fecha}   |   Pago: ${metodo}`, PW / 2, y, { align: "center" });
+            doc.setTextColor(0); y += 5;
+            linea(y); y += 7;
+
+            // Personas
+            for (const grupo of (datos.totalesPorPersona || [])) {
+                doc.setFillColor(235, 235, 235);
+                doc.rect(M, y - 4, CW, 6.5, "F");
+                doc.setFont("helvetica", "bold"); doc.setFontSize(10);
+                doc.text(`Persona ${grupo.persona}${grupo.cobrado ? "  (Cobrado)" : ""}`, M + 2, y);
+                y += 6;
+
+                const items = grupo.items || [];
+                if (items.length === 0) {
+                    doc.setFont("helvetica", "italic"); doc.setFontSize(9); doc.setTextColor(150);
+                    doc.text("Sin pedidos", M + 2, y); doc.setTextColor(0); y += 5;
+                } else {
+                    doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+                    for (const item of items) {
+                        const etiqueta = item.esMenu ? "[M] " : "[C] ";
+                        doc.text(etiqueta + item.nombre, M + 2, y);
+                        doc.text(parseFloat(item.precio || 0).toFixed(2) + " EUR", PW - M, y, { align: "right" });
+                        y += 5;
+                    }
+                    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(80);
+                    doc.text("Subtotal:", M + 2, y);
+                    doc.text(parseFloat(grupo.total || 0).toFixed(2) + " EUR", PW - M, y, { align: "right" });
+                    doc.setTextColor(0); y += 4;
+                }
+                linea(y, true); y += 6;
             }
-            const html = await res.text();
-            const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-            const url = window.URL.createObjectURL(blob);
-            const enlace = document.createElement("a");
-            enlace.href = url;
-            enlace.download = `ticket-mesa-${mesa}.html`;
-            enlace.click();
-            window.URL.revokeObjectURL(url);
+
+            // Total
+            linea(y); y += 6;
+            if (datos.personaActual != null) {
+                doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+                doc.text("Total mesa:", M + 2, y);
+                doc.text(parseFloat(datos.totalMesa || 0).toFixed(2) + " EUR", PW - M, y, { align: "right" });
+                y += 7;
+                doc.setFont("helvetica", "bold"); doc.setFontSize(14);
+                doc.text("Tu parte:", M + 2, y);
+                doc.text(parseFloat(datos.subtotalPersonaActual || 0).toFixed(2) + " EUR", PW - M, y, { align: "right" });
+            } else {
+                doc.setFont("helvetica", "bold"); doc.setFontSize(14);
+                doc.text("TOTAL:", M + 2, y);
+                doc.text(parseFloat(datos.totalMesa || 0).toFixed(2) + " EUR", PW - M, y, { align: "right" });
+            }
+
+            // Pie
+            y += 10;
+            doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(150);
+            doc.text("Resumen no fiscal  -  Generado por la app", PW / 2, y, { align: "center" });
+
+            doc.save(`ticket-mesa-${mesa}.pdf`);
         } catch (e) {
             mostrarToast(e?.message || "No se pudo descargar el ticket.", "error");
         } finally {
@@ -219,7 +306,7 @@ export default function CartaCliente() {
 
     async function prepararSesionActiva(data, opciones = {}) {
         const { asignarPersonaGrupo = false } = opciones;
-
+        setComensalesMap({});
         setCookie(keySesion, data.token, DURACION_COOKIE_HORAS);
         setRequiereCodigo(false);
         setErrorCodigo("");
@@ -250,10 +337,11 @@ export default function CartaCliente() {
 
     async function iniciar(tokenSesion) {
         try {
-            const [cr, cfr, rc] = await Promise.all([
+            const [cr, cfr, rc, mr] = await Promise.all([
                 fetch("/publica/carta"),
                 fetch("/publica/configuracion"),
-                fetch(`/publica/codigo?token=${encodeURIComponent(tokenSesion)}`)
+                fetch(`/publica/codigo?token=${encodeURIComponent(tokenSesion)}`),
+                fetch("/publica/menu-hoy")
             ]);
 
             if (cr.ok) {
@@ -279,11 +367,17 @@ export default function CartaCliente() {
                 }
             }
 
+            if (mr.ok) {
+                setMenuHoy(await mr.json().catch(() => null));
+            } else {
+                setMenuHoy(null);
+            }
+
             setMesaCerrada(false);
             setVista("bienvenida");
             setToken(tokenSesion);
             await cargarResumen(tokenSesion, localStorage.getItem(keyPersona));
-        } catch {
+        } catch (e) {
             setErrorGlobal("No se pudo conectar con el restaurante.");
         } finally {
             setCargando(false);
@@ -293,6 +387,7 @@ export default function CartaCliente() {
     // Inicializar sesion al montar
     useEffect(() => {
         if (!mesa) { setCargando(false); return; }
+        let cancelled = false;
         setVista("bienvenida");
         const saved = getCookie(keySesion);
 
@@ -310,17 +405,21 @@ export default function CartaCliente() {
             if (saved) {
                 try {
                     await cargarResumen(saved, localStorage.getItem(keyPersona));
+                    if (cancelled) return;
                     if (localStorage.getItem(keyPersona)) {
                         setPersonaId(localStorage.getItem(keyPersona));
                     }
                     await iniciar(saved);
                     return;
                 } catch {
+                    if (cancelled) return;
                     limpiarDatosLocalesMesa();
                 }
             }
 
+            if (cancelled) return;
             const resp = await solicitarSesion(mesa);
+            if (cancelled) return;
             if (!resp.ok) {
                 if (resp.error === "MODO_INDIVIDUAL") {
                     setErrorGlobal("Esta mesa está en modo individual y ya está ocupada por otra persona. No puedes unirte.");
@@ -340,8 +439,11 @@ export default function CartaCliente() {
                 return;
             }
             await prepararSesionActiva(resp.data);
+            if (cancelled) return;
             await iniciar(resp.data.token);
         })();
+
+        return () => { cancelled = true; };
     }, [mesa]);
 
     async function unirseConCodigo() {
@@ -427,15 +529,33 @@ export default function CartaCliente() {
         if (!carrito.length || !token) return;
         setEnviando(true);
         try {
+            const personasUnicas = [...new Set(carrito.map(i =>
+                modoMesa === "GRUPO" ? Number(personaId || 1) : i.persona
+            ))];
+            const mapActualizado = { ...comensalesMap };
+            for (const num of personasUnicas) {
+                if (!mapActualizado[num]) {
+                    const cid = await obtenerOCrearComensal(token, num);
+                    if (cid) mapActualizado[num] = cid;
+                }
+            }
+            setComensalesMap(mapActualizado);
+
             const res = await fetch("/publica/pedidos", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    token, 
-                    items: carrito.map(i => ({
-                        platoId: i.plato.id,
-                        persona: modoMesa === "GRUPO" ? Number(personaId || 1) : i.persona
-                    }))
+                body: JSON.stringify({
+                    token,
+                    items: carrito.map(i => {
+                        const personaNum = modoMesa === "GRUPO" ? Number(personaId || 1) : i.persona;
+                        return {
+                            platoId: i.plato.id,
+                            persona: personaNum,
+                            comensalId: mapActualizado[personaNum] || undefined,
+                            precio: i.plato.precio,
+                            esMenu: i.esMenu || false
+                        };
+                    })
                 }),
             });
             if (res.ok) {
@@ -452,6 +572,13 @@ export default function CartaCliente() {
                     mostrarToast("La mesa fue cerrada. Escanea el QR para iniciar nueva sesion.", "error");
                     return;
                 }
+                if (res.status === 409) {
+                    const d = await res.json().catch(() => ({}));
+                    if (d.error === "MENU_YA_PEDIDO") {
+                        mostrarToast(idioma === "en" ? "This person already has a menu." : "Este comensal ya tiene un menu.", "error");
+                        return;
+                    }
+                }
                 const d = await res.json().catch(() => ({}));
                 mostrarToast(d.error || "Error al enviar.", "error");
             }
@@ -465,6 +592,13 @@ export default function CartaCliente() {
     const totalCarrito  = carrito.reduce((s, i) => s + Number(i.plato.precio), 0);
     const idiomasDisponibles = (config?.idiomaCarta || "es").split(",").map(s => s.trim()).filter(Boolean);
     const mostrarSelectorIdioma = idiomasDisponibles.length > 1;
+
+    const personaParaMenuCheck = modoMesa === "GRUPO" ? Number(personaId || 1) : 1;
+    const menuYaPedido =
+        carrito.some(item => item.esMenu && item.persona === personaParaMenuCheck) ||
+        (resumenMesa?.pedidos || []).some(
+            p => p.esMenu && p.estado !== "Cancelado" && p.persona === personaParaMenuCheck
+        );
 
     function nombrePlato(plato)  { return (idioma === "en" && plato.nombreEn)  || plato.nombre; }
     function descPlato(plato)    { return (idioma === "en" && plato.descripcionEn) || plato.descripcion; }
@@ -536,6 +670,12 @@ export default function CartaCliente() {
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-8 text-center">
             <div className="mb-4 text-amber-500"><AlertTriangle size={48} /></div>
             <p className="text-gray-700">{errorGlobal}</p>
+            <button
+                onClick={() => { limpiarDatosLocalesMesa(); window.location.reload(); }}
+                className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm"
+            >
+                Reintentar
+            </button>
         </div>
     );
 
@@ -637,15 +777,23 @@ export default function CartaCliente() {
                         <UtensilsCrossed size={20} />
                         {idioma === "en" ? "View menu" : "Ver la carta"}
                     </button>
-                    <button disabled
-                        className="py-4 rounded-2xl font-semibold text-base bg-white/15 text-white/50 cursor-not-allowed flex flex-col items-center backdrop-blur-sm border border-white/10">
-                        <span className="flex items-center gap-2"><ClipboardList size={20} />
+                    {menuHoy ? (
+                        <button onClick={() => setVista("menu")}
+                            className="py-4 rounded-2xl font-semibold text-base shadow-xl transition active:scale-95 flex items-center justify-center gap-2 backdrop-blur-sm bg-white/20 text-white border border-white/30">
+                            <ClipboardList size={20} />
                             {idioma === "en" ? "Daily menu" : "Menu del dia"}
-                        </span>
-                        <span className="block text-xs font-normal mt-0.5 opacity-60">
-                            {idioma === "en" ? "Coming soon" : "Proximamente"}
-                        </span>
-                    </button>
+                        </button>
+                    ) : (
+                        <button disabled
+                            className="py-4 rounded-2xl font-semibold text-base bg-white/15 text-white/50 cursor-not-allowed flex flex-col items-center backdrop-blur-sm border border-white/10">
+                            <span className="flex items-center gap-2"><ClipboardList size={20} />
+                                {idioma === "en" ? "Daily menu" : "Menu del dia"}
+                            </span>
+                            <span className="block text-xs font-normal mt-0.5 opacity-60">
+                                {idioma === "en" ? "Not available today" : "No disponible hoy"}
+                            </span>
+                        </button>
+                    )}
                 </div>
 
                 {listosBadge > 0 && (
@@ -816,10 +964,11 @@ export default function CartaCliente() {
                                 <div key={p.id} className="bg-white rounded-xl shadow-sm border border-gray-100 flex items-center gap-3 px-4 py-3">
                                     <span className={`p-1.5 rounded-lg ${info.color}`}>{info.icono}</span>
                                     <div className="flex-1">
-                                        <p className="font-medium text-sm text-gray-800">
-                                            {p.plato?.nombre}
-                                            <span className="ml-2 text-xs text-amber-600 font-bold">P{personaPedido}</span>
-                                        </p>
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            <p className="font-medium text-sm text-gray-800">{p.plato?.nombre}</p>
+                                            {p.esMenu && <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">Menú</span>}
+                                            <span className="text-xs text-amber-600 font-bold">P{personaPedido}</span>
+                                        </div>
                                         <p className="text-xs text-gray-400 mt-0.5">{tiempoDesc(p.fechaHora, idioma)}</p>
                                     </div>
                                     <span className={`text-xs font-semibold px-2 py-1 rounded-lg ${info.color}`}>
@@ -834,7 +983,259 @@ export default function CartaCliente() {
         </div>
     );
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    /* ════════════════════════════════════════
+       VISTA: MENU DEL DIA
+    ════════════════════════════════════════ */
+    const TIPO_LABEL = { PRIMERO: { es: 'Primeros', en: 'Starters' }, SEGUNDO: { es: 'Segundos', en: 'Mains' }, POSTRE: { es: 'Postres', en: 'Desserts' }, BEBIDA: { es: 'Bebidas', en: 'Drinks' } };
+    const TIPO_ORDEN = ['PRIMERO', 'SEGUNDO', 'POSTRE', 'BEBIDA'];
+
+    if (vista === 'menu' && menuHoy) {
+        const grupos = TIPO_ORDEN.reduce((acc, tipo) => {
+            const items = (menuHoy.items || []).filter(i => i.tipoPlato === tipo);
+            if (items.length) acc.push({ tipo, items });
+            return acc;
+        }, []);
+        const diasES = { Lunes:'Lunes', Martes:'Martes', Miercoles:'Miercoles', Jueves:'Jueves', Viernes:'Viernes', Sabado:'Sabado', Domingo:'Domingo' };
+        const diasEN = { Lunes:'Monday', Martes:'Tuesday', Miercoles:'Wednesday', Jueves:'Thursday', Viernes:'Friday', Sabado:'Saturday', Domingo:'Sunday' };
+        const nombreDia = idioma === 'en' ? (diasEN[menuHoy.dia] || menuHoy.dia) : (diasES[menuHoy.dia] || menuHoy.dia);
+
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <div className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+                    <button onClick={() => setVista('bienvenida')} className="text-gray-500 hover:text-gray-800 transition">
+                        <ArrowLeft size={20} />
+                    </button>
+                    <div className="flex-1">
+                        <p className="text-xs text-gray-400">{idioma === 'en' ? 'Table' : 'Mesa'} {mesa}</p>
+                        <h1 className="font-semibold text-sm text-gray-800">
+                            {idioma === 'en' ? `${nombreDia}'s menu` : `Menu del ${nombreDia}`}
+                        </h1>
+                    </div>
+                    <button onClick={() => setVista('pedidos')}
+                        className="relative flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 transition">
+                        <ClipboardList size={14} /> {idioma === 'en' ? 'My orders' : 'Mis pedidos'}
+                        {listosBadge > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 bg-emerald-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                                {listosBadge}
+                            </span>
+                        )}
+                    </button>
+                </div>
+
+                {mostrarSelectorIdioma && (
+                    <div className="bg-white border-b border-gray-100 px-4 py-2 flex gap-2">
+                        {idiomasDisponibles.map(lang => (
+                            <button key={lang} onClick={() => setIdioma(lang)}
+                                className={`px-3 py-1 rounded-lg text-xs font-medium transition ${idioma === lang ? 'text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                                style={idioma === lang ? { backgroundColor: primary } : {}}>
+                                {lang === 'es' ? 'ES • Espanol' : 'EN • English'}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                <div className="max-w-lg mx-auto px-3 py-4 pb-44">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 mb-4 flex items-center justify-between">
+                        <p className="text-sm text-gray-500">{idioma === 'en' ? 'Menu price' : 'Precio del menu'}</p>
+                        <p className="text-xl font-bold" style={{ color: primary }}>{Number(menuHoy.precio).toFixed(2)} €</p>
+                    </div>
+                    {grupos.map(({ tipo, items }) => (
+                        <div key={tipo} className="mb-4">
+                            <p className="px-4 py-2 rounded-xl font-semibold text-sm text-white mb-1" style={{ backgroundColor: primary }}>
+                                {idioma === 'en' ? TIPO_LABEL[tipo]?.en : TIPO_LABEL[tipo]?.es}
+                                <span className="ml-2 font-normal text-xs opacity-80">
+                                    {idioma === 'en' ? '— choose one' : '— elige uno'}
+                                </span>
+                            </p>
+                            <div className="space-y-2">
+                                {items.map(item => {
+                                    const plato = item.plato;
+                                    if (!plato) return null;
+                                    const seleccionado = seleccionMenu[tipo]?.id === plato.id;
+                                    return (
+                                        <div key={item.id}
+                                            onClick={() => setSeleccionMenu(prev => ({ ...prev, [tipo]: plato }))}
+                                            className={`rounded-xl border-2 flex items-center gap-3 px-3 py-2 cursor-pointer transition ${seleccionado ? 'border-emerald-500 bg-emerald-50' : 'border-gray-100 bg-white hover:shadow-md'}`}>
+                                            {plato.imagen && (
+                                                <img src={`/uploads/FotoPlatos/${plato.imagen}`}
+                                                    className="w-16 h-16 rounded-lg object-cover shrink-0" alt={plato.nombre} />
+                                            )}
+                                            <div className="flex-1 min-w-0">
+                                                <p className={`font-medium text-sm truncate ${seleccionado ? 'text-emerald-700' : 'text-gray-800'}`}>
+                                                    {(idioma === 'en' && plato.nombreEn) || plato.nombre}
+                                                </p>
+                                                {((idioma === 'en' && plato.descripcionEn) || plato.descripcion) && (
+                                                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                                                        {(idioma === 'en' && plato.descripcionEn) || plato.descripcion}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <div className={`shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition ${seleccionado ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'}`}>
+                                                {seleccionado && <CheckCircle2 size={16} className="text-white" />}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-xl px-4 py-3 z-40">
+                    <div className="max-w-lg mx-auto">
+                        {Object.keys(seleccionMenu).length > 0 && (
+                            <div className="flex items-center justify-between mb-2">
+                                <p className="text-xs text-gray-500">
+                                    {Object.keys(seleccionMenu).length}/{grupos.length} {idioma === 'en' ? 'chosen' : 'elegidas'}
+                                </p>
+                                <p className="text-sm font-bold" style={{ color: primary }}>{Number(menuHoy.precio).toFixed(2)} €</p>
+                            </div>
+                        )}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    const precioPorPlato = menuHoy.precio / grupos.length;
+                                    const persona = modoMesa === 'GRUPO' ? Number(personaId || 1) : 1;
+                                    Object.values(seleccionMenu).forEach(plato =>
+                                        setCarrito(prev => [...prev, { plato: { ...plato, precio: precioPorPlato }, persona, esMenu: true }])
+                                    );
+                                    setSeleccionMenu({});
+                                }}
+                                disabled={Object.keys(seleccionMenu).length < grupos.length || menuYaPedido}
+                                className={`flex-1 py-2.5 rounded-xl text-white font-semibold text-sm transition flex items-center justify-center gap-2 ${Object.keys(seleccionMenu).length < grupos.length || menuYaPedido ? 'bg-gray-300 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'}`}>
+                                <Plus size={16} />
+                                {menuYaPedido
+                                    ? (idioma === 'en' ? 'Menu already ordered' : 'Ya tienes un menú')
+                                    : Object.keys(seleccionMenu).length < grupos.length
+                                        ? (idioma === 'en' ? `Choose all (${Object.keys(seleccionMenu).length}/${grupos.length})` : `Elige todas (${Object.keys(seleccionMenu).length}/${grupos.length})`)
+                                        : (idioma === 'en'
+                                            ? `Add menu · ${Number(menuHoy.precio).toFixed(2)}€`
+                                            : `Añadir menú · ${Number(menuHoy.precio).toFixed(2)}€`)
+                                }
+                            </button>
+                            {carrito.length > 0 && (
+                                <button onClick={() => setCheckout(true)}
+                                    className="px-4 py-2.5 rounded-xl text-white font-semibold text-sm transition flex items-center gap-1.5"
+                                    style={{ backgroundColor: secondary }}>
+                                    <ShoppingCart size={16} /> {carrito.length}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {checkout && (
+                    <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center">
+                        <div className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
+                            <div className="flex items-center justify-between px-5 py-4 border-b sticky top-0 bg-white z-10">
+                                <h2 className="font-bold text-gray-800 text-base">{idioma === 'en' ? 'Confirm order' : 'Confirmar pedido'}</h2>
+                                <button onClick={() => setCheckout(false)} className="text-gray-400 hover:text-gray-600 transition"><X size={20} /></button>
+                            </div>
+                            <div className="px-5 py-4 space-y-6">
+                                {modoMesa !== 'GRUPO' && (
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2"><Users size={16} /> {idioma === 'en' ? 'How many people are paying?' : 'Cuantas personas pagais?'}</p>
+                                        <div className="flex items-center gap-3">
+                                            <button onClick={() => setNPersonas(p => Math.max(1, p - 1))} className="w-9 h-9 rounded-full border border-gray-300 font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center"><Minus size={16} /></button>
+                                            <span className="text-xl font-bold w-6 text-center">{nPersonas}</span>
+                                            <button onClick={() => setNPersonas(p => Math.min(8, p + 1))} className="w-9 h-9 rounded-full border border-gray-300 font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center"><Plus size={16} /></button>
+                                            <span className="text-sm text-gray-500">{nPersonas === 1 ? (idioma === 'en' ? 'Single payment' : 'Pago unico') : (idioma === 'en' ? `${nPersonas} people` : `${nPersonas} personas`)}</span>
+                                        </div>
+                                    </div>
+                                )}
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+                                        <UtensilsCrossed size={16} /> {idioma === 'en' ? 'Your order' : 'Tu pedido'}
+                                        {nPersonas > 1 && <span className="text-xs font-normal text-gray-400 ml-1">{idioma === 'en' ? 'Tap the color button to assign person' : 'Toca el boton de color para asignar persona'}</span>}
+                                    </p>
+                                    <div className="space-y-2">
+                                        {carrito.map((item, i) => (
+                                            <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <p className="text-sm font-medium text-gray-800">{item.plato.nombre}</p>
+                                                        {item.esMenu && <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">Menú</span>}
+                                                    </div>
+                                                    <p className="text-xs text-gray-500">{Number(item.plato.precio).toFixed(2)} €</p>
+                                                </div>
+                                                {nPersonas > 1 && modoMesa !== 'GRUPO' && (
+                                                    <button onClick={() => ciclarPersona(i)}
+                                                        className="text-white text-xs font-bold px-2.5 py-1 rounded-full"
+                                                        style={{ backgroundColor: PERSONA_COLORES[(item.persona - 1) % PERSONA_COLORES.length] }}>
+                                                        P{item.persona}
+                                                    </button>
+                                                )}
+                                                <button onClick={() => quitar(i)} className="text-gray-300 hover:text-red-400 transition"><X size={14} /></button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                {nPersonas > 1 && modoMesa !== 'GRUPO' && (
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-700 mb-2">{idioma === 'en' ? 'Total per person' : 'Total por persona'}</p>
+                                        <div className="space-y-2">
+                                            {Object.entries(totalesPorPersona()).map(([p, data]) => (
+                                                <div key={p} className="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="w-6 h-6 rounded-full text-white text-xs font-bold flex items-center justify-center"
+                                                            style={{ backgroundColor: PERSONA_COLORES[(Number(p) - 1) % PERSONA_COLORES.length] }}>
+                                                            P{p}
+                                                        </span>
+                                                        <span className="text-xs text-gray-500 truncate max-w-[160px]">
+                                                            {data.items.length === 0 ? (idioma === 'en' ? 'Unassigned' : 'Sin asignar') : data.items.map(pl => pl.nombre).join(', ')}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-sm font-bold text-gray-800 shrink-0">{data.total.toFixed(2)} €</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="flex justify-between items-center border-t pt-4">
+                                    <p className="font-semibold text-gray-700">Total</p>
+                                    <p className="text-xl font-bold" style={{ color: primary }}>{totalCarrito.toFixed(2)} €</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                        <CreditCard size={16} /> {idioma === 'en' ? 'How would you like to pay?' : 'Como quereis pagar?'}
+                                    </p>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {[
+                                            { val: 'metalico', icono: <Banknote size={28} />, label: idioma === 'en' ? 'Cash' : 'Metalico' },
+                                            { val: 'tarjeta',  icono: <CreditCard size={28} />, label: idioma === 'en' ? 'Card' : 'Tarjeta' },
+                                            { val: 'bizum',    icono: <Smartphone size={28} />, label: 'Bizum' },
+                                        ].map(op => (
+                                            <button key={op.val} onClick={() => setMetodoPago(op.val)}
+                                                className={`flex flex-col items-center py-4 rounded-xl border-2 text-sm font-medium transition ${metodoPago === op.val ? 'bg-amber-500 border-amber-500 text-white' : 'border-gray-200 text-gray-600 hover:border-amber-300 hover:bg-amber-50'}`}>
+                                                <span className="mb-1">{op.icono}</span>
+                                                {op.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-2 text-center">{idioma === 'en' ? 'A waiter will come to take payment shortly.' : 'El camarero/a pasara a cobrar en breve.'}</p>
+                                </div>
+                            </div>
+                            <div className="px-5 pb-6 pt-3 border-t sticky bottom-0 bg-white">
+                                <button onClick={confirmarPedido} disabled={enviando || carrito.length === 0}
+                                    className={`w-full py-3 rounded-xl text-white font-bold text-sm transition flex items-center justify-center gap-2 ${enviando || carrito.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'}`}>
+                                    {enviando ? <><Loader2 size={16} className="animate-spin" /> {idioma === 'en' ? 'Sending...' : 'Enviando...'}</> : (idioma === 'en' ? `Send order · ${totalCarrito.toFixed(2)} €` : `Enviar pedido · ${totalCarrito.toFixed(2)} €`)}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {toast && (
+                    <div className={`fixed top-4 left-1/2 -translate-x-1/2 text-white text-sm px-6 py-3 rounded-xl shadow-lg z-50 flex items-center gap-2 ${toast.tipo === 'ok' ? 'bg-emerald-600' : 'bg-red-600'}`}>
+                        {toast.tipo === 'ok' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+                        {toast.msg}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    /*â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        VISTA: CARTA
     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
     return (
@@ -937,7 +1338,8 @@ export default function CartaCliente() {
                         <div className="flex flex-wrap gap-1 mb-3 max-h-16 overflow-y-auto">
                             {carrito.map((item, i) => (
                                 <span key={i} onClick={() => quitar(i)}
-                                    className="text-xs bg-gray-100 rounded-full px-3 py-1 cursor-pointer hover:bg-red-100 hover:text-red-600 transition flex items-center gap-1">
+                                    className={`text-xs rounded-full px-3 py-1 cursor-pointer hover:bg-red-100 hover:text-red-600 transition flex items-center gap-1 ${item.esMenu ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100'}`}>
+                                    {item.esMenu && <span className="font-bold text-emerald-600">M·</span>}
                                     {item.plato.nombre} <X size={10} />
                                 </span>
                             ))}
@@ -993,7 +1395,10 @@ export default function CartaCliente() {
                                     {carrito.map((item, i) => (
                                         <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2">
                                             <div className="flex-1">
-                                                <p className="text-sm font-medium text-gray-800">{item.plato.nombre}</p>
+                                                <div className="flex items-center gap-1.5">
+                                                    <p className="text-sm font-medium text-gray-800">{item.plato.nombre}</p>
+                                                    {item.esMenu && <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">Menú</span>}
+                                                </div>
                                                 <p className="text-xs text-gray-500">{Number(item.plato.precio).toFixed(2)} €</p>
                                             </div>
                                             {nPersonas > 1 && modoMesa !== "GRUPO" && (

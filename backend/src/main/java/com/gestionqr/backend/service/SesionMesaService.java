@@ -3,6 +3,7 @@ package com.gestionqr.backend.service;
 import com.gestionqr.backend.model.SesionMesa;
 import com.gestionqr.backend.model.repository.SesionMesaRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -160,6 +161,19 @@ public class SesionMesaService {
             sb.append(ALFABETO_SEGURO.charAt(idx));
         }
         return sb.toString();
+    }
+
+    // Cada día a las 4:00 AM cierra las sesiones activas de días anteriores
+    @Scheduled(cron = "0 0 4 * * *")
+    @Transactional
+    public void cerrarSesionesAnteriores() {
+        LocalDateTime inicioDiaActual = LocalDateTime.now().toLocalDate().atStartOfDay();
+        repo.findAllByActivaTrue().stream()
+                .filter(s -> s.getCreadoEn() != null && s.getCreadoEn().isBefore(inicioDiaActual))
+                .forEach(s -> {
+                    s.setActiva(false);
+                    repo.save(s);
+                });
     }
 
     private boolean estaInactiva(SesionMesa sesion) {

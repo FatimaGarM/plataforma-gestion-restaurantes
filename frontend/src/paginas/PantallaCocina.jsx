@@ -19,7 +19,7 @@ function PantallaCocina() {
       .then(data => {
         setPedidos(data);
       })
-      .catch(() => {});
+      .catch(() => { console.warn("Error al cargar pedidos de cocina"); });
   }
 
   function avanzarEstado(id) {

@@ -4,13 +4,11 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.gestionqr.backend.model.Comensal;
 import com.gestionqr.backend.model.Pedido;
 import com.gestionqr.backend.model.Pedido.EstadoPedido;
 import com.gestionqr.backend.model.Servicio.EstadoServicio;
 
-/**
- * Repositorio para acceder a los pedidos en la base de datos.
- */
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     /**
@@ -31,4 +29,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<Pedido> findByServicioId(Long servicioId);
 
     void deleteByEstadoIn(List<EstadoPedido> estados);
+
+    boolean existsByComensalAndEsMenuTrueAndEstadoIn(Comensal comensal, List<EstadoPedido> estados);
 }

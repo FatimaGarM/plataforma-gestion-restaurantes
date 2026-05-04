@@ -15,7 +15,8 @@ public class Pedido {
 	    Pendiente("Pendiente"),
 	    EnProceso("En proceso"),
 	    Listo("Listo"),
-	    Servido("Servido");
+	    Servido("Servido"),
+	    Cancelado("Cancelado");
 
 	    private final String descripcion;
 
@@ -59,6 +60,16 @@ public class Pedido {
 
     private Integer persona;
 
+    @ManyToOne
+    @JoinColumn(name = "comensal_id")
+    private Comensal comensal;
+
+    @Column(name = "precio_unitario")
+    private double precioUnitario = 0;
+
+    @Column(name = "es_menu")
+    private boolean esMenu = false;
+
     public Pedido() {}
 
     public Pedido(Long id, Plato plato, int mesa, EstadoPedido estado, Servicio servicio) {
@@ -95,6 +106,15 @@ public class Pedido {
 
     public Integer getPersona() { return persona; }
     public void setPersona(Integer persona) { this.persona = persona; }
+
+    public Comensal getComensal() { return comensal; }
+    public void setComensal(Comensal comensal) { this.comensal = comensal; }
+
+    public double getPrecioUnitario() { return precioUnitario; }
+    public void setPrecioUnitario(double precioUnitario) { this.precioUnitario = precioUnitario; }
+
+    public boolean isEsMenu() { return esMenu; }
+    public void setEsMenu(boolean esMenu) { this.esMenu = esMenu; }
 
     @Override
     public String toString() {

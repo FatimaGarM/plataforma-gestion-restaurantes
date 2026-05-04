@@ -7,12 +7,10 @@ import com.gestionqr.backend.model.Servicio;
 import com.gestionqr.backend.model.Servicio.EstadoCobro;
 import com.gestionqr.backend.model.Servicio.EstadoServicio;
 import com.gestionqr.backend.model.Servicio.MetodoPagoSolicitado;
-import com.gestionqr.backend.model.SesionMesa;
 import com.gestionqr.backend.model.repository.PedidoRepository;
 import com.gestionqr.backend.model.repository.PlatoRepository;
 import com.gestionqr.backend.model.repository.ServicioRepository;
-import com.gestionqr.backend.model.repository.SesionMesaRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +30,6 @@ public class ServicioService {
 
     @Autowired
     private PedidoRepository pedidoRepository;
-
-    @Autowired
-    private SesionMesaRepository sesionMesaRepository;
 
     public List<Servicio> obtenerServiciosPorEstado(EstadoServicio estado) {
         return servicioRepository.findByEstado(estado);
@@ -60,35 +55,6 @@ public class ServicioService {
         return servicioRepository.save(servicio);
     }
 
-    @Transactional
-    public Map<String, Object> limpiarDatosActivosPrueba() {
-        List<EstadoPedido> estadosActivos = List.of(EstadoPedido.Pendiente, EstadoPedido.EnProceso, EstadoPedido.Listo);
-
-        List<Pedido> pedidosActivos = pedidoRepository.findByEstadoIn(estadosActivos);
-        int pedidosEliminados = pedidosActivos.size();
-        if (!pedidosActivos.isEmpty()) {
-            pedidoRepository.deleteByEstadoIn(estadosActivos);
-        }
-
-        List<Servicio> serviciosAbiertos = servicioRepository.findByEstado(EstadoServicio.Abierto);
-        int serviciosEliminados = serviciosAbiertos.size();
-        if (!serviciosAbiertos.isEmpty()) {
-            servicioRepository.deleteAll(serviciosAbiertos);
-        }
-
-        List<SesionMesa> sesionesActivas = sesionMesaRepository.findAllByActivaTrue();
-        int sesionesCerradas = sesionesActivas.size();
-        for (SesionMesa sesion : sesionesActivas) {
-            sesion.setActiva(false);
-            sesionMesaRepository.save(sesion);
-        }
-
-        return Map.of(
-                "pedidosEliminados", pedidosEliminados,
-                "serviciosEliminados", serviciosEliminados,
-                "sesionesCerradas", sesionesCerradas
-        );
-    }
 
     public Optional<Servicio> obtenerServicioAbiertoPorMesa(int mesa) {
         cerrarServicioPorInactividad(mesa);
@@ -162,6 +128,7 @@ public class ServicioService {
         return servicioRepository.save(servicio);
     }
 
+    @Transactional(readOnly = true)
     public List<Map<String, Object>> obtenerSolicitudesCobroPendientes() {
         List<Servicio> servicios = servicioRepository.findByEstadoCobroIn(
                 List.of(EstadoCobro.PENDIENTE_COBRO, EstadoCobro.COBRANDO, EstadoCobro.COBRADO_PARCIAL)
@@ -207,7 +174,12 @@ public class ServicioService {
                     item.put("fechaHora", pedido.getFechaHora());
                     item.put("persona", pedido.getPersona() != null ? pedido.getPersona() : 1);
                     item.put("plato", pedido.getPlato());
-                    item.put("importe", pedido.getPlato() != null ? pedido.getPlato().getPrecio() : 0.0);
+                    item.put("esMenu", pedido.isEsMenu());
+                    Double pp = pedido.getPlato() != null ? pedido.getPlato().getPrecio() : null;
+                    double importe = pedido.getPrecioUnitario() > 0
+                            ? pedido.getPrecioUnitario()
+                            : (pp != null ? pp : 0.0);
+                    item.put("importe", importe);
                     return item;
                 })
                 .toList();
@@ -229,13 +201,16 @@ public class ServicioService {
 
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> itemsPersona = (List<Map<String, Object>>) detalle.get("items");
+            Double precioP = pedido.getPlato().getPrecio();
+            double precioPedido = pedido.getPrecioUnitario() > 0 ? pedido.getPrecioUnitario() : (precioP != null ? precioP : 0.0);
             itemsPersona.add(Map.of(
                     "pedidoId", pedido.getId(),
                     "nombre", pedido.getPlato().getNombre(),
-                    "precio", pedido.getPlato().getPrecio(),
-                    "estado", pedido.getEstado()
+                    "precio", precioPedido,
+                    "estado", pedido.getEstado(),
+                    "esMenu", pedido.isEsMenu()
             ));
-            detalle.put("total", (Double) detalle.get("total") + pedido.getPlato().getPrecio());
+            detalle.put("total", (Double) detalle.get("total") + precioPedido);
         }
 
         for (CobroPersona cobroPersona : servicio.getCobrosPersona()) {
@@ -274,49 +249,153 @@ public class ServicioService {
         return resumen;
     }
 
-    public String construirTicketHtml(Servicio servicio, Integer personaActual, boolean incluirDetalleCompleto, String nombreRestaurante) {
-        Map<String, Object> resumen = construirResumenServicio(servicio, personaActual, incluirDetalleCompleto);
+  public String construirTicketHtml(Servicio servicio, Integer personaActual, boolean incluirDetalleCompleto, String nombreRestaurante) {
+
+    Map<String, Object> resumen = construirResumenServicio(servicio, personaActual, incluirDetalleCompleto);
+
+    @SuppressWarnings("unchecked")
+    List<Map<String, Object>> totalesPorPersona =
+            (List<Map<String, Object>>) resumen.get("totalesPorPersona");
+
+    String fecha = LocalDateTime.now()
+            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+    String metodoPago = servicio.getMetodoPagoSolicitado() != null
+            ? servicio.getMetodoPagoSolicitado().toString()
+            : "Sin solicitar";
+
+    StringBuilder html = new StringBuilder();
+
+    html.append("<!doctype html><html><head><meta charset='utf-8'>")
+
+        .append("<style>")
+
+        /* IMPRESIÓN REAL */
+        .append("@page { size: 80mm; margin: 0; }")
+
+        .append("body {")
+        .append("font-family: monospace;")
+        .append("font-size:13px;")
+        .append("margin:0;")
+        .append("padding:6mm;")
+        .append("width:80mm;")
+        .append("color:#000;")
+        .append("}")
+
+        /* CONTENEDOR (evita corte inferior) */
+        .append(".container { padding-bottom:10mm; }")
+
+        /* CABECERA */
+        .append(".center { text-align:center; }")
+        .append(".bold { font-weight:bold; }")
+
+        /* SEPARADORES */
+        .append(".sep {")
+        .append("border-top:1px dashed #000;")
+        .append("margin:6px 0;")
+        .append("}")
+
+        /* LÍNEAS ALINEADAS */
+        .append(".line {")
+        .append("display:flex;")
+        .append("justify-content:space-between;")
+        .append("}")
+
+        .append(".line span:first-child {")
+        .append("max-width:70%;")
+        .append("word-break:break-word;")
+        .append("}")
+
+        /* TOTAL */
+        .append(".total {")
+        .append("font-size:15px;")
+        .append("font-weight:bold;")
+        .append("}")
+
+        /* FOOTER */
+        .append(".footer {")
+        .append("text-align:center;")
+        .append("margin-top:10px;")
+        .append("font-size:11px;")
+        .append("}")
+
+        .append("</style></head><body>")
+        .append("<div class='container'>");
+
+    // CABECERA
+    html.append("<div class='center bold'>")
+        .append(escapeHtml(nombreRestaurante))
+        .append("</div>")
+
+        .append("<div class='center'>Mesa ")
+        .append(servicio.getMesa())
+        .append("</div>")
+
+        .append("<div class='center'>")
+        .append(fecha)
+        .append("</div>")
+
+        .append("<div class='center'>Pago: ")
+        .append(escapeHtml(metodoPago))
+        .append("</div>")
+
+        .append("<div class='sep'></div>");
+
+    // PERSONAS
+    for (Map<String, Object> persona : totalesPorPersona) {
 
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> totalesPorPersona = (List<Map<String, Object>>) resumen.get("totalesPorPersona");
+        List<Map<String, Object>> items =
+                (List<Map<String, Object>>) persona.get("items");
 
-        StringBuilder html = new StringBuilder();
-        html.append("<!doctype html><html><head><meta charset=\"utf-8\">");
-        html.append("<title>Resumen mesa ").append(servicio.getMesa()).append("</title>");
-        html.append("<style>");
-        html.append("body{font-family:Arial,sans-serif;padding:24px;color:#111;}h1,h2{margin:0 0 12px;}table{width:100%;border-collapse:collapse;margin-top:12px;}th,td{border-bottom:1px solid #ddd;padding:8px;text-align:left;}small{color:#666;}");
-        html.append("</style></head><body>");
-        html.append("<h1>").append(escapeHtml(nombreRestaurante)).append("</h1>");
-        html.append("<p><strong>Mesa:</strong> ").append(servicio.getMesa()).append("</p>");
-        html.append("<p><strong>Fecha:</strong> ").append(LocalDateTime.now()).append("</p>");
-        html.append("<p><strong>Metodo de pago:</strong> ").append(servicio.getMetodoPagoSolicitado() != null ? servicio.getMetodoPagoSolicitado() : "Sin solicitar").append("</p>");
-        html.append("<p><strong>Estado de cobro:</strong> ").append(servicio.getEstadoCobro()).append("</p>");
-        html.append("<h2>Detalle</h2>");
-        html.append("<table><thead><tr><th>Persona</th><th>Items</th><th>Total</th><th>Cobrado</th></tr></thead><tbody>");
-        for (Map<String, Object> persona : totalesPorPersona) {
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> items = (List<Map<String, Object>>) persona.get("items");
-            String nombres = items.stream()
-                    .map(item -> escapeHtml(String.valueOf(item.get("nombre"))))
-                    .reduce((a, b) -> a + ", " + b)
-                    .orElse("-");
-            html.append("<tr>")
-                    .append("<td>P").append(persona.get("persona")).append("</td>")
-                    .append("<td>").append(nombres).append("</td>")
-                    .append("<td>").append(String.format(Locale.US, "%.2f", (Double) persona.getOrDefault("total", 0.0))).append(" EUR</td>")
-                    .append("<td>").append(Boolean.TRUE.equals(persona.get("cobrado")) ? "Si" : "No").append("</td>")
-                    .append("</tr>");
+        double totalPersona = persona.get("total") instanceof Number n ? n.doubleValue() : 0.0;
+
+        html.append("<div class='bold'>Persona ")
+            .append(persona.get("persona"))
+            .append("</div>");
+
+        for (Map<String, Object> item : items) {
+
+            String nombre = escapeHtml(String.valueOf(item.get("nombre")));
+            double precio = item.get("precio") instanceof Number n ? n.doubleValue() : 0.0;
+
+            html.append("<div class='line'>")
+                .append("<span>").append(nombre).append("</span>")
+                .append("<span>").append(String.format(Locale.US, "%.2f€", precio)).append("</span>")
+                .append("</div>");
         }
-        html.append("</tbody></table>");
-        html.append("<p><strong>Total mesa:</strong> ").append(String.format(Locale.US, "%.2f", (Double) resumen.get("totalMesa"))).append(" EUR</p>");
-        if (personaActual != null) {
-            html.append("<p><strong>Tu parte:</strong> ").append(String.format(Locale.US, "%.2f", (Double) resumen.get("subtotalPersonaActual"))).append(" EUR</p>");
-        }
-        html.append("<small>Resumen no fiscal generado por la app.</small>");
-        html.append("</body></html>");
-        return html.toString();
+
+        html.append("<div class='sep'></div>");
+
+        html.append("<div class='line bold'>")
+            .append("<span>Subtotal</span>")
+            .append("<span>")
+            .append(String.format(Locale.US, "%.2f€", totalPersona))
+            .append("</span>")
+            .append("</div>");
+
+        html.append("<div class='sep'></div>");
     }
 
+    // TOTAL
+    double totalMesa = (Double) resumen.get("totalMesa");
+
+    html.append("<div class='line total'>")
+        .append("<span>TOTAL</span>")
+        .append("<span>")
+        .append(String.format(Locale.US, "%.2f€", totalMesa))
+        .append("</span>")
+        .append("</div>");
+
+    // FOOTER
+    html.append("<div class='sep'></div>")
+        .append("<div class='footer'>Gracias por su visita</div>")
+        .append("<div class='footer'>Resumen no fiscal</div>");
+
+    html.append("</div></body></html>");
+
+    return html.toString();
+}
     @Transactional
     public void cerrarServicioPorMesa(int mesa) {
         servicioRepository.findByMesaAndEstado(mesa, Servicio.EstadoServicio.Abierto)
@@ -349,7 +428,9 @@ public class ServicioService {
                 continue;
             }
             int persona = pedido.getPersona() != null ? pedido.getPersona() : 1;
-            importesPorPersona.merge(persona, pedido.getPlato().getPrecio(), Double::sum);
+            Double precioPlato = pedido.getPlato().getPrecio();
+            double precioPed = pedido.getPrecioUnitario() > 0 ? pedido.getPrecioUnitario() : (precioPlato != null ? precioPlato : 0.0);
+            if (precioPed > 0) importesPorPersona.merge(persona, precioPed, Double::sum);
         }
 
         Map<Integer, CobroPersona> existentes = new HashMap<>();
@@ -357,7 +438,7 @@ public class ServicioService {
             existentes.put(cobroPersona.getPersona(), cobroPersona);
         }
 
-        List<CobroPersona> nuevosCobros = new ArrayList<>();
+        servicio.getCobrosPersona().clear();
         for (Map.Entry<Integer, Double> entry : importesPorPersona.entrySet()) {
             CobroPersona cobroPersona = existentes.getOrDefault(entry.getKey(), new CobroPersona());
             cobroPersona.setServicio(servicio);
@@ -366,10 +447,8 @@ public class ServicioService {
             if (!cobroPersona.isCobrado()) {
                 cobroPersona.setFechaCobro(null);
             }
-            nuevosCobros.add(cobroPersona);
+            servicio.getCobrosPersona().add(cobroPersona);
         }
-
-        servicio.setCobrosPersona(nuevosCobros);
         actualizarEstadoCobro(servicio);
     }
 

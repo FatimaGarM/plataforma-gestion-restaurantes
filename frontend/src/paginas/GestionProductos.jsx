@@ -6,8 +6,6 @@ import ConfirmacionEliminar from "../componentes/ConfirmacionEliminar";
 import DialogoModal from "../componentes/DialogoModal";
 import deleteIcon from "../assets/iconos/eliminar.png";
 import { useIdioma } from "../context/IdiomaContext";
-import CartaEditor from "../componentes/CartaEditor";
-import MenuEditor from "../componentes/MenuEditor";
 
 function GestionProductos() {
 
@@ -22,7 +20,7 @@ function GestionProductos() {
     const [id, setId] = useState(null);
     const [nombreProducto, setNombreProducto] = useState("");
     const [descripcionProducto, setDescripcionProducto] = useState("");
-    const [proveedorId, setProveedorId] = useState([]);
+    const [proveedorId, setProveedorId] = useState(null);
     const [precio, setPrecio] = useState("");
     const [stock, setStock] = useState(0);
     const [idProveedor, setIdProveedor] = useState(null);
@@ -33,11 +31,8 @@ function GestionProductos() {
     const [productoAEliminar, setProductoAEliminar] = useState(null);
     const [productoEditar, setProductoEditar] = useState(false);
 
-    const [disponible, setDisponible] = useState(true);
-    const [esNovedad, setEsNovedad] = useState(false);
-
     const [busqueda, setBusqueda] = useState("");
-    const { t, idioma } = useIdioma();
+    const { t } = useIdioma();
 
 
     useEffect(() => {
