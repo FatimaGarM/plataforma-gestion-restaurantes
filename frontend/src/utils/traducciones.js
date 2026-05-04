@@ -138,6 +138,9 @@ export const traducciones = {
     "carta.descargarQR": "Descargar QR",
     "carta.imprimirCarta": "Imprimir carta con QR",
     "carta.textoQR": "Este QR permite a los clientes ver la carta, pedir y pagar desde sus móviles sin registrarse ni logearse",
+    //Camarero
+    "cartaCamarero.mensajeSeleccionMesa": "Selecciona el número de mesa para acceder.",
+    "cartaCamarero.seleccionarMesa": "Seleccionar Mesa",
     // Empleados
     "empleados.titulo": "Empleados",
     "empleados.anadir": "Añadir empleado",
@@ -461,6 +464,9 @@ export const traducciones = {
     "carta.eliminar": "Delete",
     "carta.novedad": "New",
     "carta.novedadNoBebida": "Not applicable to drinks",
+    //CAMARERO
+    "cartaCamarero.mensajeSeleccionMesa": "Select table number to access.",
+    "cartaCamarero.seleccionarMesa": "Select Table",
     // Suppliers
     "proveedores.titulo": "Suppliers",
     "proveedores.anadir": "Add supplier",

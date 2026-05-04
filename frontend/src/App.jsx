@@ -15,6 +15,7 @@ import PantallaCocina from "./paginas/PantallaCocina";
 import PantallaCamarero from "./paginas/PantallaCamarero";
 import Configuracion from "./paginas/Configuracion";
 import CartaCliente from "./paginas/CartaCliente";
+import CartaCamarero from "./paginas/CartaCamarero";
 
 function Layout() {
   const location = useLocation();
@@ -160,6 +161,12 @@ function App() {
       <Routes>
         {/* Vista pública del cliente — sin Header ni Sidebar */}
         <Route path="/cliente" element={<CartaCliente />} />
+        {/* Vista para camareros verifica autorización — sin Header ni Sidebar */}
+        <Route path="/carta"  element={
+                localStorage.getItem("auth") && JSON.parse(localStorage.getItem("usuario") || "{}").tipoEmpleado === "CAMARERO"
+                  ? <CartaCamarero />
+                  : <Navigate to="/login" />
+              } />
         {/* Todo lo demás pasa por el Layout con autenticación */}
         <Route path="*" element={<Layout />} />
       </Routes>

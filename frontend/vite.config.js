@@ -7,6 +7,9 @@ export default defineConfig({
   server: {
     host: true,
     allowedHosts: true,
+    hmr: {
+      clientPort: 443
+    },
     proxy: {
       '/empleados': {
         target: 'http://localhost:8080',
@@ -69,7 +72,7 @@ export default defineConfig({
         bypass: (req) => {
           if (req.headers.accept?.includes('text/html')) return '/index.html';
         }
-        },
+      },
       '/productos': {
         target: 'http://localhost:8080',
         changeOrigin: true,

@@ -138,6 +138,10 @@ function Sidebar() {
               <Link to="/pedidos" className={linkClass("/pedidos")}>
                 {t("nav.pedidos")}
               </Link>
+              <Link to="/carta" className={linkClass("/carta")}>
+                {t("nav.carta")}
+              </Link>
+
             </>
           )}
 
