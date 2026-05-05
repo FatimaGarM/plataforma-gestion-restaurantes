@@ -1493,6 +1493,4 @@ export default function CartaCliente() {
             )}
         </div>
     );
-}
-
-
+}   
