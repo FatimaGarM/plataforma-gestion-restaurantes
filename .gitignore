@@ -1,17 +1,27 @@
-# Archivos del sistema operativo
+# Variables de entorno (nunca se suben)
+.env
+.env.*
+!.env.example
+
+# Sistema operativo
 .DS_Store
 Thumbs.db
 
-# Archivos de editores / IDE
+# Editores / IDE
 .vscode/
 .idea/
 
-# Dependencias y compilación de React / Node
+# Node / React
 node_modules/
 dist/
 dist-ssr/
+.vite/
 
-# Archivos generados por Java / Maven
+# Java / Maven
 target/
+bin/
 
-# Las imágenes de uploads están incluidas en el repo como datos preestablecidos
+# Imágenes subidas desde la app (solo se guarda la estructura de carpetas)
+backend/uploads/**
+!backend/uploads/*/
+!backend/uploads/*/.gitkeep
