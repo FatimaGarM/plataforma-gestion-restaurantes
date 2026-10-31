@@ -161,6 +161,18 @@ Cada restaurante puede adaptar la plataforma a su identidad visual mediante la c
 
 ---
 
+## Código fuente e instalación
+
+El código completo del proyecto está en este repositorio:
+
+- `backend/`: API REST con Spring Boot, Spring Security y JPA.
+- `frontend/`: aplicación en React con Vite y Tailwind CSS.
+- `restaurante_qr.sql`: base de datos con datos de ejemplo.
+
+Los pasos para arrancarlo en local (requisitos, variables de entorno, base de datos y usuarios de prueba) están en **[INSTALACION.md](INSTALACION.md)**.
+
+---
+
 ## Desarrollo
 
 Proyecto desarrollado por **Fátima García Muriana** y **Luis Martín Benítez** durante el ciclo formativo de **Desarrollo de Aplicaciones Web (DAW)**.
